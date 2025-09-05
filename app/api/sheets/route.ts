@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { crypto } from "node:crypto"
+import { google } from "googleapis"
 
-const GOOGLE_SHEET_ID = "1YH8S2AQA2qL9GlTYWb4uZEP1bEoEcVIClf"
+const GOOGLE_SHEET_ID = "1YH8S2AQA2qL9GlTYWb4uZEP1bEoEcVIClf-SvUWOLcs"
 const SHEET_NAME = "分類表"
 
 interface LookupData {
@@ -12,96 +12,26 @@ interface LookupData {
   hideCore: string
 }
 
-const createJWT = async (clientEmail: string, privateKey: string): Promise<string> => {
-  const header = {
-    alg: "RS256",
-    typ: "JWT",
+const getGoogleSheetsClient = () => {
+  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY
+
+  if (!clientEmail || !privateKey) {
+    throw new Error("Missing Google service account credentials")
   }
 
-  const now = Math.floor(Date.now() / 1000)
-  const payload = {
-    iss: clientEmail,
-    scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
-    aud: "https://oauth2.googleapis.com/token",
-    exp: now + 3600,
-    iat: now,
-  }
+  // Clean and format the private key
+  const cleanPrivateKey = privateKey.replace(/\\n/g, "\n")
 
-  try {
-    // Clean and format the private key
-    let cleanPrivateKey = privateKey.replace(/\\n/g, "\n")
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: clientEmail,
+      private_key: cleanPrivateKey,
+    },
+    scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+  })
 
-    if (!cleanPrivateKey.includes("-----BEGIN PRIVATE KEY-----")) {
-      cleanPrivateKey = `-----BEGIN PRIVATE KEY-----\n${cleanPrivateKey}\n-----END PRIVATE KEY-----`
-    }
-
-    // Import the private key for signing
-    const keyData = cleanPrivateKey
-      .replace(/-----BEGIN PRIVATE KEY-----/, "")
-      .replace(/-----END PRIVATE KEY-----/, "")
-      .replace(/\s/g, "")
-
-    const binaryKey = Uint8Array.from(atob(keyData), (c) => c.charCodeAt(0))
-
-    const cryptoKey = await crypto.subtle.importKey(
-      "pkcs8",
-      binaryKey,
-      {
-        name: "RSASSA-PKCS1-v1_5",
-        hash: "SHA-256",
-      },
-      false,
-      ["sign"],
-    )
-
-    // Create the unsigned token
-    const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
-    const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
-    const unsignedToken = `${encodedHeader}.${encodedPayload}`
-
-    // Sign the token
-    const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, new TextEncoder().encode(unsignedToken))
-
-    // Encode the signature
-    const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
-      .replace(/=/g, "")
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-
-    return `${unsignedToken}.${encodedSignature}`
-  } catch (error) {
-    console.error("[v0] Error creating JWT:", error)
-    throw error
-  }
-}
-
-const getAccessToken = async (clientEmail: string, privateKey: string): Promise<string> => {
-  try {
-    const jwt = await createJWT(clientEmail, privateKey)
-
-    const response = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        assertion: jwt,
-      }),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("[v0] OAuth error:", errorText)
-      throw new Error(`OAuth failed: ${response.status}`)
-    }
-
-    const data = await response.json()
-    return data.access_token
-  } catch (error) {
-    console.error("[v0] Error getting access token:", error)
-    throw error
-  }
+  return google.sheets({ version: "v4", auth })
 }
 
 const getDummyData = (): LookupData[] => {
@@ -116,6 +46,8 @@ const getDummyData = (): LookupData[] => {
 const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
   try {
     console.log("[v0] Starting Google Sheets API fetch on server")
+    console.log("[v0] Spreadsheet ID:", GOOGLE_SHEET_ID)
+    console.log("[v0] Sheet Name:", SHEET_NAME)
 
     const clientEmail = process.env.GOOGLE_CLIENT_EMAIL
     const privateKey = process.env.GOOGLE_PRIVATE_KEY
@@ -129,27 +61,29 @@ const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
       return getDummyData()
     }
 
-    // Use service account authentication
-    console.log("[v0] Using service account authentication")
-    const accessToken = await getAccessToken(clientEmail, privateKey)
-    console.log("[v0] Successfully obtained access token")
-
-    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${SHEET_NAME}!C22:K45678`
-    const response = await fetch(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    console.log(response)
-    if (!response.ok) {
-      console.error("[v0] API request failed:", response.status, await response.text())
-      throw new Error(`API request failed: ${response.status}`)
+    // Use Google Sheets API client
+    console.log("[v0] Using Google Sheets API client")
+    const sheets = getGoogleSheetsClient()
+    
+    // First, let's try to get the spreadsheet metadata to verify access
+    try {
+      const spreadsheetInfo = await sheets.spreadsheets.get({
+        spreadsheetId: GOOGLE_SHEET_ID,
+      })
+      console.log("[v0] Spreadsheet found:", spreadsheetInfo.data.properties?.title)
+      console.log("[v0] Available sheets:", spreadsheetInfo.data.sheets?.map(s => s.properties?.title))
+    } catch (metaError) {
+      console.error("[v0] Error getting spreadsheet metadata:", metaError)
+      throw new Error(`Cannot access spreadsheet. Please check: 1) Spreadsheet ID is correct, 2) Service account has access to the sheet, 3) Sheet is not deleted. Error: ${metaError}`)
     }
+    
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: GOOGLE_SHEET_ID,
+      range: `${SHEET_NAME}!C22:K45678`,
+    })
 
-    const data = await response.json()
-    console.log("[v0] Authenticated API response received")
-
-    const rows = data.values || []
+    console.log("[v0] Google Sheets API response received")
+    const rows = response.data.values || []
     const lookupData: LookupData[] = []
 
     rows.forEach((row: string[]) => {

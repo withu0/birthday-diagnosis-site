@@ -18,6 +18,36 @@ const calculateAge = (birthDate: string) => {
   return age
 }
 
+// Helper functions to convert codes to Japanese names
+const getColorName = (code: string): string => {
+  const colorMap: { [key: string]: string } = {
+    "R": "レッド",
+    "O": "オレンジ", 
+    "Y": "イエロー",
+    "YG": "イエローグリーン",
+    "G": "グリーン",
+    "BG": "ブルーグリーン",
+    "B": "ブルー",
+    "P": "パープル",
+    "W": "ホワイト",
+    "K": "ブラック",
+    "GY": "グレー"
+  }
+  return colorMap[code] || code
+}
+
+const getCoreName = (code: string): string => {
+  const coreMap: { [key: string]: string } = {
+    "S+": "ストレート",
+    "S-": "ソフト",
+    "T+": "ストレート",
+    "T-": "ソフト",
+    "C+": "カール",
+    "C-": "ウェーブ"
+  }
+  return coreMap[code] || code
+}
+
 const BirthdayDiagnosis = () => {
   const [name, setName] = useState("")
   const [birthDate, setBirthDate] = useState("")
@@ -28,6 +58,22 @@ const BirthdayDiagnosis = () => {
 
   const handleDiagnosis = async () => {
     if (!birthDate || !name) return
+
+    // Validate birth date
+    const date = new Date(birthDate)
+    const today = new Date()
+    if (isNaN(date.getTime())) {
+      alert("有効な生年月日を入力してください")
+      return
+    }
+    if (date > today) {
+      alert("未来の日付は入力できません")
+      return
+    }
+    if (date.getFullYear() < 1900) {
+      alert("1900年以降の生年月日を入力してください")
+      return
+    }
 
     setIsLoading(true)
 
@@ -43,11 +89,17 @@ const BirthdayDiagnosis = () => {
       })
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `API request failed: ${response.status}`)
       }
 
       const diagnosisData = await response.json()
       console.log("[v0] Received diagnosis data:", diagnosisData)
+
+      // Validate the response data
+      if (!diagnosisData.snowColor || !diagnosisData.peachCore || !diagnosisData.surfaceColor || !diagnosisData.hideCore) {
+        throw new Error("Invalid response data from API")
+      }
 
       const date = new Date(birthDate)
       const age = calculateAge(birthDate)
@@ -62,19 +114,19 @@ const BirthdayDiagnosis = () => {
         }),
         snowColor: {
           code: diagnosisData.snowColor,
-          name: diagnosisData.snowColor,
+          name: getColorName(diagnosisData.snowColor),
         },
         peachCore: {
           code: diagnosisData.peachCore,
-          name: diagnosisData.peachCore,
+          name: getCoreName(diagnosisData.peachCore),
         },
         surfaceColor: {
           code: diagnosisData.surfaceColor,
-          name: diagnosisData.surfaceColor,
+          name: getColorName(diagnosisData.surfaceColor),
         },
         hideCore: {
           code: diagnosisData.hideCore,
-          name: diagnosisData.hideCore,
+          name: getCoreName(diagnosisData.hideCore),
         },
         currentYearRhythm: "#N/A",
         nextYearRhythm: "#N/A",
@@ -83,7 +135,7 @@ const BirthdayDiagnosis = () => {
       })
     } catch (error) {
       console.error("[v0] Diagnosis error:", error)
-      alert("Google Sheetsからのデータ取得に失敗しました。ダミーデータで表示します。")
+      alert(`診断中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
 
       const date = new Date(birthDate)
       const age = calculateAge(birthDate)
@@ -177,14 +229,21 @@ const BirthdayDiagnosis = () => {
             <button
               onClick={handleDiagnosis}
               disabled={!birthDate || !name || isLoading}
-              className="w-full text-lg py-6 px-4 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full text-lg py-6 px-4 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative"
               style={{
                 backgroundColor: !birthDate || !name || isLoading ? "#9ca3af" : "#2563eb",
                 color: "#ffffff",
                 border: "none",
               }}
             >
-              {isLoading ? "診断中..." : "診断する"}
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  診断中...
+                </div>
+              ) : (
+                "診断する"
+              )}
             </button>
           </CardContent>
         </Card>
