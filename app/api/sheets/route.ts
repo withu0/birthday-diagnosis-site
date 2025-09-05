@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { crypto } from "node:crypto"
 
 const GOOGLE_SHEET_ID = "1YH8S2AQA2qL9GlTYWb4uZEP1bEoEcVIClf"
 const SHEET_NAME = "分類表"
@@ -26,24 +27,48 @@ const createJWT = async (clientEmail: string, privateKey: string): Promise<strin
     iat: now,
   }
 
-  const encodedHeader = btoa(JSON.stringify(header))
-  const encodedPayload = btoa(JSON.stringify(payload))
-
   try {
-    // Clean the private key
-    const cleanPrivateKey = privateKey
-      .replace(/\\n/g, "\n")
+    // Clean and format the private key
+    let cleanPrivateKey = privateKey.replace(/\\n/g, "\n")
+
+    if (!cleanPrivateKey.includes("-----BEGIN PRIVATE KEY-----")) {
+      cleanPrivateKey = `-----BEGIN PRIVATE KEY-----\n${cleanPrivateKey}\n-----END PRIVATE KEY-----`
+    }
+
+    // Import the private key for signing
+    const keyData = cleanPrivateKey
       .replace(/-----BEGIN PRIVATE KEY-----/, "")
       .replace(/-----END PRIVATE KEY-----/, "")
       .replace(/\s/g, "")
 
-    // For server-side JWT signing, we'll use a simpler approach
-    // In production, you should use a proper JWT library
+    const binaryKey = Uint8Array.from(atob(keyData), (c) => c.charCodeAt(0))
+
+    const cryptoKey = await crypto.subtle.importKey(
+      "pkcs8",
+      binaryKey,
+      {
+        name: "RSASSA-PKCS1-v1_5",
+        hash: "SHA-256",
+      },
+      false,
+      ["sign"],
+    )
+
+    // Create the unsigned token
+    const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
+    const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
     const unsignedToken = `${encodedHeader}.${encodedPayload}`
 
-    // For now, return the unsigned token as the Google API might accept it
-    // In production, implement proper RSA signing
-    return unsignedToken
+    // Sign the token
+    const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, new TextEncoder().encode(unsignedToken))
+
+    // Encode the signature
+    const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
+      .replace(/=/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+
+    return `${unsignedToken}.${encodedSignature}`
   } catch (error) {
     console.error("[v0] Error creating JWT:", error)
     throw error
@@ -95,6 +120,10 @@ const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
     const clientEmail = process.env.GOOGLE_CLIENT_EMAIL
     const privateKey = process.env.GOOGLE_PRIVATE_KEY
 
+    console.log("[v0] Checking environment variables...")
+    console.log("[v0] GOOGLE_CLIENT_EMAIL exists:", !!clientEmail)
+    console.log("[v0] GOOGLE_PRIVATE_KEY exists:", !!privateKey)
+
     if (!clientEmail || !privateKey) {
       console.log("[v0] Missing service account credentials, using dummy data")
       return getDummyData()
@@ -103,6 +132,7 @@ const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
     // Use service account authentication
     console.log("[v0] Using service account authentication")
     const accessToken = await getAccessToken(clientEmail, privateKey)
+    console.log("[v0] Successfully obtained access token")
 
     const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${SHEET_NAME}!C22:K45678`
     const response = await fetch(apiUrl, {
