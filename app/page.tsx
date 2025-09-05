@@ -5,93 +5,109 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
 
-// ダミー診断データ
-const diagnosisData = {
-  personalities: [
-    {
-      name: "情熱の炎",
-      description:
-        "あなたは燃えるような情熱を持つ人です。困難に立ち向かう勇気と、周りを引っ張るリーダーシップがあります。",
-      traits: ["リーダーシップ", "情熱的", "勇敢", "決断力"],
-      luckyColor: "赤",
-      luckyNumber: 7,
-      compatibility: "水の流れ",
-    },
-    {
-      name: "静寂の月",
-      description: "あなたは静かな知恵を持つ人です。深く考え、周りの人を癒す力があります。直感力に優れています。",
-      traits: ["直感的", "癒し系", "思慮深い", "神秘的"],
-      luckyColor: "銀",
-      luckyNumber: 3,
-      compatibility: "大地の守護者",
-    },
-    {
-      name: "風の旅人",
-      description: "あなたは自由を愛する冒険者です。新しいことに挑戦し、変化を恐れない柔軟性があります。",
-      traits: ["自由奔放", "冒険好き", "柔軟性", "創造的"],
-      luckyColor: "青",
-      luckyNumber: 5,
-      compatibility: "情熱の炎",
-    },
-    {
-      name: "大地の守護者",
-      description: "あなたは安定と信頼の象徴です。周りの人を支え、着実に目標を達成する力があります。",
-      traits: ["安定感", "信頼性", "忍耐力", "責任感"],
-      luckyColor: "緑",
-      luckyNumber: 8,
-      compatibility: "静寂の月",
-    },
-    {
-      name: "水の流れ",
-      description: "あなたは適応力に優れた人です。どんな環境でも自然に馴染み、人との調和を大切にします。",
-      traits: ["適応力", "協調性", "優しさ", "包容力"],
-      luckyColor: "水色",
-      luckyNumber: 2,
-      compatibility: "風の旅人",
-    },
-  ],
-  fortunes: [
-    "今日は新しい出会いがあなたの人生を変えるかもしれません。",
-    "困難な状況も、あなたの持つ力で乗り越えられるでしょう。",
-    "創造性を発揮する絶好のタイミングです。",
-    "人との絆を深める良い機会が訪れます。",
-    "直感を信じて行動すると良い結果が得られるでしょう。",
-  ],
+const calculateAge = (birthDate: string) => {
+  const today = new Date()
+  const birth = new Date(birthDate)
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age
 }
 
-export default function BirthdayDiagnosis() {
+const BirthdayDiagnosis = () => {
+  const [name, setName] = useState("")
   const [birthDate, setBirthDate] = useState("")
   const [result, setResult] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [currentThoughts, setCurrentThoughts] = useState("")
+  const [futureGoals, setFutureGoals] = useState("")
 
-  const handleDiagnosis = () => {
-    if (!birthDate) return
+  const handleDiagnosis = async () => {
+    if (!birthDate || !name) return
 
     setIsLoading(true)
 
-    // 生年月日から診断結果を生成（ダミーロジック）
-    setTimeout(() => {
-      const date = new Date(birthDate)
-      const dayOfYear = Math.floor(
-        (date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24),
-      )
+    try {
+      console.log("[v0] Starting diagnosis for:", name, birthDate)
 
-      const personalityIndex = dayOfYear % diagnosisData.personalities.length
-      const fortuneIndex = (dayOfYear + date.getDate()) % diagnosisData.fortunes.length
+      const response = await fetch("/api/sheets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ birthDate }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`)
+      }
+
+      const diagnosisData = await response.json()
+      console.log("[v0] Received diagnosis data:", diagnosisData)
+
+      const date = new Date(birthDate)
+      const age = calculateAge(birthDate)
 
       setResult({
-        personality: diagnosisData.personalities[personalityIndex],
-        fortune: diagnosisData.fortunes[fortuneIndex],
+        name,
+        age,
         birthDate: date.toLocaleDateString("ja-JP", {
           year: "numeric",
-          month: "long",
+          month: "numeric",
           day: "numeric",
         }),
+        snowColor: {
+          code: diagnosisData.snowColor,
+          name: diagnosisData.snowColor,
+        },
+        peachCore: {
+          code: diagnosisData.peachCore,
+          name: diagnosisData.peachCore,
+        },
+        surfaceColor: {
+          code: diagnosisData.surfaceColor,
+          name: diagnosisData.surfaceColor,
+        },
+        hideCore: {
+          code: diagnosisData.hideCore,
+          name: diagnosisData.hideCore,
+        },
+        currentYearRhythm: "#N/A",
+        nextYearRhythm: "#N/A",
+        todayRhythm: "#N/A",
+        supportColor: "",
       })
+    } catch (error) {
+      console.error("[v0] Diagnosis error:", error)
+      alert("Google Sheetsからのデータ取得に失敗しました。ダミーデータで表示します。")
+
+      const date = new Date(birthDate)
+      const age = calculateAge(birthDate)
+
+      setResult({
+        name,
+        age,
+        birthDate: date.toLocaleDateString("ja-JP", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        }),
+        snowColor: { code: "YG", name: "イエローグリーン" },
+        peachCore: { code: "T+", name: "ストレート" },
+        surfaceColor: { code: "B", name: "ブルー" },
+        hideCore: { code: "T-", name: "ソフト" },
+        currentYearRhythm: "#N/A",
+        nextYearRhythm: "#N/A",
+        todayRhythm: "#N/A",
+        supportColor: "",
+      })
+    } finally {
       setIsLoading(false)
-    }, 1500)
+    }
   }
 
   return (
@@ -99,8 +115,29 @@ export default function BirthdayDiagnosis() {
       {/* ヘッダー */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-center text-primary">✨ 誕生日診断 ✨</h1>
-          <p className="text-center text-muted-foreground mt-2">あなたの生年月日から性格と運勢を診断します</p>
+          <div className="flex justify-center mb-4">
+            <div className="flex space-x-2">
+              {["人", "人", "人", "人", "人"].map((icon, i) => (
+                <span
+                  key={i}
+                  className={`text-2xl font-bold ${
+                    i === 0
+                      ? "text-red-600"
+                      : i === 1
+                        ? "text-orange-600"
+                        : i === 2
+                          ? "text-yellow-600"
+                          : i === 3
+                            ? "text-green-600"
+                            : "text-blue-600"
+                  }`}
+                >
+                  {icon}
+                </span>
+              ))}
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold text-center text-primary">あなたに必要なカラーを診断します</h1>
         </div>
       </header>
 
@@ -108,10 +145,23 @@ export default function BirthdayDiagnosis() {
         {/* 入力セクション */}
         <Card className="mb-8 shadow-lg border-primary/20">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-primary">生年月日を入力してください</CardTitle>
-            <CardDescription>正確な診断のため、生年月日を入力してください</CardDescription>
+            <CardTitle className="text-2xl text-primary">お名前と生年月日を入力してください</CardTitle>
+            <CardDescription>正確な診断のため、お名前と生年月日を入力してください</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-base font-medium">
+                本人氏名
+              </Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="お名前を入力してください"
+                className="text-lg p-3 border-primary/30 focus:border-primary"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="birthdate" className="text-base font-medium">
                 生年月日
@@ -124,81 +174,177 @@ export default function BirthdayDiagnosis() {
                 className="text-lg p-3 border-primary/30 focus:border-primary"
               />
             </div>
-            <Button
+            <button
               onClick={handleDiagnosis}
-              disabled={!birthDate || isLoading}
-              className="w-full text-lg py-6 bg-primary hover:bg-primary/90"
+              disabled={!birthDate || !name || isLoading}
+              className="w-full text-lg py-6 px-4 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: !birthDate || !name || isLoading ? "#9ca3af" : "#2563eb",
+                color: "#ffffff",
+                border: "none",
+              }}
             >
               {isLoading ? "診断中..." : "診断する"}
-            </Button>
+            </button>
           </CardContent>
         </Card>
 
         {/* 結果表示 */}
         {result && (
           <div className="space-y-6 animate-in fade-in duration-700">
-            {/* 基本情報 */}
+            {/* Your Birthday Section */}
             <Card className="shadow-lg border-accent/30">
-              <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10">
-                <CardTitle className="text-xl text-center">{result.birthDate} 生まれのあなた</CardTitle>
-              </CardHeader>
-            </Card>
-
-            {/* 性格診断 */}
-            <Card className="shadow-lg border-secondary/30">
-              <CardHeader>
-                <CardTitle className="text-2xl text-secondary flex items-center gap-2">🌟 あなたの性格タイプ</CardTitle>
-                <CardDescription className="text-lg font-semibold text-primary">
-                  {result.personality.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-lg leading-relaxed">{result.personality.description}</p>
-
-                <div>
-                  <h4 className="font-semibold mb-2 text-foreground">あなたの特徴：</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {result.personality.traits.map((trait: string, index: number) => (
-                      <Badge key={index} variant="secondary" className="text-sm">
-                        {trait}
-                      </Badge>
-                    ))}
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-pink-500 mb-2">Your Birthday</h2>
+                  <div className="text-xl font-semibold border-b-2 border-black inline-block pb-1">
+                    {result.birthDate}
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                  <div className="text-center p-3 bg-muted rounded-lg">
-                    <div className="text-sm text-muted-foreground">ラッキーカラー</div>
-                    <div className="font-semibold text-primary">{result.personality.luckyColor}</div>
-                  </div>
-                  <div className="text-center p-3 bg-muted rounded-lg">
-                    <div className="text-sm text-muted-foreground">ラッキーナンバー</div>
-                    <div className="font-semibold text-primary">{result.personality.luckyNumber}</div>
-                  </div>
-                  <div className="text-center p-3 bg-muted rounded-lg">
-                    <div className="text-sm text-muted-foreground">相性の良いタイプ</div>
-                    <div className="font-semibold text-primary">{result.personality.compatibility}</div>
+                  <div className="mt-4 text-lg">
+                    <span className="font-semibold">{result.name}</span> さん（{result.age}歳）
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 今日の運勢 */}
-            <Card className="shadow-lg border-accent/30">
-              <CardHeader>
-                <CardTitle className="text-2xl text-accent flex items-center gap-2">🔮 今日のメッセージ</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-lg leading-relaxed text-center italic">"{result.fortune}"</p>
+            {/* Heart Diagram Section */}
+            <Card className="shadow-lg">
+              <CardContent className="pt-6">
+                <div className="relative flex justify-center items-center min-h-[300px]">
+                  {/* Heart Shape */}
+                  <div className="relative">
+                    <div className="w-32 h-32 bg-gradient-to-br from-amber-200 to-amber-400 rounded-full relative">
+                      <div className="absolute inset-4 bg-gradient-to-br from-amber-300 to-amber-500 rounded-full">
+                        <div className="absolute inset-4 bg-black rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 bg-white rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Color Labels with Arrows */}
+                  <div className="absolute top-0 left-1/4 text-center">
+                    <div className="text-pink-500 font-semibold">スノウカラー</div>
+                    <div className="text-sm text-gray-600">（本質の色）</div>
+                    <div className="text-xs text-gray-500">あなたの考え方</div>
+                    <div className="text-xs text-gray-500">一人の時のあなた</div>
+                  </div>
+
+                  <div className="absolute top-0 right-1/4 text-center">
+                    <div className="text-blue-500 font-semibold">ピーチコア</div>
+                    <div className="text-sm text-gray-600">（本質の核）</div>
+                    <div className="text-xs text-gray-500">心の奥の部分の個性</div>
+                  </div>
+
+                  <div className="absolute bottom-0 left-1/4 text-center">
+                    <div className="text-pink-500 font-semibold">サーフェイスカラー</div>
+                    <div className="text-sm text-gray-600">（表面の色）</div>
+                    <div className="text-xs text-gray-500">行動パターン</div>
+                    <div className="text-xs text-gray-500">大勢の時のあなた</div>
+                  </div>
+
+                  <div className="absolute bottom-0 right-1/4 text-center">
+                    <div className="text-blue-500 font-semibold">ハイドコア</div>
+                    <div className="text-sm text-gray-600">（隠れた核）</div>
+                    <div className="text-xs text-gray-500">心の奥さらに奥の個性</div>
+                    <div className="text-xs text-gray-500">強いストレス時や</div>
+                    <div className="text-xs text-gray-500">表面時に出やすい</div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            {/* リセットボタン */}
+            <div className="grid grid-cols-4 gap-4">
+              <Card className="text-center p-4">
+                <div className="font-semibold mb-2">スノウカラー</div>
+                <div className="text-3xl font-bold text-green-500 bg-gray-100 p-4 rounded">{result.snowColor.code}</div>
+                <div className="text-sm mt-2">（{result.snowColor.name}）</div>
+              </Card>
+
+              <Card className="text-center p-4">
+                <div className="font-semibold mb-2">ピーチコア</div>
+                <div className="text-3xl font-bold text-orange-600 bg-gray-100 p-4 rounded">
+                  {result.peachCore.code}
+                </div>
+                <div className="text-sm mt-2">（{result.peachCore.name}）</div>
+              </Card>
+
+              <Card className="text-center p-4">
+                <div className="font-semibold mb-2">2025年</div>
+                <div className="text-sm mb-1">今年のリズム</div>
+                <div className="text-lg font-bold bg-gray-100 p-4 rounded">{result.currentYearRhythm || "#N/A"}</div>
+                <div className="text-sm mt-2">#N/A</div>
+              </Card>
+
+              <Card className="text-center p-4">
+                <div className="font-semibold mb-2">2026年</div>
+                <div className="text-sm mb-1">来年のリズム</div>
+                <div className="text-lg font-bold bg-gray-100 p-4 rounded">{result.nextYearRhythm || "#N/A"}</div>
+                <div className="text-sm mt-2">#N/A</div>
+              </Card>
+
+              <Card className="text-center p-4">
+                <div className="font-semibold mb-2">サーフェイスカラー</div>
+                <div className="text-3xl font-bold text-blue-500 bg-gray-100 p-4 rounded">
+                  {result.surfaceColor.code}
+                </div>
+                <div className="text-sm mt-2">（{result.surfaceColor.name}）</div>
+              </Card>
+
+              <Card className="text-center p-4">
+                <div className="font-semibold mb-2">ハイドコア</div>
+                <div className="text-3xl font-bold text-orange-600 bg-gray-100 p-4 rounded">{result.hideCore.code}</div>
+                <div className="text-sm mt-2">（{result.hideCore.name}）</div>
+              </Card>
+
+              <Card className="text-center p-4">
+                <div className="font-semibold mb-2">今日のリズム</div>
+                <div className="text-lg font-bold bg-gray-100 p-4 rounded">{result.todayRhythm || "#N/A"}</div>
+                <div className="text-sm mt-2">#N/A</div>
+              </Card>
+
+              <Card className="text-center p-4 border-blue-500 border-2">
+                <div className="font-semibold mb-2 text-blue-500">サポートカラー</div>
+                <div className="bg-gray-100 p-4 rounded h-16">{result.supportColor}</div>
+              </Card>
+            </div>
+
+            <div className="space-y-4">
+              <Card className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-pink-500">💖</span>
+                  <span className="font-semibold">今の自分で変えたいところはどこですか</span>
+                </div>
+                <Textarea
+                  value={currentThoughts}
+                  onChange={(e) => setCurrentThoughts(e.target.value)}
+                  className="min-h-[80px] resize-none"
+                  placeholder="ここに入力してください..."
+                />
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-pink-500">💖</span>
+                  <span className="font-semibold">将来どんな自分になりたいですか</span>
+                </div>
+                <Textarea
+                  value={futureGoals}
+                  onChange={(e) => setFutureGoals(e.target.value)}
+                  className="min-h-[80px] resize-none"
+                  placeholder="ここに入力してください..."
+                />
+              </Card>
+            </div>
+
             <div className="text-center">
               <Button
                 onClick={() => {
                   setResult(null)
                   setBirthDate("")
+                  setName("")
+                  setCurrentThoughts("")
+                  setFutureGoals("")
                 }}
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
@@ -220,3 +366,5 @@ export default function BirthdayDiagnosis() {
     </div>
   )
 }
+
+export default BirthdayDiagnosis
