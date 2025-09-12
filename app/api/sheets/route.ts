@@ -87,7 +87,7 @@ const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
     const lookupData: LookupData[] = []
 
     rows.forEach((row: string[]) => {
-      if (row.length >= 8 && row[0]) {
+      if (row[0]) {
         lookupData.push({
           birthday: row[0], // Column C
           snowColor: row[1] || "#N/A", // Column D (VLOOKUP column 2)
