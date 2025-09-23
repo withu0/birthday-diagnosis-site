@@ -29,8 +29,9 @@ const formatTextWithLineBreaks = (text: string) => {
   ))
 }
 
-// Interface for the API response
+// Interface for the API response (flattened structure)
 interface DiagnosisResult {
+  // Basic diagnosis results
   essential: string
   essential_lb: string
   attractive: string
@@ -39,55 +40,55 @@ interface DiagnosisResult {
   valuable_lb: string
   problem: string
   problem_lb: string
-  talent: {
-    title: string
-    subtitle: string
-    content: string
-    additionalTitle: string
-    additionalContent: string
-    valuableTitle: string
-    valuableSubtitle: string
-    energyScore: {
-      action: string
-      focus: string
-      stamina: string
-      creative: string
-      influence: string
-      emotional: string
-      recovery: string
-      intuition: string
-      judgment: string
-      adaptability: string
-      total: string
-    }
-  }
-  work: {
-    recommend: string
-    tenConcept: string
-    workContent: string
-  }
-  like: {
-    title: string
-    subtitle: string
-    content: string
-  }
-  impressive: {
-    title: string
-    subtitle: string
-    strong: string
-    likeDislike: string
-  }
-  loveAffair: {
-    content: string
-  }
-  marriage: {
-    content: string
-  }
-  stress: {
-    plus: string
-    minus: string
-    fiveGrowth: string
-  }
+  
+  // Talent section
+  talent_title: string
+  talent_subtitle: string
+  talent_content: string
+  talent_additionalTitle: string
+  talent_additionalContent: string
+  talent_valuableTitle: string
+  talent_valuableSubtitle: string
+  
+  // Energy score
+  energy_action: string
+  energy_focus: string
+  energy_stamina: string
+  energy_creative: string
+  energy_influence: string
+  energy_emotional: string
+  energy_recovery: string
+  energy_intuition: string
+  energy_judgment: string
+  energy_adaptability: string
+  energy_total: string
+  
+  // Work section
+  work_recommend: string
+  work_tenConcept: string
+  work_workContent: string
+  
+  // Like section
+  like_title: string
+  like_subtitle: string
+  like_content: string
+  
+  // Impressive section
+  impressive_title: string
+  impressive_subtitle: string
+  impressive_strong: string
+  impressive_likeDislike: string
+  
+  // Love affair section
+  loveAffair_content: string
+  
+  // Marriage section
+  marriage_content: string
+  
+  // Stress section
+  stress_plus: string
+  stress_minus: string
+  stress_fiveGrowth: string
 }
 
 const BirthdayDiagnosis = () => {
@@ -296,16 +297,16 @@ const BirthdayDiagnosis = () => {
                   <div className="space-y-2">
                     <h3 className="font-bold text-lg">メイン才能</h3>
                     <div className="bg-purple-50 p-4 rounded-lg">
-                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent.title)}</div>
-                      <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent.subtitle)}</div>
-                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent.content)}</div>
+                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent_title)}</div>
+                      <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent_subtitle)}</div>
+                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent_content)}</div>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold text-lg">追加才能</h3>
                     <div className="bg-purple-50 p-4 rounded-lg">
-                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent.additionalTitle)}</div>
-                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent.additionalContent)}</div>
+                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent_additionalTitle)}</div>
+                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent_additionalContent)}</div>
                     </div>
                   </div>
                 </div>
@@ -313,8 +314,8 @@ const BirthdayDiagnosis = () => {
                 <div className="space-y-2">
                   <h3 className="font-bold text-lg">価値観才能</h3>
                   <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent.valuableTitle)}</div>
-                    <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent.valuableSubtitle)}</div>
+                    <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent_valuableTitle)}</div>
+                    <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent_valuableSubtitle)}</div>
                   </div>
                 </div>
 
@@ -322,21 +323,21 @@ const BirthdayDiagnosis = () => {
                 <div className="space-y-2">
                   <h3 className="font-bold text-lg">⚡ エネルギースコア</h3>
                   <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                    {Object.entries(result.talent.energyScore).map(([key, value]) => (
+                    {[
+                      { key: 'action', label: '行動', value: result.energy_action },
+                      { key: 'focus', label: '集中', value: result.energy_focus },
+                      { key: 'stamina', label: '持久力', value: result.energy_stamina },
+                      { key: 'creative', label: '創造性', value: result.energy_creative },
+                      { key: 'influence', label: '影響力', value: result.energy_influence },
+                      { key: 'emotional', label: '感情', value: result.energy_emotional },
+                      { key: 'recovery', label: '回復', value: result.energy_recovery },
+                      { key: 'intuition', label: '直感', value: result.energy_intuition },
+                      { key: 'judgment', label: '判断', value: result.energy_judgment },
+                      { key: 'adaptability', label: '適応', value: result.energy_adaptability },
+                      { key: 'total', label: '総合', value: result.energy_total }
+                    ].map(({ key, label, value }) => (
                       <div key={key} className="bg-gradient-to-br from-yellow-50 to-orange-50 p-3 rounded-lg text-center">
-                        <div className="text-xs font-semibold text-gray-600 mb-1">
-                          {key === 'action' ? '行動' : 
-                           key === 'focus' ? '集中' :
-                           key === 'stamina' ? '持久力' :
-                           key === 'creative' ? '創造性' :
-                           key === 'influence' ? '影響力' :
-                           key === 'emotional' ? '感情' :
-                           key === 'recovery' ? '回復' :
-                           key === 'intuition' ? '直感' :
-                           key === 'judgment' ? '判断' :
-                           key === 'adaptability' ? '適応' :
-                           key === 'total' ? '総合' : key}
-                        </div>
+                        <div className="text-xs font-semibold text-gray-600 mb-1">{label}</div>
                         <div className="text-lg font-bold text-orange-600">{value}</div>
                       </div>
                     ))}
@@ -353,15 +354,15 @@ const BirthdayDiagnosis = () => {
               <CardContent className="space-y-4">
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="font-semibold text-blue-800 mb-2">おすすめ</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work.recommend)}</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work_recommend)}</div>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="font-semibold text-blue-800 mb-2">10のコンセプト</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work.tenConcept)}</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work_tenConcept)}</div>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="font-semibold text-blue-800 mb-2">仕事内容</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work.workContent)}</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work_workContent)}</div>
                 </div>
               </CardContent>
             </Card>
@@ -373,9 +374,9 @@ const BirthdayDiagnosis = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-pink-50 p-4 rounded-lg">
-                  <div className="font-semibold text-pink-800 mb-2">{formatTextWithLineBreaks(result.like.title)}</div>
-                  <div className="text-sm text-pink-600 mb-2">{formatTextWithLineBreaks(result.like.subtitle)}</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.like.content)}</div>
+                  <div className="font-semibold text-pink-800 mb-2">{formatTextWithLineBreaks(result.like_title)}</div>
+                  <div className="text-sm text-pink-600 mb-2">{formatTextWithLineBreaks(result.like_subtitle)}</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.like_content)}</div>
                 </div>
               </CardContent>
             </Card>
@@ -388,13 +389,13 @@ const BirthdayDiagnosis = () => {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="bg-indigo-50 p-4 rounded-lg">
-                    <div className="font-semibold text-indigo-800 mb-2">{formatTextWithLineBreaks(result.impressive.title)}</div>
-                    <div className="text-sm text-indigo-600 mb-2">{formatTextWithLineBreaks(result.impressive.subtitle)}</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive.strong)}</div>
+                    <div className="font-semibold text-indigo-800 mb-2">{formatTextWithLineBreaks(result.impressive_title)}</div>
+                    <div className="text-sm text-indigo-600 mb-2">{formatTextWithLineBreaks(result.impressive_subtitle)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive_strong)}</div>
                   </div>
                   <div className="bg-indigo-50 p-4 rounded-lg">
                     <div className="font-semibold text-indigo-800 mb-2">好き・嫌い</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive.likeDislike)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive_likeDislike)}</div>
                   </div>
                 </div>
               </CardContent>
@@ -408,7 +409,7 @@ const BirthdayDiagnosis = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="bg-red-50 p-4 rounded-lg">
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.loveAffair.content)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.loveAffair_content)}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -419,7 +420,7 @@ const BirthdayDiagnosis = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="bg-rose-50 p-4 rounded-lg">
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.marriage.content)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.marriage_content)}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -434,15 +435,15 @@ const BirthdayDiagnosis = () => {
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="bg-green-50 p-4 rounded-lg">
                     <div className="font-semibold text-green-800 mb-2">プラス</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress.plus)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress_plus)}</div>
                   </div>
                   <div className="bg-red-50 p-4 rounded-lg">
                     <div className="font-semibold text-red-800 mb-2">マイナス</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress.minus)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress_minus)}</div>
                   </div>
                   <div className="bg-yellow-50 p-4 rounded-lg">
                     <div className="font-semibold text-yellow-800 mb-2">5つの成長</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress.fiveGrowth)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress_fiveGrowth)}</div>
                   </div>
                 </div>
               </CardContent>

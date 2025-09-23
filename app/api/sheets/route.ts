@@ -713,6 +713,7 @@ export async function POST(request: NextRequest) {
     console.log("[v0] Returning diagnosis results")
 
     return NextResponse.json({
+      // Basic diagnosis results
       essential,
       essential_lb,
       attractive,
@@ -721,13 +722,55 @@ export async function POST(request: NextRequest) {
       valuable_lb,
       problem,
       problem_lb,
-      talent: talent?.talent,
-      work: talent?.work,
-      like: talent?.like,
-      impressive: talent?.impressive,
-      loveAffair: talent?.loveAffair,
-      marriage: talent?.marriage,
-      stress: talent?.stress,
+      
+      // Talent section
+      talent_title: talent?.talent?.title,
+      talent_subtitle: talent?.talent?.subtitle,
+      talent_content: talent?.talent?.content,
+      talent_additionalTitle: talent?.talent?.additionalTitle,
+      talent_additionalContent: talent?.talent?.additionalContent,
+      talent_valuableTitle: talent?.talent?.valuableTitle,
+      talent_valuableSubtitle: talent?.talent?.valuableSubtitle,
+      
+      // Energy score
+      energy_action: talent?.talent?.energyScore?.action,
+      energy_focus: talent?.talent?.energyScore?.focus,
+      energy_stamina: talent?.talent?.energyScore?.stamina,
+      energy_creative: talent?.talent?.energyScore?.creative,
+      energy_influence: talent?.talent?.energyScore?.influence,
+      energy_emotional: talent?.talent?.energyScore?.emotional,
+      energy_recovery: talent?.talent?.energyScore?.recovery,
+      energy_intuition: talent?.talent?.energyScore?.intuition,
+      energy_judgment: talent?.talent?.energyScore?.judgment,
+      energy_adaptability: talent?.talent?.energyScore?.adaptability,
+      energy_total: talent?.talent?.energyScore?.total,
+      
+      // Work section
+      work_recommend: talent?.work?.recommend,
+      work_tenConcept: talent?.work?.tenConcept,
+      work_workContent: talent?.work?.workContent,
+      
+      // Like section
+      like_title: talent?.like?.title,
+      like_subtitle: talent?.like?.subtitle,
+      like_content: talent?.like?.content,
+      
+      // Impressive section
+      impressive_title: talent?.impressive?.title,
+      impressive_subtitle: talent?.impressive?.subtitle,
+      impressive_strong: talent?.impressive?.strong,
+      impressive_likeDislike: talent?.impressive?.likeDislike,
+      
+      // Love affair section
+      loveAffair_content: talent?.loveAffair?.content,
+      
+      // Marriage section
+      marriage_content: talent?.marriage?.content,
+      
+      // Stress section
+      stress_plus: talent?.stress?.plus,
+      stress_minus: talent?.stress?.minus,
+      stress_fiveGrowth: talent?.stress?.fiveGrowth,
     })
   } catch (error) {
     console.error("[v0] API route error:", error)
