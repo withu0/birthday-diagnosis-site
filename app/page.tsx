@@ -18,40 +18,82 @@ const calculateAge = (birthDate: string) => {
   return age
 }
 
-// Helper functions to convert codes to Japanese names
-const getColorName = (code: string): string => {
-  const colorMap: { [key: string]: string } = {
-    "R": "レッド",
-    "O": "オレンジ", 
-    "Y": "イエロー",
-    "YG": "イエローグリーン",
-    "G": "グリーン",
-    "BG": "ブルーグリーン",
-    "B": "ブルー",
-    "P": "パープル",
-    "W": "ホワイト",
-    "K": "ブラック",
-    "GY": "グレー"
-  }
-  return colorMap[code] || code
+// Helper function to convert line breaks to JSX
+const formatTextWithLineBreaks = (text: string) => {
+  if (!text) return ""
+  return text.split('\n').map((line, index) => (
+    <span key={index}>
+      {line}
+      {index < text.split('\n').length - 1 && <br />}
+    </span>
+  ))
 }
 
-const getCoreName = (code: string): string => {
-  const coreMap: { [key: string]: string } = {
-    "S+": "ストレート",
-    "S-": "ソフト",
-    "T+": "ストレート",
-    "T-": "ソフト",
-    "C+": "カール",
-    "C-": "ウェーブ"
+// Interface for the API response
+interface DiagnosisResult {
+  essential: string
+  essential_lb: string
+  attractive: string
+  attractive_lb: string
+  valuable: string
+  valuable_lb: string
+  problem: string
+  problem_lb: string
+  talent: {
+    title: string
+    subtitle: string
+    content: string
+    additionalTitle: string
+    additionalContent: string
+    valuableTitle: string
+    valuableSubtitle: string
+    energyScore: {
+      action: string
+      focus: string
+      stamina: string
+      creative: string
+      influence: string
+      emotional: string
+      recovery: string
+      intuition: string
+      judgment: string
+      adaptability: string
+      total: string
+    }
   }
-  return coreMap[code] || code
+  work: {
+    recommend: string
+    tenConcept: string
+    workContent: string
+  }
+  like: {
+    title: string
+    subtitle: string
+    content: string
+  }
+  impressive: {
+    title: string
+    subtitle: string
+    strong: string
+    likeDislike: string
+  }
+  loveAffair: {
+    content: string
+  }
+  marriage: {
+    content: string
+  }
+  stress: {
+    plus: string
+    minus: string
+    fiveGrowth: string
+  }
 }
 
 const BirthdayDiagnosis = () => {
   const [name, setName] = useState("")
   const [birthDate, setBirthDate] = useState("")
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<DiagnosisResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [currentThoughts, setCurrentThoughts] = useState("")
   const [futureGoals, setFutureGoals] = useState("")
@@ -93,70 +135,18 @@ const BirthdayDiagnosis = () => {
         throw new Error(errorData.error || `API request failed: ${response.status}`)
       }
 
-      const diagnosisData = await response.json()
+      const diagnosisData: DiagnosisResult = await response.json()
       console.log("[v0] Received diagnosis data:", diagnosisData)
 
       // Validate the response data
-      if (!diagnosisData.snowColor || !diagnosisData.peachCore || !diagnosisData.surfaceColor || !diagnosisData.hideCore) {
+      if (!diagnosisData.essential || !diagnosisData.attractive || !diagnosisData.valuable || !diagnosisData.problem) {
         throw new Error("Invalid response data from API")
       }
 
-      const date = new Date(birthDate)
-      const age = calculateAge(birthDate)
-
-      setResult({
-        name,
-        age,
-        birthDate: date.toLocaleDateString("ja-JP", {
-          year: "numeric",
-          month: "numeric",
-          day: "numeric",
-        }),
-        snowColor: {
-          code: diagnosisData.snowColor,
-          name: getColorName(diagnosisData.snowColor),
-        },
-        peachCore: {
-          code: diagnosisData.peachCore,
-          name: getCoreName(diagnosisData.peachCore),
-        },
-        surfaceColor: {
-          code: diagnosisData.surfaceColor,
-          name: getColorName(diagnosisData.surfaceColor),
-        },
-        hideCore: {
-          code: diagnosisData.hideCore,
-          name: getCoreName(diagnosisData.hideCore),
-        },
-        currentYearRhythm: "#N/A",
-        nextYearRhythm: "#N/A",
-        todayRhythm: "#N/A",
-        supportColor: "",
-      })
+      setResult(diagnosisData)
     } catch (error) {
       console.error("[v0] Diagnosis error:", error)
       alert(`診断中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
-
-      const date = new Date(birthDate)
-      const age = calculateAge(birthDate)
-
-      setResult({
-        name,
-        age,
-        birthDate: date.toLocaleDateString("ja-JP", {
-          year: "numeric",
-          month: "numeric",
-          day: "numeric",
-        }),
-        snowColor: { code: "YG", name: "イエローグリーン" },
-        peachCore: { code: "T+", name: "ストレート" },
-        surfaceColor: { code: "B", name: "ブルー" },
-        hideCore: { code: "T-", name: "ソフト" },
-        currentYearRhythm: "#N/A",
-        nextYearRhythm: "#N/A",
-        todayRhythm: "#N/A",
-        supportColor: "",
-      })
     } finally {
       setIsLoading(false)
     }
@@ -250,124 +240,215 @@ const BirthdayDiagnosis = () => {
 
         {/* 結果表示 */}
         {result && (
-          <div className="space-y-6 animate-in fade-in duration-700">
-            {/* Your Birthday Section */}
-            <Card className="shadow-lg border-accent/30">
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-pink-500 mb-2">Your Birthday</h2>
-                  <div className="text-xl font-semibold border-b-2 border-black inline-block pb-1">
-                    {result.birthDate}
-                  </div>
-                  <div className="mt-4 text-lg">
-                    <span className="font-semibold">{result.name}</span> さん（{result.age}歳）
-                  </div>
-                </div>
-              </CardContent>
+          <div className="space-y-8 animate-in fade-in duration-700">
+            {/* 基本情報 */}
+            <Card className="shadow-lg border-primary/20">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl text-primary">🎂 あなたの誕生日診断結果</CardTitle>
+                <CardDescription className="text-lg">
+                  {name} さん（{calculateAge(birthDate)}歳）の診断結果
+                </CardDescription>
+              </CardHeader>
             </Card>
 
-            {/* Heart Diagram Section */}
-            <Card className="shadow-lg">
-              <CardContent className="pt-6">
-                <div className="relative flex justify-center items-center min-h-[300px]">
-                  {/* Heart Shape */}
-                  <div className="relative">
-                    <div className="w-32 h-32 bg-gradient-to-br from-amber-200 to-amber-400 rounded-full relative">
-                      <div className="absolute inset-4 bg-gradient-to-br from-amber-300 to-amber-500 rounded-full">
-                        <div className="absolute inset-4 bg-black rounded-full flex items-center justify-center">
-                          <div className="w-6 h-6 bg-white rounded-full"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Color Labels with Arrows */}
-                  <div className="absolute top-0 left-1/4 text-center">
-                    <div className="text-pink-500 font-semibold">スノウカラー</div>
-                    <div className="text-sm text-gray-600">（本質の色）</div>
-                    <div className="text-xs text-gray-500">あなたの考え方</div>
-                    <div className="text-xs text-gray-500">一人の時のあなた</div>
-                  </div>
-
-                  <div className="absolute top-0 right-1/4 text-center">
-                    <div className="text-blue-500 font-semibold">ピーチコア</div>
-                    <div className="text-sm text-gray-600">（本質の核）</div>
-                    <div className="text-xs text-gray-500">心の奥の部分の個性</div>
-                  </div>
-
-                  <div className="absolute bottom-0 left-1/4 text-center">
-                    <div className="text-pink-500 font-semibold">サーフェイスカラー</div>
-                    <div className="text-sm text-gray-600">（表面の色）</div>
-                    <div className="text-xs text-gray-500">行動パターン</div>
-                    <div className="text-xs text-gray-500">大勢の時のあなた</div>
-                  </div>
-
-                  <div className="absolute bottom-0 right-1/4 text-center">
-                    <div className="text-blue-500 font-semibold">ハイドコア</div>
-                    <div className="text-sm text-gray-600">（隠れた核）</div>
-                    <div className="text-xs text-gray-500">心の奥さらに奥の個性</div>
-                    <div className="text-xs text-gray-500">強いストレス時や</div>
-                    <div className="text-xs text-gray-500">表面時に出やすい</div>
-                  </div>
+            {/* 基本診断結果 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="text-center p-4 border-2 border-blue-200">
+                <div className="font-bold text-blue-600 mb-2">本質</div>
+                <div className="text-2xl font-bold text-blue-600 bg-blue-50 p-3 rounded">
+                  {result.essential}
                 </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-4 gap-4">
-              <Card className="text-center p-4">
-                <div className="font-semibold mb-2">スノウカラー</div>
-                <div className="text-3xl font-bold text-green-500 bg-gray-100 p-4 rounded">{result.snowColor.code}</div>
-                <div className="text-sm mt-2">（{result.snowColor.name}）</div>
+                <div className="text-sm mt-2 text-gray-600">{result.essential_lb}</div>
               </Card>
 
-              <Card className="text-center p-4">
-                <div className="font-semibold mb-2">ピーチコア</div>
-                <div className="text-3xl font-bold text-orange-600 bg-gray-100 p-4 rounded">
-                  {result.peachCore.code}
+              <Card className="text-center p-4 border-2 border-pink-200">
+                <div className="font-bold text-pink-600 mb-2">魅力的</div>
+                <div className="text-2xl font-bold text-pink-600 bg-pink-50 p-3 rounded">
+                  {result.attractive}
                 </div>
-                <div className="text-sm mt-2">（{result.peachCore.name}）</div>
+                <div className="text-sm mt-2 text-gray-600">{result.attractive_lb}</div>
               </Card>
 
-              <Card className="text-center p-4">
-                <div className="font-semibold mb-2">2025年</div>
-                <div className="text-sm mb-1">今年のリズム</div>
-                <div className="text-lg font-bold bg-gray-100 p-4 rounded">{result.currentYearRhythm || "#N/A"}</div>
-                <div className="text-sm mt-2">#N/A</div>
-              </Card>
-
-              <Card className="text-center p-4">
-                <div className="font-semibold mb-2">2026年</div>
-                <div className="text-sm mb-1">来年のリズム</div>
-                <div className="text-lg font-bold bg-gray-100 p-4 rounded">{result.nextYearRhythm || "#N/A"}</div>
-                <div className="text-sm mt-2">#N/A</div>
-              </Card>
-
-              <Card className="text-center p-4">
-                <div className="font-semibold mb-2">サーフェイスカラー</div>
-                <div className="text-3xl font-bold text-blue-500 bg-gray-100 p-4 rounded">
-                  {result.surfaceColor.code}
+              <Card className="text-center p-4 border-2 border-green-200">
+                <div className="font-bold text-green-600 mb-2">価値観</div>
+                <div className="text-2xl font-bold text-green-600 bg-green-50 p-3 rounded">
+                  {result.valuable}
                 </div>
-                <div className="text-sm mt-2">（{result.surfaceColor.name}）</div>
+                <div className="text-sm mt-2 text-gray-600">{result.valuable_lb}</div>
               </Card>
 
-              <Card className="text-center p-4">
-                <div className="font-semibold mb-2">ハイドコア</div>
-                <div className="text-3xl font-bold text-orange-600 bg-gray-100 p-4 rounded">{result.hideCore.code}</div>
-                <div className="text-sm mt-2">（{result.hideCore.name}）</div>
-              </Card>
-
-              <Card className="text-center p-4">
-                <div className="font-semibold mb-2">今日のリズム</div>
-                <div className="text-lg font-bold bg-gray-100 p-4 rounded">{result.todayRhythm || "#N/A"}</div>
-                <div className="text-sm mt-2">#N/A</div>
-              </Card>
-
-              <Card className="text-center p-4 border-blue-500 border-2">
-                <div className="font-semibold mb-2 text-blue-500">サポートカラー</div>
-                <div className="bg-gray-100 p-4 rounded h-16">{result.supportColor}</div>
+              <Card className="text-center p-4 border-2 border-red-200">
+                <div className="font-bold text-red-600 mb-2">問題</div>
+                <div className="text-2xl font-bold text-red-600 bg-red-50 p-3 rounded">
+                  {result.problem}
+                </div>
+                <div className="text-sm mt-2 text-gray-600">{result.problem_lb}</div>
               </Card>
             </div>
 
+            {/* 才能セクション */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center text-purple-600">🌟 才能・能力</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-lg">メイン才能</h3>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent.title)}</div>
+                      <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent.subtitle)}</div>
+                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent.content)}</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-lg">追加才能</h3>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent.additionalTitle)}</div>
+                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent.additionalContent)}</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-bold text-lg">価値観才能</h3>
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent.valuableTitle)}</div>
+                    <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent.valuableSubtitle)}</div>
+                  </div>
+                </div>
+
+                {/* エネルギースコア */}
+                <div className="space-y-2">
+                  <h3 className="font-bold text-lg">⚡ エネルギースコア</h3>
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                    {Object.entries(result.talent.energyScore).map(([key, value]) => (
+                      <div key={key} className="bg-gradient-to-br from-yellow-50 to-orange-50 p-3 rounded-lg text-center">
+                        <div className="text-xs font-semibold text-gray-600 mb-1">
+                          {key === 'action' ? '行動' : 
+                           key === 'focus' ? '集中' :
+                           key === 'stamina' ? '持久力' :
+                           key === 'creative' ? '創造性' :
+                           key === 'influence' ? '影響力' :
+                           key === 'emotional' ? '感情' :
+                           key === 'recovery' ? '回復' :
+                           key === 'intuition' ? '直感' :
+                           key === 'judgment' ? '判断' :
+                           key === 'adaptability' ? '適応' :
+                           key === 'total' ? '総合' : key}
+                        </div>
+                        <div className="text-lg font-bold text-orange-600">{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 仕事セクション */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center text-blue-600">💼 仕事・キャリア</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="font-semibold text-blue-800 mb-2">おすすめ</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work.recommend)}</div>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="font-semibold text-blue-800 mb-2">10のコンセプト</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work.tenConcept)}</div>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="font-semibold text-blue-800 mb-2">仕事内容</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work.workContent)}</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 好きなものセクション */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center text-pink-600">❤️ 好きなもの</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-pink-50 p-4 rounded-lg">
+                  <div className="font-semibold text-pink-800 mb-2">{formatTextWithLineBreaks(result.like.title)}</div>
+                  <div className="text-sm text-pink-600 mb-2">{formatTextWithLineBreaks(result.like.subtitle)}</div>
+                  <div className="text-gray-700">{formatTextWithLineBreaks(result.like.content)}</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 印象セクション */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center text-indigo-600">✨ 印象・魅力</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-indigo-50 p-4 rounded-lg">
+                    <div className="font-semibold text-indigo-800 mb-2">{formatTextWithLineBreaks(result.impressive.title)}</div>
+                    <div className="text-sm text-indigo-600 mb-2">{formatTextWithLineBreaks(result.impressive.subtitle)}</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive.strong)}</div>
+                  </div>
+                  <div className="bg-indigo-50 p-4 rounded-lg">
+                    <div className="font-semibold text-indigo-800 mb-2">好き・嫌い</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive.likeDislike)}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 恋愛・結婚セクション */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl text-center text-red-600">💕 恋愛</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.loveAffair.content)}</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl text-center text-rose-600">💍 結婚・離婚</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-rose-50 p-4 rounded-lg">
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.marriage.content)}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* ストレスセクション */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center text-orange-600">😰 ストレス・成長</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="font-semibold text-green-800 mb-2">プラス</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress.plus)}</div>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <div className="font-semibold text-red-800 mb-2">マイナス</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress.minus)}</div>
+                  </div>
+                  <div className="bg-yellow-50 p-4 rounded-lg">
+                    <div className="font-semibold text-yellow-800 mb-2">5つの成長</div>
+                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress.fiveGrowth)}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 個人の感想セクション */}
             <div className="space-y-4">
               <Card className="p-4">
                 <div className="flex items-center gap-2 mb-3">
