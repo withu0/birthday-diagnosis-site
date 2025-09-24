@@ -205,15 +205,15 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
       }),
       sheets.spreadsheets.values.get({
         spreadsheetId: GOOGLE_SHEET_ID2,
-        range: "才能!B12:D13",
+        range: "才能!B7:D9",
       }),
       sheets.spreadsheets.values.get({
         spreadsheetId: GOOGLE_SHEET_ID2,
-        range: "才能!B8:K10",
+        range: "価値!B3:K5",
       }),
       sheets.spreadsheets.values.get({
         spreadsheetId: GOOGLE_SHEET_ID2,
-        range: "才能!B18:M29",
+        range: "才能!B13:M24",
       }),
       sheets.spreadsheets.values.get({
         spreadsheetId: GOOGLE_SHEET_ID2,
@@ -330,10 +330,10 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
     const additionalContent = (additionalColumnIndex >= 0 && additionalRows[1] && additionalRows[1][additionalColumnIndex]) 
       ? additionalRows[1][additionalColumnIndex] : ""
     
-    // Find valuable_lb in B10:K10 (row index 2 in valuableRows) and get cells above it
+    // Find valuable_lb in B5:K5 (row index 2 in valuableRows) and get cells above it
     let valuableColumnIndex = -1
-    if (valuableRows.length > 2) { // Make sure we have at least 3 rows (B8:K10)
-      const valuableRow = valuableRows[2] // Row 10 (index 2)
+    if (valuableRows.length > 2) { // Make sure we have at least 3 rows (B3:K5)
+      const valuableRow = valuableRows[2] // Row 5 (index 2)
       for (let colIndex = 0; colIndex < valuableRow.length; colIndex++) {
         const cellValue = valuableRow[colIndex]
         if (cellValue && cellValue === valuable_lb) {
@@ -346,9 +346,9 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
     
     // Get valuable data: 1 above cell (subtitle), 2 above cell (title)
     const valuableTitle = (valuableColumnIndex >= 0 && valuableRows[0] && valuableRows[0][valuableColumnIndex]) 
-      ? valuableRows[0][valuableColumnIndex] : "" // Row 8 (index 0)
+      ? valuableRows[0][valuableColumnIndex] : "" // Row 3 (index 0)
     const valuableSubtitle = (valuableColumnIndex >= 0 && valuableRows[1] && valuableRows[1][valuableColumnIndex]) 
-      ? valuableRows[1][valuableColumnIndex] : "" // Row 9 (index 1)
+      ? valuableRows[1][valuableColumnIndex] : "" // Row 4 (index 1)
     
     // Find energy score data from B18:M29
     let energyMatchingRowIndex = -1
