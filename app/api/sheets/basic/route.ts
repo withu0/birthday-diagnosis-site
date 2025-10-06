@@ -12,6 +12,36 @@ interface LookupData {
   problem: string
 }
 
+// Mapping for essential/attractive values (skin types)
+const essentialAttractiveMapping = {
+  "R": "職人肌",
+  "G": "平和肌",
+  "I": "親分肌",
+  "B": "コミュ肌",
+  "YG": "赤ちゃん肌",
+  "O": "多才肌",
+  "Y": "スマート肌",
+  "M": "ドリーム肌",
+  "RO": "ポジティブ肌",
+  "BG": "姉御肌",
+  "P": "天才肌",
+  "T": "オリジナル肌"
+}
+
+// Mapping for valuable/problem values (element combinations)
+const valuableProblemMapping = {
+  "E+": "金土",
+  "M-": "銀金", 
+  "W+": "金水",
+  "M+": "金金",
+  "E-": "銀土",
+  "W-": "銀水",
+  "T+": "金木",
+  "F-": "銀火",
+  "T-": "銀木",
+  "F+": "金火"
+}
+
 const getGoogleSheetsClient = () => {
   const clientEmail = process.env.GOOGLE_CLIENT_EMAIL
   const privateKey = process.env.GOOGLE_PRIVATE_KEY
@@ -149,13 +179,23 @@ export async function POST(request: NextRequest) {
     const valuable = vlookup(lookupDate, sheetData, "valuable")
     const problem = vlookup(lookupDate, sheetData, "problem")
 
-    console.log("[basic] Returning basic diagnosis results")
+    // Create _lb variables using the mappings
+    const essential_lb = essentialAttractiveMapping[essential as keyof typeof essentialAttractiveMapping] || essential
+    const attractive_lb = essentialAttractiveMapping[attractive as keyof typeof essentialAttractiveMapping] || attractive
+    const valuable_lb = valuableProblemMapping[valuable as keyof typeof valuableProblemMapping] || valuable
+    const problem_lb = valuableProblemMapping[problem as keyof typeof valuableProblemMapping] || problem
+
+    console.log("[basic] Returning basic diagnosis results with mapped values")
 
     return NextResponse.json({
       essential,
+      essential_lb,
       attractive,
+      attractive_lb,
       valuable,
-      problem
+      valuable_lb,
+      problem,
+      problem_lb
     })
   } catch (error) {
     console.error("[basic] API route error:", error)

@@ -101,7 +101,7 @@ const BirthdayDiagnosis = () => {
 
   const handleDiagnosis = async () => {
     if (!birthDate || !name) return
-
+  
     // Validate birth date
     const date = new Date(birthDate)
     const today = new Date()
@@ -117,36 +117,69 @@ const BirthdayDiagnosis = () => {
       alert("1900年以降の生年月日を入力してください")
       return
     }
-
+  
     setIsLoading(true)
-
+    setResult(null) // Clear previous results
+  
     try {
-      console.log("[v0] Starting diagnosis for:", name, birthDate)
-
-      const response = await fetch("/api/sheets", {
+      console.log("[frontend] Starting diagnosis for:", name, birthDate)
+  
+      // Step 1: Fetch basic diagnosis data
+      console.log("[frontend] Fetching basic diagnosis data...")
+      const basicResponse = await fetch("/api/sheets/basic", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ birthDate }),
       })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || `API request failed: ${response.status}`)
+  
+      if (!basicResponse.ok) {
+        const errorData = await basicResponse.json().catch(() => ({}))
+        throw new Error(errorData.error || `Basic API request failed: ${basicResponse.status}`)
       }
-
-      const diagnosisData: DiagnosisResult = await response.json()
-      console.log("[v0] Received diagnosis data:", diagnosisData)
-
-      // Validate the response data
-      if (!diagnosisData.essential || !diagnosisData.attractive || !diagnosisData.valuable || !diagnosisData.problem) {
-        throw new Error("Invalid response data from API")
+  
+      const basicData = await basicResponse.json()
+      console.log("[frontend] Received basic data:", basicData)
+  
+      // Validate basic data
+      if (!basicData.essential || !basicData.attractive || !basicData.valuable || !basicData.problem) {
+        throw new Error("Invalid basic data from API")
       }
-
-      setResult(diagnosisData)
+  
+      // Step 2: Fetch talent data using the mapped values from basic data
+      console.log("[frontend] Fetching talent data...")
+      const talentResponse = await fetch("/api/sheets/talent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          essential_lb: basicData.essential_lb,
+          valuable_lb: basicData.valuable_lb,
+          attractive_lb: basicData.attractive_lb,
+          problem_lb: basicData.problem_lb,
+        }),
+      })
+  
+      if (!talentResponse.ok) {
+        const errorData = await talentResponse.json().catch(() => ({}))
+        throw new Error(errorData.error || `Talent API request failed: ${talentResponse.status}`)
+      }
+  
+      const talentData = await talentResponse.json()
+      console.log("[frontend] Received talent data:", talentData)
+  
+      // Step 3: Combine both results
+      const combinedData: DiagnosisResult = {
+        ...basicData,
+        ...talentData,
+      }
+  
+      console.log("[frontend] Combined diagnosis data:", combinedData)
+      setResult(combinedData)
     } catch (error) {
-      console.error("[v0] Diagnosis error:", error)
+      console.error("[frontend] Diagnosis error:", error)
       alert(`診断中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
     } finally {
       setIsLoading(false)
