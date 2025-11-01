@@ -109,7 +109,7 @@ const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
     
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: GOOGLE_SHEET_ID1,
-      range: `${SHEET_NAME}!C22:K45678`,
+      range: `${SHEET_NAME}!C22:K46100`,
     })
 
     console.log("[basic] Google Sheets API response received")
