@@ -109,10 +109,6 @@ const BirthdayDiagnosis = () => {
       alert("有効な生年月日を入力してください")
       return
     }
-    if (date > today) {
-      alert("未来の日付は入力できません")
-      return
-    }
     if (date.getFullYear() < 1900) {
       alert("1900年以降の生年月日を入力してください")
       return
