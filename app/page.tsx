@@ -1,540 +1,162 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { AuthButton } from "@/components/auth/auth-button"
 
-const calculateAge = (birthDate: string) => {
-  const today = new Date()
-  const birth = new Date(birthDate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
-  }
-  return age
-}
-
-// Helper function to convert line breaks to JSX
-const formatTextWithLineBreaks = (text: string) => {
-  if (!text) return ""
-  return text.split('\n').map((line, index) => (
-    <span key={index}>
-      {line}
-      {index < text.split('\n').length - 1 && <br />}
-    </span>
-  ))
-}
-
-// Interface for the API response (flattened structure)
-interface DiagnosisResult {
-  // Basic diagnosis results
-  essential: string
-  essential_lb: string
-  attractive: string
-  attractive_lb: string
-  valuable: string
-  valuable_lb: string
-  problem: string
-  problem_lb: string
-  
-  // Talent section
-  talent_title: string
-  talent_subtitle: string
-  talent_content: string
-  talent_additionalTitle: string
-  talent_additionalContent: string
-  talent_valuableTitle: string
-  talent_valuableSubtitle: string
-  
-  // Energy score
-  energy_action: string
-  energy_focus: string
-  energy_stamina: string
-  energy_creative: string
-  energy_influence: string
-  energy_emotional: string
-  energy_recovery: string
-  energy_intuition: string
-  energy_judgment: string
-  energy_adaptability: string
-  energy_total: string
-  
-  // Work section
-  work_recommend: string
-  work_tenConcept: string
-  work_workContent: string
-  
-  // Like section
-  like_title: string
-  like_subtitle: string
-  like_content: string
-  
-  // Impressive section
-  impressive_title: string
-  impressive_subtitle: string
-  impressive_strong: string
-  impressive_likeDislike: string
-  
-  // Love affair section
-  loveAffair_content: string
-  
-  // Marriage section
-  marriage_content: string
-  
-  // Stress section
-  stress_plus: string
-  stress_minus: string
-  stress_fiveGrowth: string
-}
-
-const BirthdayDiagnosis = () => {
+export default function Home() {
+  const router = useRouter()
   const [name, setName] = useState("")
   const [birthDate, setBirthDate] = useState("")
-  const [result, setResult] = useState<DiagnosisResult | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentThoughts, setCurrentThoughts] = useState("")
-  const [futureGoals, setFutureGoals] = useState("")
 
-  const handleDiagnosis = async () => {
-    if (!birthDate || !name) return
-  
-    // Validate birth date
-    const date = new Date(birthDate)
-    const today = new Date()
-    if (isNaN(date.getTime())) {
-      alert("有効な生年月日を入力してください")
+  const handleCategoryClick = (category: string) => {
+    if (!name || !birthDate) {
+      alert("お名前と生年月日を入力してください")
       return
     }
-    if (date.getFullYear() < 1900) {
-      alert("1900年以降の生年月日を入力してください")
-      return
-    }
-  
-    setIsLoading(true)
-    setResult(null) // Clear previous results
-  
-    try {
-      console.log("[frontend] Starting diagnosis for:", name, birthDate)
-  
-      // Step 1: Fetch basic diagnosis data
-      console.log("[frontend] Fetching basic diagnosis data...")
-      const basicResponse = await fetch("/api/sheets/basic", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ birthDate }),
-      })
-  
-      if (!basicResponse.ok) {
-        const errorData = await basicResponse.json().catch(() => ({}))
-        throw new Error(errorData.error || `Basic API request failed: ${basicResponse.status}`)
-      }
-  
-      const basicData = await basicResponse.json()
-      console.log("[frontend] Received basic data:", basicData)
-  
-      // Validate basic data
-      if (!basicData.essential || !basicData.attractive || !basicData.valuable || !basicData.problem) {
-        throw new Error("Invalid basic data from API")
-      }
-  
-      // Step 2: Fetch talent data using the mapped values from basic data
-      console.log("[frontend] Fetching talent data...")
-      const talentResponse = await fetch("/api/sheets/talent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          essential_lb: basicData.essential_lb,
-          valuable_lb: basicData.valuable_lb,
-          attractive_lb: basicData.attractive_lb,
-          problem_lb: basicData.problem_lb,
-        }),
-      })
-  
-      if (!talentResponse.ok) {
-        const errorData = await talentResponse.json().catch(() => ({}))
-        throw new Error(errorData.error || `Talent API request failed: ${talentResponse.status}`)
-      }
-  
-      const talentData = await talentResponse.json()
-      console.log("[frontend] Received talent data:", talentData)
-  
-      // Step 3: Combine both results
-      const combinedData: DiagnosisResult = {
-        ...basicData,
-        ...talentData,
-      }
-  
-      console.log("[frontend] Combined diagnosis data:", combinedData)
-      setResult(combinedData)
-    } catch (error) {
-      console.error("[frontend] Diagnosis error:", error)
-      alert(`診断中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
-    } finally {
-      setIsLoading(false)
-    }
+    router.push(`/diagnosis?name=${encodeURIComponent(name)}&birthDate=${encodeURIComponent(birthDate)}&category=${category}`)
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted">
+    <div className="min-h-screen bg-white">
       {/* ヘッダー */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-center mb-4">
-            <div className="flex space-x-2">
-              {["人", "人", "人", "人", "人"].map((icon, i) => (
-                <span
-                  key={i}
-                  className={`text-2xl font-bold ${
-                    i === 0
-                      ? "text-red-600"
-                      : i === 1
-                        ? "text-orange-600"
-                        : i === 2
-                          ? "text-yellow-600"
-                          : i === 3
-                            ? "text-green-600"
-                            : "text-blue-600"
-                  }`}
-                >
-                  {icon}
-                </span>
-              ))}
+      <header className="border-b border-gold/30 bg-white">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <Image
+                src="/brand.avif"
+                alt="12 SKINS"
+                width={120}
+                height={40}
+                className="h-8 w-auto"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="border-silver text-silver-dark text-sm">
+                履歴検索ページ
+              </Button>
+              <Button variant="outline" className="border-silver text-silver-dark text-sm">
+                管理画面
+              </Button>
+              <AuthButton />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-center text-primary">あなたに必要なカラーを診断します</h1>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-4xl">
-        {/* 入力セクション */}
-        <Card className="mb-8 shadow-lg border-primary/20">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-primary">お名前と生年月日を入力してください</CardTitle>
-            <CardDescription>正確な診断のため、お名前と生年月日を入力してください</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {/* メインコンテンツ */}
+      <main className="container mx-auto px-4 py-12 max-w-6xl">
+        {/* ブランドタイトル */}
+        <div className="text-center mb-12">
+          <div className="mb-6">
+            <Image
+              src="/brand.avif"
+              alt="12 SKINS - Your skin, Your story"
+              width={400}
+              height={150}
+              className="mx-auto h-auto w-auto max-w-full"
+              priority
+            />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            肌診断で理想の美しさへ
+          </h1>
+          <p className="text-lg text-gray-600">
+            あなたの生年月日とお名前から、パーソナライズされた美容診断を受けましょう
+          </p>
+        </div>
+
+        {/* 入力セクション（ゴールド背景） */}
+        <Card className="mb-12 gradient-bg-gold border-0 shadow-lg">
+          <CardContent className="p-8">
+            <h2 className="text-2xl font-bold text-center text-white mb-6">
+              診断を開始
+            </h2>
+            <div className="max-w-2xl mx-auto space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-base font-medium">
-                本人氏名
+                  <Label htmlFor="name" className="text-white font-medium">
+                    お名前
               </Label>
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="お名前を入力してください"
-                className="text-lg p-3 border-primary/30 focus:border-primary"
+                    placeholder="山田太郎"
+                    required
+                    className="bg-white border-white text-gray-800"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="birthdate" className="text-base font-medium">
+                  <Label htmlFor="birthDate" className="text-white font-medium">
                 生年月日
               </Label>
               <Input
-                id="birthdate"
+                    id="birthDate"
                 type="date"
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
-                className="text-lg p-3 border-primary/30 focus:border-primary"
+                    required
+                    className="bg-white border-white text-gray-800"
               />
             </div>
-            <button
-              onClick={handleDiagnosis}
-              disabled={!birthDate || !name || isLoading}
-              className="w-full text-lg py-6 px-4 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative"
-              style={{
-                backgroundColor: !birthDate || !name || isLoading ? "#9ca3af" : "#2563eb",
-                color: "#ffffff",
-                border: "none",
-              }}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  診断中...
-                </div>
-              ) : (
-                "診断する"
-              )}
-            </button>
-          </CardContent>
-        </Card>
-
-        {/* 結果表示 */}
-        {result && (
-          <div className="space-y-8 animate-in fade-in duration-700">
-            {/* 基本情報 */}
-            <Card className="shadow-lg border-primary/20">
-              <CardHeader className="text-center">
-                <CardTitle className="text-3xl text-primary">🎂 あなたの誕生日診断結果</CardTitle>
-                <CardDescription className="text-lg">
-                  {name} さん（{calculateAge(birthDate)}歳）の診断結果
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            {/* 基本診断結果 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="text-center p-4 border-2 border-blue-200">
-                <div className="font-bold text-blue-600 mb-2">本質</div>
-                <div className="text-2xl font-bold text-blue-600 bg-blue-50 p-3 rounded">
-                  {result.essential}
-                </div>
-                <div className="text-sm mt-2 text-gray-600">{result.essential_lb}</div>
-              </Card>
-
-              <Card className="text-center p-4 border-2 border-pink-200">
-                <div className="font-bold text-pink-600 mb-2">魅力的</div>
-                <div className="text-2xl font-bold text-pink-600 bg-pink-50 p-3 rounded">
-                  {result.attractive}
-                </div>
-                <div className="text-sm mt-2 text-gray-600">{result.attractive_lb}</div>
-              </Card>
-
-              <Card className="text-center p-4 border-2 border-green-200">
-                <div className="font-bold text-green-600 mb-2">価値観</div>
-                <div className="text-2xl font-bold text-green-600 bg-green-50 p-3 rounded">
-                  {result.valuable}
-                </div>
-                <div className="text-sm mt-2 text-gray-600">{result.valuable_lb}</div>
-              </Card>
-
-              <Card className="text-center p-4 border-2 border-red-200">
-                <div className="font-bold text-red-600 mb-2">問題</div>
-                <div className="text-2xl font-bold text-red-600 bg-red-50 p-3 rounded">
-                  {result.problem}
-                </div>
-                <div className="text-sm mt-2 text-gray-600">{result.problem_lb}</div>
-              </Card>
-            </div>
-
-            {/* 才能セクション */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center text-purple-600">🌟 才能・能力</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-lg">メイン才能</h3>
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent_title)}</div>
-                      <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent_subtitle)}</div>
-                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent_content)}</div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-lg">追加才能</h3>
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent_additionalTitle)}</div>
-                      <div className="text-sm text-gray-600 mt-2">{formatTextWithLineBreaks(result.talent_additionalContent)}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="font-bold text-lg">価値観才能</h3>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="font-semibold text-purple-800">{formatTextWithLineBreaks(result.talent_valuableTitle)}</div>
-                    <div className="text-sm text-purple-600 mt-1">{formatTextWithLineBreaks(result.talent_valuableSubtitle)}</div>
-                  </div>
-                </div>
-
-                {/* エネルギースコア */}
-                <div className="space-y-2">
-                  <h3 className="font-bold text-lg">⚡ エネルギースコア</h3>
-                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                    {[
-                      { key: 'action', label: '行動', value: result.energy_action },
-                      { key: 'focus', label: '集中', value: result.energy_focus },
-                      { key: 'stamina', label: '持久力', value: result.energy_stamina },
-                      { key: 'creative', label: '創造性', value: result.energy_creative },
-                      { key: 'influence', label: '影響力', value: result.energy_influence },
-                      { key: 'emotional', label: '感情', value: result.energy_emotional },
-                      { key: 'recovery', label: '回復', value: result.energy_recovery },
-                      { key: 'intuition', label: '直感', value: result.energy_intuition },
-                      { key: 'judgment', label: '判断', value: result.energy_judgment },
-                      { key: 'adaptability', label: '適応', value: result.energy_adaptability },
-                      { key: 'total', label: '総合', value: result.energy_total }
-                    ].map(({ key, label, value }) => (
-                      <div key={key} className="bg-gradient-to-br from-yellow-50 to-orange-50 p-3 rounded-lg text-center">
-                        <div className="text-xs font-semibold text-gray-600 mb-1">{label}</div>
-                        <div className="text-lg font-bold text-orange-600">{value}</div>
-                      </div>
-                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 仕事セクション */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center text-blue-600">💼 仕事・キャリア</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="font-semibold text-blue-800 mb-2">おすすめ</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work_recommend)}</div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="font-semibold text-blue-800 mb-2">10のコンセプト</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work_tenConcept)}</div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="font-semibold text-blue-800 mb-2">仕事内容</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.work_workContent)}</div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* 診断タイプ選択セクション */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
+            診断タイプを選択してください
+          </h2>
+          <p className="text-center text-gray-600 mb-8 text-sm">
+            見たい項目を押すと、一番上に表示されます
+          </p>
 
-            {/* 好きなものセクション */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center text-pink-600">❤️ 好きなもの</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-pink-50 p-4 rounded-lg">
-                  <div className="font-semibold text-pink-800 mb-2">{formatTextWithLineBreaks(result.like_title)}</div>
-                  <div className="text-sm text-pink-600 mb-2">{formatTextWithLineBreaks(result.like_subtitle)}</div>
-                  <div className="text-gray-700">{formatTextWithLineBreaks(result.like_content)}</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 印象セクション */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center text-indigo-600">✨ 印象・魅力</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-indigo-50 p-4 rounded-lg">
-                    <div className="font-semibold text-indigo-800 mb-2">{formatTextWithLineBreaks(result.impressive_title)}</div>
-                    <div className="text-sm text-indigo-600 mb-2">{formatTextWithLineBreaks(result.impressive_subtitle)}</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive_strong)}</div>
-                  </div>
-                  <div className="bg-indigo-50 p-4 rounded-lg">
-                    <div className="font-semibold text-indigo-800 mb-2">好き・嫌い</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.impressive_likeDislike)}</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 恋愛・結婚セクション */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-xl text-center text-red-600">💕 恋愛</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.loveAffair_content)}</div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-xl text-center text-rose-600">💍 結婚・離婚</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-rose-50 p-4 rounded-lg">
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.marriage_content)}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* ストレスセクション */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center text-orange-600">😰 ストレス・成長</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="font-semibold text-green-800 mb-2">プラス</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress_plus)}</div>
-                  </div>
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <div className="font-semibold text-red-800 mb-2">マイナス</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress_minus)}</div>
-                  </div>
-                  <div className="bg-yellow-50 p-4 rounded-lg">
-                    <div className="font-semibold text-yellow-800 mb-2">5つの成長</div>
-                    <div className="text-gray-700">{formatTextWithLineBreaks(result.stress_fiveGrowth)}</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 個人の感想セクション */}
-            <div className="space-y-4">
-              <Card className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-pink-500">💖</span>
-                  <span className="font-semibold">今の自分で変えたいところはどこですか</span>
-                </div>
-                <Textarea
-                  value={currentThoughts}
-                  onChange={(e) => setCurrentThoughts(e.target.value)}
-                  className="min-h-[80px] resize-none"
-                  placeholder="ここに入力してください..."
-                />
-              </Card>
-
-              <Card className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-pink-500">💖</span>
-                  <span className="font-semibold">将来どんな自分になりたいですか</span>
-                </div>
-                <Textarea
-                  value={futureGoals}
-                  onChange={(e) => setFutureGoals(e.target.value)}
-                  className="min-h-[80px] resize-none"
-                  placeholder="ここに入力してください..."
-                />
-              </Card>
-            </div>
-
-            <div className="text-center">
-              <Button
-                onClick={() => {
-                  setResult(null)
-                  setBirthDate("")
-                  setName("")
-                  setCurrentThoughts("")
-                  setFutureGoals("")
-                }}
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+          {/* 7つの診断ボタン */}
+          <div className="flex flex-wrap justify-center items-center gap-6 max-w-4xl mx-auto">
+            {[
+              { key: "talent", label: "才能", image: "/talent.avif" },
+              { key: "impressive", label: "印象", image: "/impressive.avif" },
+              { key: "work", label: "仕事", image: "/work.avif" },
+              { key: "stress", label: "ストレス", image: "/stress.avif" },
+              { key: "affair", label: "恋愛", image: "/affair.avif" },
+              { key: "marriage", label: "結婚", image: "/marriage.avif" },
+              { key: "like", label: "好き嫌い", image: "/like.avif" },
+            ].map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => handleCategoryClick(item.key)}
+                className="flex flex-col items-center justify-center p-4 rounded-full hover:scale-105 transition-transform flex-[0_0_calc(25%-1.125rem)]"
               >
-                もう一度診断する
-              </Button>
+                <Image
+                  src={item.image}
+                  alt={item.label}
+                  width={100}
+                  height={100}
+                  className="mb-2 w-full h-full object-contain"
+                />
+              </button>
+            ))}
             </div>
           </div>
-        )}
       </main>
 
       {/* フッター */}
-      <footer className="border-t border-border bg-card/50 mt-12">
+      <footer className="border-t border-gold/30 bg-gradient-silver mt-12">
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">© 2024 誕生日診断サイト - あなたの運命を知る旅</p>
-          <p className="text-sm text-muted-foreground mt-2">※ この診断は娯楽目的です</p>
+          <p className="text-silver-dark">© 2024 誕生日診断サイト - あなたの運命を知る旅</p>
+          <p className="text-sm text-silver-dark mt-2">※ この診断は娯楽目的です</p>
         </div>
       </footer>
     </div>
   )
 }
-
-export default BirthdayDiagnosis

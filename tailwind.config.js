@@ -8,18 +8,35 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+        gold: {
+          DEFAULT: '#BE943F',
+          light: '#ECDC88',
+          dark: '#BE943F',
         },
+        silver: {
+          DEFAULT: '#9B9B9B',
+          light: '#FFFFFF',
+          dark: '#9B9B9B',
+        },
+        primary: {
+          DEFAULT: '#BE943F',
+          50: '#fef9e7',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#BE943F',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+        },
+      },
+      backgroundImage: {
+        'gradient-gold': 'linear-gradient(to right, #BE943F, #ECDC88, #BE943F)',
+        'gradient-silver': 'linear-gradient(to right, #9B9B9B, #FFFFFF, #9B9B9B)',
+        'gradient-gold-vertical': 'linear-gradient(to bottom, #BE943F, #ECDC88, #BE943F)',
+        'gradient-silver-vertical': 'linear-gradient(to bottom, #9B9B9B, #FFFFFF, #9B9B9B)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

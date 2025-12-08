@@ -7,7 +7,25 @@
 }
 
 @layer components {
-  .gradient-text {
-    @apply bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent;
+  .gradient-text-gold {
+    background: linear-gradient(to right, #BE943F, #ECDC88, #BE943F);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .gradient-text-silver {
+    background: linear-gradient(to right, #9B9B9B, #FFFFFF, #9B9B9B);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .gradient-bg-gold {
+    background: linear-gradient(to right, #BE943F, #ECDC88, #BE943F);
+  }
+  
+  .gradient-bg-silver {
+    background: linear-gradient(to right, #9B9B9B, #FFFFFF, #9B9B9B);
   }
 }
