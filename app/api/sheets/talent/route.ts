@@ -39,7 +39,7 @@ const getGoogleSheetsClient = () => {
   return google.sheets({ version: "v4", auth })
 }
 
-const fetchTalentData = async (essential_lb: string, valuable_lb: string, attractive_lb: string, problem_lb: string): Promise<{talent: {title: string, subtitle: string, content: string, additionalTitle: string, additionalContent: string, valuableTitle: string, valuableSubtitle: string, energyScore: EnergyScore}, work: {recommend: string, tenConcept: string, workContent: string}, like: {title: string, subtitle: string, content: string}, impressive: {title: string, subtitle: string, strong: string, likeDislike: string}, loveAffair: {content: string}, marriage: {content: string}, stress: {plus: string, minus: string, fiveGrowth: string}} | null> => {
+const fetchTalentData = async (essential_lb: string, valuable_lb: string, attractive_lb: string, problem_lb: string): Promise<{talent: {title: string, subtitle: string, content: string, additionalTitle: string, additionalContent: string, valuableTitle: string, valuableSubtitle: string, energyScore: EnergyScore}, work: {recommend: string, tenConcept: string, workContent: string}, like: {title: string, subtitle: string, content: string}, impressive: {title: string, subtitle: string, strong: string, likeDislike: string}, loveAffair: {content: string}, marriage: {content: string}, stress: {plus: string, minus: string, fiveGrowth: string}, faceMuscle: {value: string}, attractiveValuable: {title: string, content: string}} | null> => {
   try {
     console.log("[talent] Fetching talent data for essential_lb:", essential_lb)
     
@@ -50,8 +50,8 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
 
     const sheets = getGoogleSheetsClient()
     
-    // Fetch data from 才能 tab, range B2:M5, B12:D13 for additional data, B8:K10 for valuable data, B18:M29 for energy score, 仕事 tab data, 好き tab data, 印象 tab data, 恋愛 tab data, 結婚・離婚 tab data, and ストレス tab data
-    const [talentResponse, additionalResponse, valuableResponse, energyResponse, workResponse1, workResponse2, likeResponse, impressiveResponse, liveAffairResponse, marriageResponse, stressResponse] = await Promise.all([
+    // Fetch data from 才能 tab, range B2:M5, B12:D13 for additional data, B8:K10 for valuable data, B18:M29 for energy score, 仕事 tab data, 好き tab data, 印象 tab data, 恋愛 tab data, 結婚・離婚 tab data, ストレス tab data, and 顔の筋肉の癖 tab data
+    const [talentResponse, additionalResponse, valuableResponse, energyResponse, workResponse1, workResponse2, likeResponse, impressiveResponse, liveAffairResponse, marriageResponse, stressResponse, faceMuscleResponse] = await Promise.all([
       sheets.spreadsheets.values.get({
         spreadsheetId: GOOGLE_SHEET_ID2,
         range: "才能!B2:M5",
@@ -95,6 +95,10 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
       sheets.spreadsheets.values.get({
         spreadsheetId: GOOGLE_SHEET_ID2,
         range: "ストレス!C3:L6",
+      }),
+      sheets.spreadsheets.values.get({
+        spreadsheetId: GOOGLE_SHEET_ID2,
+        range: "顔の筋肉の癖!B1:M2",
       })
     ])
 
@@ -110,6 +114,7 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
     const loveAffairRows = liveAffairResponse.data.values || []
     const marriageRows = marriageResponse.data.values || []
     const stressRows = stressResponse.data.values || []
+    const faceMuscleRows = faceMuscleResponse.data.values || []
     
     // Find the row that contains the matching essential_lb with circled number
     let matchingRowIndex = -1
@@ -133,6 +138,22 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
     
     const circledEssential = essentialToCircledMapping[essential_lb]
     console.log("[talent] Looking for circled essential:", circledEssential)
+    
+    // Get value from 顔の筋肉の癖 tab: find circledEssential in row 2 (index 1) and get value from row 1 (index 0) above it
+    let faceMuscleValue = ""
+    if (faceMuscleRows.length > 1) {
+      const faceMuscleRow = faceMuscleRows[1] // Row 2 (index 1)
+      for (let colIndex = 0; colIndex < faceMuscleRow.length; colIndex++) {
+        const cellValue = faceMuscleRow[colIndex]
+        if (cellValue && cellValue === circledEssential) {
+          // Get value from row above (row 1, index 0)
+          faceMuscleValue = (faceMuscleRows[0] && faceMuscleRows[0][colIndex]) 
+            ? faceMuscleRows[0][colIndex] : ""
+          console.log("[talent] Found face muscle matching at column:", colIndex, "value above:", faceMuscleValue)
+          break
+        }
+      }
+    }
     
     for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
       const row = rows[rowIndex]
@@ -202,6 +223,36 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
       ? valuableRows[0][valuableColumnIndex] : "" // Row 3 (index 0)
     const valuableSubtitle = (valuableColumnIndex >= 0 && valuableRows[1] && valuableRows[1][valuableColumnIndex]) 
       ? valuableRows[1][valuableColumnIndex] : "" // Row 4 (index 1)
+    
+    // Find element combination in B5:K5 (row index 2 in valuableRows) and get cells above it
+    // Find one of: 金木, 銀木, 金火, 銀火, 金土, 銀土, 金金, 銀金, 金水, 銀水
+    // Similar to stress tab - search for valuable_lb (which is an element combination like 金木, 銀木, etc.)
+    let attractiveValuableColumnIndex = -1
+    const elementCombinations = ["金木", "銀木", "金火", "銀火", "金土", "銀土", "金金", "銀金", "金水", "銀水"]
+    
+    if (valuableRows.length > 2) { // Make sure we have at least 3 rows (B3:K5)
+      const valuableRow = valuableRows[2] // Row 5 (index 2)
+      for (let colIndex = 0; colIndex < valuableRow.length; colIndex++) {
+        const cellValue = valuableRow[colIndex]
+        // Check if cell value contains valuable_lb (exact match first, then try contains for flexibility)
+        // Also check if cell contains any of the element combinations
+        if (cellValue && (
+          cellValue === valuable_lb || 
+          (typeof cellValue === 'string' && cellValue.includes(valuable_lb)) ||
+          elementCombinations.some(combo => cellValue && typeof cellValue === 'string' && cellValue.includes(combo))
+        )) {
+          attractiveValuableColumnIndex = colIndex
+          console.log("[talent] Found element combination in valuable rows at column:", colIndex, "value:", cellValue, "searching for:", valuable_lb)
+          break
+        }
+      }
+    }
+    
+    // Get attractive valuable data: 1 above cell (content), 2 above cell (title)
+    const attractiveValuableTitle = (attractiveValuableColumnIndex >= 0 && valuableRows[0] && valuableRows[0][attractiveValuableColumnIndex]) 
+      ? valuableRows[0][attractiveValuableColumnIndex] : "" // Row 3 (index 0) - two above
+    const attractiveValuableContent = (attractiveValuableColumnIndex >= 0 && valuableRows[1] && valuableRows[1][attractiveValuableColumnIndex]) 
+      ? valuableRows[1][attractiveValuableColumnIndex] : "" // Row 4 (index 1) - one above
     
     // Find energy score data from B18:M29
     let energyMatchingRowIndex = -1
@@ -493,7 +544,16 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
       fiveGrowth: stressFiveGrowth
     }
     
-    console.log("[talent] Talent data structured:", { title, subtitle, content, additionalTitle, additionalContent, valuableTitle, valuableSubtitle, energyScore, work, like, impressive, loveAffair, marriage, stress })
+    const faceMuscle = {
+      value: faceMuscleValue
+    }
+    
+    const attractiveValuable = {
+      title: attractiveValuableTitle,
+      content: attractiveValuableContent
+    }
+    
+    console.log("[talent] Talent data structured:", { title, subtitle, content, additionalTitle, additionalContent, valuableTitle, valuableSubtitle, energyScore, work, like, impressive, loveAffair, marriage, stress, faceMuscle, attractiveValuable })
     
     return { 
       talent: { title, subtitle, content, additionalTitle, additionalContent, valuableTitle, valuableSubtitle, energyScore },
@@ -502,7 +562,9 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
       impressive,
       loveAffair,
       marriage,
-      stress
+      stress,
+      faceMuscle,
+      attractiveValuable
     }
     
   } catch (error) {
@@ -574,6 +636,13 @@ export async function POST(request: NextRequest) {
       stress_plus: talent?.stress?.plus,
       stress_minus: talent?.stress?.minus,
       stress_fiveGrowth: talent?.stress?.fiveGrowth,
+      
+      // Face muscle section
+      faceMuscle_value: talent?.faceMuscle?.value,
+      
+      // Attractive valuable section
+      attractiveValuable_title: talent?.attractiveValuable?.title,
+      attractiveValuable_content: talent?.attractiveValuable?.content,
     })
   } catch (error) {
     console.error("[talent] API route error:", error)

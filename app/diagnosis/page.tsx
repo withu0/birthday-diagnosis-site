@@ -99,6 +99,13 @@ interface DiagnosisResult {
   stress_plus: string;
   stress_minus: string;
   stress_fiveGrowth: string;
+
+  // Face muscle section
+  faceMuscle_value: string;
+
+  // Attractive valuable section
+  attractiveValuable_title: string;
+  attractiveValuable_content: string;
 }
 
 const BirthdayDiagnosis = () => {
@@ -617,6 +624,49 @@ const BirthdayDiagnosis = () => {
                 </Card>
               );
 
+              const renderFaceMuscleSection = () => (
+                <Card
+                  key="faceMuscle"
+                  className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
+                >
+                  <CardHeader>
+                    <CardTitle className="text-2xl text-center text-gold">
+                      😊 顔の筋肉の癖
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
+                      <div className="text-silver-dark">
+                        {formatTextWithLineBreaks(result.faceMuscle_value)}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+
+              const renderAttractiveValuableSection = () => (
+                <Card
+                  key="attractiveValuable"
+                  className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
+                >
+                  <CardHeader>
+                    <CardTitle className="text-2xl text-center text-silver-dark">
+                      💎 価値観（魅力的）
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
+                      <div className="font-semibold text-silver-dark mb-2">
+                        {formatTextWithLineBreaks(result.attractiveValuable_title)}
+                      </div>
+                      <div className="text-silver-dark mt-2">
+                        {formatTextWithLineBreaks(result.attractiveValuable_content)}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+
               // Order sections based on selected category
               const allSections = [
                 { key: "talent", render: renderTalentSection },
@@ -626,6 +676,8 @@ const BirthdayDiagnosis = () => {
                 { key: "affair", render: renderAffairSection },
                 { key: "marriage", render: renderMarriageSection },
                 { key: "stress", render: renderStressSection },
+                { key: "faceMuscle", render: renderFaceMuscleSection },
+                { key: "attractiveValuable", render: renderAttractiveValuableSection },
               ];
 
               // Reorder: selected category first, then others
