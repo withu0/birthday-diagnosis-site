@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+@theme {
+  --color-gold: #BE943F;
+  --color-gold-light: #ECDC88;
+  --color-gold-dark: #9A7A32;
+  --color-silver: #9B9B9B;
+  --color-silver-light: #FFFFFF;
+  --color-silver-dark: #9B9B9B;
+}
+
+/* Ensure Tailwind recognizes these custom colors */
+@layer utilities {
+  .bg-gold-dark {
+    background-color: var(--color-gold-dark);
+  }
+  .hover\:bg-gold-dark:hover {
+    background-color: var(--color-gold-dark);
+  }
+}
+
 @layer base {
   html {
     font-family: system-ui, sans-serif;

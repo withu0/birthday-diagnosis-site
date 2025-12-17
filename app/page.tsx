@@ -8,9 +8,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
+<<<<<<< HEAD
+import { useAdmin } from "@/lib/hooks/use-admin"
 
 export default function Home() {
   const router = useRouter()
+  const { isAdmin } = useAdmin()
+=======
+
+export default function Home() {
+  const router = useRouter()
+>>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
   const [name, setName] = useState("")
   const [birthDate, setBirthDate] = useState("")
 
@@ -37,12 +45,34 @@ export default function Home() {
               />
             </div>
             <div className="flex items-center gap-2">
+<<<<<<< HEAD
+              <Button 
+                variant="outline" 
+                className="border-silver text-silver-dark text-sm"
+                onClick={() => router.push("/payment")}
+              >
+                お支払い
+              </Button>
+              <Button variant="outline" className="border-silver text-silver-dark text-sm">
+                履歴検索ページ
+              </Button>
+              {isAdmin && (
+                <Button 
+                  variant="outline" 
+                  className="border-silver text-silver-dark text-sm"
+                  onClick={() => router.push("/admin")}
+                >
+                管理画面
+              </Button>
+              )}
+=======
               <Button variant="outline" className="border-silver text-silver-dark text-sm">
                 履歴検索ページ
               </Button>
               <Button variant="outline" className="border-silver text-silver-dark text-sm">
                 管理画面
               </Button>
+>>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
               <AuthButton />
             </div>
           </div>

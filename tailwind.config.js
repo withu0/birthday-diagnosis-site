@@ -11,7 +11,11 @@ module.exports = {
         gold: {
           DEFAULT: '#BE943F',
           light: '#ECDC88',
+<<<<<<< HEAD
+          dark: '#9A7A32',
+=======
           dark: '#BE943F',
+>>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
         },
         silver: {
           DEFAULT: '#9B9B9B',

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { verifyUser } from "@/lib/auth"
 import { createSession } from "@/lib/session"
+<<<<<<< HEAD
+import { checkAndExpireMembership } from "@/lib/membership"
+=======
+>>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
 const loginSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください"),
@@ -22,6 +26,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+<<<<<<< HEAD
+    // Check membership expiration and expire if needed
+    const hasActiveMembership = await checkAndExpireMembership(user.id)
+
+=======
+>>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
     // Create session
     await createSession(user.id, user.email, user.name)
 
@@ -32,6 +42,10 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
       },
+<<<<<<< HEAD
+      hasActiveMembership,
+=======
+>>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
