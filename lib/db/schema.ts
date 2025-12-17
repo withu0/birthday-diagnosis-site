@@ -57,6 +57,29 @@ export const diagnosisResults = pgTable("diagnosis_results", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 })
 
+export const compatibilityData = pgTable("compatibility_data", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  compatibilityType: integer("compatibility_type").notNull(), // 1-36 as specified
+  sheetName: text("sheet_name").notNull(), // e.g., "相性①完成"
+  range: text("range").notNull(), // e.g., "A2:AM31"
+  aPeach: text("a_peach"), // Aさんのピーチコア value
+  aHard: text("a_hard"), // Aさんのハイドコア value
+  bPeach: text("b_peach"), // Bさんのピーチコア value
+  bHard: text("b_hard"), // Bさんのハイドコア value
+  rowIndex: integer("row_index").notNull(), // Row position in the sheet
+  colIndex: integer("col_index").notNull(), // Column position in the sheet
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+})
+
+export const compatibilityTypes = pgTable("compatibility_types", {
+  id: integer("id").primaryKey().notNull(), // 1-36
+  name: text("name").notNull(), // e.g., "相性①"
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+})
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   membership: one(memberships, {
     fields: [users.id],
@@ -99,3 +122,7 @@ export type Membership = typeof memberships.$inferSelect
 export type NewMembership = typeof memberships.$inferInsert
 export type DiagnosisResult = typeof diagnosisResults.$inferSelect
 export type NewDiagnosisResult = typeof diagnosisResults.$inferInsert
+export type CompatibilityData = typeof compatibilityData.$inferSelect
+export type NewCompatibilityData = typeof compatibilityData.$inferInsert
+export type CompatibilityType = typeof compatibilityTypes.$inferSelect
+export type NewCompatibilityType = typeof compatibilityTypes.$inferInsert

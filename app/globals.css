@@ -70,3 +70,11 @@
   background-color: white !important;
   color: rgb(17, 24, 39) !important;
 }
+
+/* Fix Select viewport scrolling */
+[data-radix-select-viewport] {
+  height: auto !important;
+  max-height: 380px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}

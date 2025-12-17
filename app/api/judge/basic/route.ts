@@ -178,12 +178,25 @@ const vlookup = (lookupValue: string, data: LookupData[], columnIndex: keyof Loo
 }
 
 const formatDateForLookup = (dateString: string): string => {
-  const date = new Date(dateString)
-  const year = date.getFullYear().toString()
-  const month = (date.getMonth() + 1).toString() // No leading zero
-  const day = date.getDate().toString() // No leading zero
-  const formatted = `${year}/${month}/${day}` // Use actual year from input
-  console.log("[basic] Formatted date for lookup:", formatted)
+  // Parse date string directly to avoid timezone issues
+  // dateString format: "YYYY-MM-DD" (e.g., "2000-01-01")
+  const parts = dateString.split("-")
+  if (parts.length !== 3) {
+    // Fallback to Date object if format is unexpected
+    const date = new Date(dateString)
+    const year = date.getFullYear().toString()
+    const month = (date.getMonth() + 1).toString()
+    const day = date.getDate().toString()
+    const formatted = `${year}/${month}/${day}`
+    console.log("[basic] Formatted date for lookup (fallback):", formatted)
+    return formatted
+  }
+  
+  const year = parts[0]
+  const month = parseInt(parts[1], 10).toString() // Remove leading zero
+  const day = parseInt(parts[2], 10).toString() // Remove leading zero
+  const formatted = `${year}/${month}/${day}`
+  console.log("[basic] Formatted date for lookup:", formatted, "from input:", dateString)
   return formatted
 }
 
@@ -198,8 +211,9 @@ export async function POST(request: NextRequest) {
     console.log("[basic] API route called with birthDate:", birthDate)
 
     // Determine which group this date belongs to based on the year
-    const date = new Date(birthDate)
-    const year = date.getFullYear()
+    // Parse year directly from date string to avoid timezone issues
+    const yearMatch = birthDate.match(/^(\d{4})-/)
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : new Date(birthDate).getFullYear()
     const group = findGroupForYear(year)
     
     if (group) {

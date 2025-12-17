@@ -112,6 +112,17 @@ export default function Home() {
               </CardContent>
             </Card>
 
+        {/* 相性診断ボタン */}
+        <div className="mb-12">
+          <Link href="/compatibility">
+            <Button
+              className="w-full max-w-md mx-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-6 text-xl shadow-lg hover:shadow-xl transition-all"
+            >
+              相性診断
+            </Button>
+          </Link>
+        </div>
+
         {/* 診断タイプ選択セクション */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">

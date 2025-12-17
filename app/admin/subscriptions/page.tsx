@@ -205,7 +205,7 @@ export default function AdminSubscriptionsPage() {
                       <SelectTrigger id="status">
                         <SelectValue placeholder="すべて" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[400px]">
                         <SelectItem value="all">すべて</SelectItem>
                         <SelectItem value="pending">処理中</SelectItem>
                         <SelectItem value="completed">完了</SelectItem>
@@ -224,7 +224,7 @@ export default function AdminSubscriptionsPage() {
                       <SelectTrigger id="planType">
                         <SelectValue placeholder="すべて" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[400px]">
                         <SelectItem value="all">すべて</SelectItem>
                         <SelectItem value="basic">ベーシック</SelectItem>
                         <SelectItem value="standard">スタンダード</SelectItem>

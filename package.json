@@ -10,7 +10,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "compatibility:extract": "tsx scripts/extract-compatibility-data.ts",
+    "compatibility:import": "tsx scripts/import-compatibility-data.ts",
+    "compatibility-types:import": "tsx scripts/import-compatibility-types.ts",
+    "db:dump": "tsx scripts/dump-database.ts",
+    "db:restore": "tsx scripts/restore-database.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -87,6 +92,7 @@
     "drizzle-kit": "^0.28.1",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
+    "tsx": "^4.8.1",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
   }

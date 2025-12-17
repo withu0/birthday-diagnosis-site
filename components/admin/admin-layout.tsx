@@ -14,6 +14,7 @@ import {
   X,
   Home,
   FileText,
+  Heart,
 } from "lucide-react"
 
 interface AdminLayoutProps {
@@ -39,6 +40,16 @@ const menuItems = [
   {
     title: "診断ログ",
     href: "/admin/diagnosis",
+    icon: FileText,
+  },
+  {
+    title: "相性タイプ",
+    href: "/admin/compatibility-types",
+    icon: Heart,
+  },
+  {
+    title: "相性データ",
+    href: "/admin/compatibility-data",
     icon: FileText,
   },
 ]
