@@ -34,7 +34,9 @@ export function useCompatibilityTypes() {
       if (!response.ok) {
         throw new Error("Failed to fetch compatibility types")
       }
-      return response.json()
+      const data = await response.json()
+      // API returns { types: [...] }, so extract the types array
+      return data.types || []
     },
   })
 }
@@ -119,13 +121,15 @@ export function useCompatibilityData(typeId?: number) {
     queryKey: ["admin", "compatibility-data", typeId],
     queryFn: async () => {
       const url = typeId
-        ? `/api/admin/compatibility-data?type=${typeId}`
+        ? `/api/admin/compatibility-data?compatibilityType=${typeId}`
         : "/api/admin/compatibility-data"
       const response = await fetch(url)
       if (!response.ok) {
         throw new Error("Failed to fetch compatibility data")
       }
-      return response.json()
+      const data = await response.json()
+      // API returns { data: [...], grouped: {...} }, so extract the data array
+      return data.data || []
     },
   })
 }
