@@ -86,7 +86,7 @@ export function AuthButton() {
         {isOpen && (
           <div
             ref={dropdownRef}
-            className="absolute right-0 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg z-[100] overflow-hidden"
+            className="absolute right-0 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg z-[9999] overflow-hidden"
           >
             {/* User Info */}
             <div className="px-4 py-3 border-b border-gray-200">

@@ -276,7 +276,8 @@ export default function CompatibilityPage() {
                   <Card key={typeResult.compatibilityType} className="shadow-md">
                     <CardHeader>
                       <CardTitle className="text-xl">
-                        {typeResult.name || `相性タイプ ${typeResult.compatibilityType}`} ({typeResult.sheetName})
+                        {typeResult.name || `相性タイプ ${typeResult.compatibilityType}`} 
+                        {/* ({typeResult.sheetName}) */}
                       </CardTitle>
                       <p className="text-sm text-gray-600">
                         {typeResult.count}件のマッチ

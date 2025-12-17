@@ -236,7 +236,7 @@ const DiagnosisView = () => {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-gradient-silver-vertical">
-          <header className="border-b border-gold/30 bg-gradient-silver backdrop-blur-sm shadow-md">
+          <header className="relative z-50 border-b border-gold/30 bg-gradient-silver backdrop-blur-sm shadow-md">
             <div className="container mx-auto px-4 py-6">
               <div className="flex justify-between items-center mb-4">
                 <Link href="/diagnosis" className="text-gold hover:underline font-medium">
@@ -265,7 +265,7 @@ const DiagnosisView = () => {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-gradient-silver-vertical">
-          <header className="border-b border-gold/30 bg-gradient-silver backdrop-blur-sm shadow-md">
+          <header className="relative z-50 border-b border-gold/30 bg-gradient-silver backdrop-blur-sm shadow-md">
             <div className="container mx-auto px-4 py-6">
               <div className="flex justify-between items-center mb-4">
                 <Link href="/diagnosis" className="text-gold hover:underline font-medium">
@@ -596,7 +596,7 @@ const DiagnosisView = () => {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-silver-vertical">
-        <header className="border-b border-gold/30 bg-gradient-silver backdrop-blur-sm shadow-md">
+        <header className="relative z-50 border-b border-gold/30 bg-gradient-silver backdrop-blur-sm shadow-md">
           <div className="container mx-auto px-4 py-6">
             <div className="flex justify-between items-center mb-4">
               <Link href="/diagnosis" className="text-gold hover:underline font-medium">

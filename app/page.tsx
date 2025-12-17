@@ -112,16 +112,6 @@ export default function Home() {
               </CardContent>
             </Card>
 
-        {/* 相性診断ボタン */}
-        <div className="mb-12">
-          <Link href="/compatibility">
-            <Button
-              className="w-full max-w-md mx-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-6 text-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              相性診断
-            </Button>
-          </Link>
-        </div>
 
         {/* 診断タイプ選択セクション */}
         <div className="mb-12">
@@ -161,6 +151,19 @@ export default function Home() {
             ))}
             </div>
           </div>
+
+          
+        {/* 相性診断ボタン */}
+        <div className="mb-12 flex justify-center">
+          <Link href="/compatibility" className="w-full max-w-2xl mx-auto">
+            <Button
+              className="w-full bg-gradient-to-r from-gold via-gold-light to-gold text-white font-bold py-8 text-3xl shadow-2xl hover:shadow-3xl transition-all mysterious-glow mysterious-pulse mysterious-shimmer relative overflow-hidden"
+            >
+              <span className="relative z-10">相性診断</span>
+              <div className="absolute inset-0 mysterious-shine"></div>
+            </Button>
+          </Link>
+        </div>
       </main>
 
       {/* フッター */}
