@@ -135,7 +135,7 @@ export default function Home() {
             見たい項目を押すと、一番上に表示されます
           </p>
 
-          {/* 7つの診断ボタン */}
+          {/* 8つの診断ボタン */}
           <div className="flex flex-wrap justify-center items-center gap-6 max-w-4xl mx-auto">
             {[
               { key: "talent", label: "才能", image: "/talent.avif" },
@@ -145,6 +145,7 @@ export default function Home() {
               { key: "affair", label: "恋愛", image: "/affair.avif" },
               { key: "marriage", label: "結婚", image: "/marriage.avif" },
               { key: "like", label: "好き嫌い", image: "/like.avif" },
+              { key: "faceMuscle", label: "顔の筋肉の癖", image: "/muscle_button.avif" },
             ].map((item) => (
               <button
                 key={item.key}
