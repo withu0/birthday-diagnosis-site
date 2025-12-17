@@ -1,25 +1,17 @@
-<<<<<<< HEAD
 import { pgTable, text, timestamp, uuid, integer, boolean, decimal, jsonb } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
-=======
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
-<<<<<<< HEAD
   role: text("role").notNull().default("user"), // "user" or "admin"
   isAdmin: boolean("is_admin").notNull().default(false), // Admin flag for quick access check
-=======
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 })
 
-<<<<<<< HEAD
 export const payments = pgTable("payments", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id").references(() => users.id),
@@ -107,7 +99,3 @@ export type Membership = typeof memberships.$inferSelect
 export type NewMembership = typeof memberships.$inferInsert
 export type DiagnosisResult = typeof diagnosisResults.$inferSelect
 export type NewDiagnosisResult = typeof diagnosisResults.$inferInsert
-=======
-export type User = typeof users.$inferSelect
-export type NewUser = typeof users.$inferInsert
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0

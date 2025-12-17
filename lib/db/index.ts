@@ -7,7 +7,6 @@ if (!process.env.DATABASE_URL) {
 }
 
 const connectionString = process.env.DATABASE_URL
-<<<<<<< HEAD
 // Configure postgres to handle Date objects correctly
 const client = postgres(connectionString, { 
   max: 1,
@@ -26,8 +25,5 @@ const client = postgres(connectionString, {
     },
   },
 })
-=======
-const client = postgres(connectionString, { max: 1 })
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
 export const db = drizzle(client, { schema })

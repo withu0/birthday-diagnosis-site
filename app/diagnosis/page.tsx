@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-<<<<<<< HEAD
 import { useSearchParams, useRouter } from "next/navigation";
-=======
-import { useSearchParams } from "next/navigation";
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,7 +39,6 @@ const formatTextWithLineBreaks = (text: string) => {
   ));
 };
 
-<<<<<<< HEAD
 // Helper function to get image path for skin types (essential/attractive)
 const getSkinImagePath = (skinType: string): string => {
   const imageMap: Record<string, string> = {
@@ -167,8 +162,6 @@ const SectionTitle = ({
   );
 };
 
-=======
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 // Interface for the API response (flattened structure)
 interface DiagnosisResult {
   // Basic diagnosis results
@@ -238,7 +231,6 @@ interface DiagnosisResult {
   attractiveValuable_content: string;
 }
 
-<<<<<<< HEAD
 interface DiagnosisLogEntry {
   id: string;
   name: string;
@@ -265,17 +257,6 @@ const BirthdayDiagnosis = () => {
   useEffect(() => {
     fetchDiagnosisLog();
   }, []);
-=======
-const BirthdayDiagnosis = () => {
-  const searchParams = useSearchParams();
-  const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [result, setResult] = useState<DiagnosisResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentThoughts, setCurrentThoughts] = useState("");
-  const [futureGoals, setFutureGoals] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
   // Get query parameters on mount
   useEffect(() => {
@@ -288,7 +269,6 @@ const BirthdayDiagnosis = () => {
     if (categoryParam) setSelectedCategory(categoryParam);
   }, [searchParams]);
 
-<<<<<<< HEAD
   const fetchDiagnosisLog = async () => {
     setIsLoadingLog(true);
     try {
@@ -324,8 +304,6 @@ const BirthdayDiagnosis = () => {
     }
   };
 
-=======
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
   // Auto-trigger diagnosis when params are set
   useEffect(() => {
     const nameParam = searchParams.get("name");
@@ -336,11 +314,7 @@ const BirthdayDiagnosis = () => {
       birthDateParam &&
       name === nameParam &&
       birthDate === birthDateParam &&
-<<<<<<< HEAD
       !basicResult &&
-=======
-      !result &&
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
       !isLoading
     ) {
       // Use a ref or state to prevent multiple calls
@@ -349,11 +323,7 @@ const BirthdayDiagnosis = () => {
       }, 100);
       return () => clearTimeout(timer);
     }
-<<<<<<< HEAD
   }, [name, birthDate, searchParams, basicResult, isLoading]);
-=======
-  }, [name, birthDate, searchParams]);
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
   const handleDiagnosis = async () => {
     if (!birthDate || !name) return;
@@ -371,23 +341,15 @@ const BirthdayDiagnosis = () => {
     }
 
     setIsLoading(true);
-<<<<<<< HEAD
     setBasicResult(null); // Clear previous results
     setTalentResult(null); // Clear previous talent results
-=======
-    setResult(null); // Clear previous results
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
     try {
       console.log("[frontend] Starting diagnosis for:", name, birthDate);
 
       // Step 1: Fetch basic diagnosis data
       console.log("[frontend] Fetching basic diagnosis data...");
-<<<<<<< HEAD
       const basicResponse = await fetch("/api/judge/basic", {
-=======
-      const basicResponse = await fetch("/api/sheets/basic", {
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -415,7 +377,6 @@ const BirthdayDiagnosis = () => {
         throw new Error("Invalid basic data from API");
       }
 
-<<<<<<< HEAD
       // Show basic results immediately
       setBasicResult(basicData);
       setIsLoading(false); // Basic loading is done
@@ -424,11 +385,6 @@ const BirthdayDiagnosis = () => {
       setIsLoadingTalent(true);
       console.log("[frontend] Fetching talent data...");
       const talentResponse = await fetch("/api/judge/talent", {
-=======
-      // Step 2: Fetch talent data using the mapped values from basic data
-      console.log("[frontend] Fetching talent data...");
-      const talentResponse = await fetch("/api/sheets/talent", {
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -452,7 +408,6 @@ const BirthdayDiagnosis = () => {
       const talentData = await talentResponse.json();
       console.log("[frontend] Received talent data:", talentData);
 
-<<<<<<< HEAD
       // Show talent results when ready
       setTalentResult(talentData);
 
@@ -462,16 +417,6 @@ const BirthdayDiagnosis = () => {
         ...talentData,
       };
       await saveDiagnosisResult(combinedResult);
-=======
-      // Step 3: Combine both results
-      const combinedData: DiagnosisResult = {
-        ...basicData,
-        ...talentData,
-      };
-
-      console.log("[frontend] Combined diagnosis data:", combinedData);
-      setResult(combinedData);
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
     } catch (error) {
       console.error("[frontend] Diagnosis error:", error);
       alert(
@@ -479,15 +424,10 @@ const BirthdayDiagnosis = () => {
           error instanceof Error ? error.message : "不明なエラー"
         }`
       );
-<<<<<<< HEAD
       setIsLoading(false);
       setIsLoadingTalent(false);
     } finally {
       setIsLoadingTalent(false);
-=======
-    } finally {
-      setIsLoading(false);
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
     }
   };
 
@@ -497,17 +437,12 @@ const BirthdayDiagnosis = () => {
         {/* ヘッダー */}
         <header className="border-b border-gold/30 bg-gradient-silver backdrop-blur-sm shadow-md">
           <div className="container mx-auto px-4 py-6">
-<<<<<<< HEAD
             <div className="flex justify-between items-center mb-4">
-=======
-            <div className="flex justify-between items-center">
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
               <Link href="/" className="text-gold hover:underline font-medium">
                 ← トップページに戻る
               </Link>
               <AuthButton />
             </div>
-<<<<<<< HEAD
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gold mb-2">
                 12 SKINS Your skin, Your story
@@ -516,8 +451,6 @@ const BirthdayDiagnosis = () => {
                 個性肌診断 あなたの個性肌4層は?
               </h2>
             </div>
-=======
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
           </div>
         </header>
 
@@ -546,18 +479,13 @@ const BirthdayDiagnosis = () => {
               <CardContent className="text-center py-12">
                 <div className="flex flex-col items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-gold mb-4"></div>
-<<<<<<< HEAD
                   <p className="text-lg text-silver-dark">基本診断を読み込み中...</p>
-=======
-                  <p className="text-lg text-silver-dark">診断中...</p>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                 </div>
               </CardContent>
             </Card>
           ) : null}
 
           {/* 結果表示 */}
-<<<<<<< HEAD
           {basicResult &&
             (() => {
               // Combine basic and talent results for rendering
@@ -597,23 +525,6 @@ const BirthdayDiagnosis = () => {
                       <SectionTitle iconPath={getTextIconPath("talent")} title="才能・能力" pdfPath={getPdfPath("talent")} sectionKey="talent" />
                     </CardHeader>
                     <CardContent className="space-y-4">
-=======
-          {result &&
-            (() => {
-              // Define all result sections
-              const renderTalentSection = () => (
-                <Card
-                  key="talent"
-                  className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
-                >
-                  <CardHeader>
-                    <CardTitle className="text-2xl text-center text-gold">
-                      🌟 才能・能力
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                       <div className="space-y-2">
                         <h3 className="font-bold text-lg text-silver-dark">
                           メイン才能
@@ -632,7 +543,6 @@ const BirthdayDiagnosis = () => {
                       </div>
                       <div className="space-y-2">
                         <h3 className="font-bold text-lg text-silver-dark">
-<<<<<<< HEAD
                           価値観才能
                         </h3>
                         <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
@@ -644,24 +554,10 @@ const BirthdayDiagnosis = () => {
                           <div className="text-sm text-gold mt-1">
                             {formatTextWithLineBreaks(
                               result.talent_valuableSubtitle
-=======
-                          追加才能
-                        </h3>
-                        <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
-                          <div className="font-semibold text-silver-dark">
-                            {formatTextWithLineBreaks(
-                              result.talent_additionalTitle
-                            )}
-                          </div>
-                          <div className="text-sm text-silver-dark mt-2">
-                            {formatTextWithLineBreaks(
-                              result.talent_additionalContent
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                             )}
                           </div>
                         </div>
                       </div>
-<<<<<<< HEAD
                       <div className="space-y-2">
                         <h3 className="font-bold text-lg text-gold">
                           ⚡ エネルギースコア
@@ -778,105 +674,6 @@ const BirthdayDiagnosis = () => {
                   </Card>
                 );
               };
-=======
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-lg text-silver-dark">
-                        価値観才能
-                      </h3>
-                      <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
-                        <div className="font-semibold text-gold">
-                          {formatTextWithLineBreaks(
-                            result.talent_valuableTitle
-                          )}
-                        </div>
-                        <div className="text-sm text-gold mt-1">
-                          {formatTextWithLineBreaks(
-                            result.talent_valuableSubtitle
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-lg text-gold">
-                        ⚡ エネルギースコア
-                      </h3>
-                      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                        {[
-                          {
-                            key: "action",
-                            label: "行動",
-                            value: result.energy_action,
-                          },
-                          {
-                            key: "focus",
-                            label: "集中",
-                            value: result.energy_focus,
-                          },
-                          {
-                            key: "stamina",
-                            label: "持久力",
-                            value: result.energy_stamina,
-                          },
-                          {
-                            key: "creative",
-                            label: "創造性",
-                            value: result.energy_creative,
-                          },
-                          {
-                            key: "influence",
-                            label: "影響力",
-                            value: result.energy_influence,
-                          },
-                          {
-                            key: "emotional",
-                            label: "感情",
-                            value: result.energy_emotional,
-                          },
-                          {
-                            key: "recovery",
-                            label: "回復",
-                            value: result.energy_recovery,
-                          },
-                          {
-                            key: "intuition",
-                            label: "直感",
-                            value: result.energy_intuition,
-                          },
-                          {
-                            key: "judgment",
-                            label: "判断",
-                            value: result.energy_judgment,
-                          },
-                          {
-                            key: "adaptability",
-                            label: "適応",
-                            value: result.energy_adaptability,
-                          },
-                          {
-                            key: "total",
-                            label: "総合",
-                            value: result.energy_total,
-                          },
-                        ].map(({ key, label, value }) => (
-                          <div
-                            key={key}
-                            className="bg-gradient-gold p-3 rounded-lg text-center border border-gold/30"
-                          >
-                            <div className="text-xs font-semibold mb-1">
-                              {label}
-                            </div>
-                            <div className="text-lg font-bold">
-                              {value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
               const renderWorkSection = () => (
                 <Card
@@ -884,13 +681,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("work")} title="仕事・キャリア" pdfPath={getPdfPath("work")} sectionKey="work" />
-=======
-                    <CardTitle className="text-2xl text-center text-gold">
-                      💼 仕事・キャリア
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
@@ -927,13 +718,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("like")} title="好きなもの" pdfPath={getPdfPath("like")} sectionKey="like" />
-=======
-                    <CardTitle className="text-2xl text-center text-silver-dark">
-                      ❤️ 好きなもの
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
@@ -957,13 +742,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("impressive")} title="印象・魅力" pdfPath={getPdfPath("impressive")} sectionKey="impressive" />
-=======
-                    <CardTitle className="text-2xl text-center text-gold">
-                      ✨ 印象・魅力
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
@@ -999,13 +778,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("affair")} title="恋愛" pdfPath={getPdfPath("affair")} sectionKey="affair" />
-=======
-                    <CardTitle className="text-xl text-center text-gold">
-                      💕 恋愛
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent>
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
@@ -1023,13 +796,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("marriage")} title="結婚・離婚" pdfPath={getPdfPath("marriage")} sectionKey="marriage" />
-=======
-                    <CardTitle className="text-xl text-center text-silver-dark">
-                      💍 結婚・離婚
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent>
                     <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
@@ -1047,13 +814,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("stress")} title="ストレス・成長" pdfPath={getPdfPath("stress")} sectionKey="stress" />
-=======
-                    <CardTitle className="text-2xl text-center text-gold">
-                      😰 ストレス・成長
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid md:grid-cols-3 gap-4">
@@ -1092,13 +853,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("faceMuscle")} title="顔の筋肉の癖" pdfPath={getPdfPath("faceMuscle")} sectionKey="faceMuscle" />
-=======
-                    <CardTitle className="text-2xl text-center text-gold">
-                      😊 顔の筋肉の癖
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent>
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
@@ -1116,13 +871,7 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
                 >
                   <CardHeader>
-<<<<<<< HEAD
                     <SectionTitle iconPath={getTextIconPath("attractiveValuable")} title="価値観（魅力的）" pdfPath={getPdfPath("attractiveValuable")} sectionKey="attractiveValuable" />
-=======
-                    <CardTitle className="text-2xl text-center text-silver-dark">
-                      💎 価値観（魅力的）
-                    </CardTitle>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
@@ -1138,7 +887,6 @@ const BirthdayDiagnosis = () => {
               );
 
               // Order sections based on selected category
-<<<<<<< HEAD
               // Talent section always shows (with loading state if needed)
               // Other sections only show when talent data is available
               const allSections = [
@@ -1159,18 +907,6 @@ const BirthdayDiagnosis = () => {
                       },
                     ]
                   : []),
-=======
-              const allSections = [
-                { key: "talent", render: renderTalentSection },
-                { key: "work", render: renderWorkSection },
-                { key: "like", render: renderLikeSection },
-                { key: "impressive", render: renderImpressiveSection },
-                { key: "affair", render: renderAffairSection },
-                { key: "marriage", render: renderMarriageSection },
-                { key: "stress", render: renderStressSection },
-                { key: "faceMuscle", render: renderFaceMuscleSection },
-                { key: "attractiveValuable", render: renderAttractiveValuableSection },
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
               ];
 
               // Reorder: selected category first, then others
@@ -1183,7 +919,6 @@ const BirthdayDiagnosis = () => {
 
               return (
                 <div className="space-y-8 animate-in fade-in duration-700">
-<<<<<<< HEAD
                   {/* 基本診断結果 */}
                   <div className="grid grid-cols-2 gap-4">
                     {/* 本質肌 */}
@@ -1319,64 +1054,6 @@ const BirthdayDiagnosis = () => {
                           <div className="font-semibold">80％</div>
                         </div>
                       </CardContent>
-=======
-                  {/* 基本情報 */}
-                  <Card className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10">
-                    <CardHeader className="text-center">
-                      <CardTitle className="text-3xl text-gold">
-                        🎂 あなたの誕生日診断結果
-                      </CardTitle>
-                      <CardDescription className="text-lg text-silver-dark">
-                        {name} さん（{calculateAge(birthDate)}歳）の診断結果
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-
-                  {/* 基本診断結果 */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card className="text-center p-4 border-2 border-gold/50 bg-gradient-to-br from-gold-light/20 to-white">
-                      <div className="font-bold text-gold mb-2">本質</div>
-                      <div className="text-2xl font-bold text-gold bg-gold-light/30 p-3 rounded">
-                        {result.essential}
-                      </div>
-                      <div className="text-sm mt-2 text-silver-dark">
-                        {result.essential_lb}
-                      </div>
-                    </Card>
-
-                    <Card className="text-center p-4 border-2 border-silver/50 bg-gradient-to-br from-silver-light/20 to-white">
-                      <div className="font-bold text-silver-dark mb-2">
-                        魅力的
-                      </div>
-                      <div className="text-2xl font-bold text-silver-dark bg-silver-light/30 p-3 rounded">
-                        {result.attractive}
-                      </div>
-                      <div className="text-sm mt-2 text-silver-dark">
-                        {result.attractive_lb}
-                      </div>
-                    </Card>
-
-                    <Card className="text-center p-4 border-2 border-gold/50 bg-gradient-to-br from-gold-light/20 to-white">
-                      <div className="font-bold text-gold mb-2">価値観</div>
-                      <div className="text-2xl font-bold text-gold bg-gold-light/30 p-3 rounded">
-                        {result.valuable}
-                      </div>
-                      <div className="text-sm mt-2 text-silver-dark">
-                        {result.valuable_lb}
-                      </div>
-                    </Card>
-
-                    <Card className="text-center p-4 border-2 border-silver/50 bg-gradient-to-br from-silver-light/20 to-white">
-                      <div className="font-bold text-silver-dark mb-2">
-                        問題
-                      </div>
-                      <div className="text-2xl font-bold text-silver-dark bg-silver-light/30 p-3 rounded">
-                        {result.problem}
-                      </div>
-                      <div className="text-sm mt-2 text-silver-dark">
-                        {result.problem_lb}
-                      </div>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                     </Card>
                   </div>
 
@@ -1384,11 +1061,7 @@ const BirthdayDiagnosis = () => {
                   {orderedSections.map((section) => section.render())}
 
                   {/* 個人の感想セクション */}
-<<<<<<< HEAD
                   {/* <div className="space-y-4">
-=======
-                  <div className="space-y-4">
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                     <Card className="p-4 border-gold/30 bg-gradient-to-br from-white to-gold-light/10">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-gold">💖</span>
@@ -1418,21 +1091,13 @@ const BirthdayDiagnosis = () => {
                         placeholder="ここに入力してください..."
                       />
                     </Card>
-<<<<<<< HEAD
                   </div> */}
-=======
-                  </div>
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
 
                   <div className="text-center">
                     <Button
                       onClick={() => {
-<<<<<<< HEAD
                         setBasicResult(null);
                         setTalentResult(null);
-=======
-                        setResult(null);
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
                         setBirthDate("");
                         setName("");
                         setCurrentThoughts("");
@@ -1448,7 +1113,6 @@ const BirthdayDiagnosis = () => {
                 </div>
               );
             })()}
-<<<<<<< HEAD
 
           {/* Diagnosis Log Table */}
           <Card className="mt-8 shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10">
@@ -1502,8 +1166,6 @@ const BirthdayDiagnosis = () => {
               )}
             </CardContent>
           </Card>
-=======
->>>>>>> 64956f79ec93423c1e4cf858f8428179b8715fe0
         </main>
 
         {/* フッター */}
