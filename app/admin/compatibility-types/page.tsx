@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -23,6 +22,12 @@ import {
 } from "@/components/ui/dialog"
 import { AdminRoute } from "@/components/auth/admin-route"
 import { AdminLayout } from "@/components/admin/admin-layout"
+import {
+  useCompatibilityTypes,
+  useCreateCompatibilityType,
+  useUpdateCompatibilityType,
+  useDeleteCompatibilityType,
+} from "@/lib/hooks/use-admin"
 
 interface CompatibilityType {
   id: number
@@ -33,42 +38,16 @@ interface CompatibilityType {
 }
 
 export default function AdminCompatibilityTypesPage() {
-  const router = useRouter()
-  const [types, setTypes] = useState<CompatibilityType[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data: typesData, isLoading, error: queryError } = useCompatibilityTypes()
+  const createMutation = useCreateCompatibilityType()
+  const updateMutation = useUpdateCompatibilityType()
+  const deleteMutation = useDeleteCompatibilityType()
+
+  const types = typesData || []
+  const error = queryError?.message || null
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingType, setEditingType] = useState<CompatibilityType | null>(null)
   const [formData, setFormData] = useState({ id: "", name: "", description: "" })
-
-  useEffect(() => {
-    fetchTypes()
-  }, [])
-
-  const fetchTypes = async () => {
-    try {
-      setIsLoading(true)
-      const response = await fetch("/api/admin/compatibility-types")
-
-      if (response.status === 403) {
-        setError("管理者権限が必要です")
-        router.push("/")
-        return
-      }
-
-      if (!response.ok) {
-        throw new Error("相性タイプの取得に失敗しました")
-      }
-
-      const data = await response.json()
-      setTypes(data.types || [])
-      setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "エラーが発生しました")
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleEdit = (type: CompatibilityType) => {
     setEditingType(type)
@@ -82,29 +61,27 @@ export default function AdminCompatibilityTypesPage() {
 
   const handleSave = async () => {
     try {
-      const response = await fetch("/api/admin/compatibility-types", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      if (editingType) {
+        // Update existing
+        await updateMutation.mutateAsync({
           id: parseInt(formData.id, 10),
           name: formData.name,
           description: formData.description,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "保存に失敗しました")
+        })
+      } else {
+        // Create new (if needed in future)
+        await createMutation.mutateAsync({
+          name: formData.name,
+          description: formData.description,
+        })
       }
 
       setIsDialogOpen(false)
       setEditingType(null)
       setFormData({ id: "", name: "", description: "" })
-      fetchTypes()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "エラーが発生しました")
+      // Error is handled by React Query
+      console.error("Error saving:", err)
     }
   }
 
@@ -114,18 +91,11 @@ export default function AdminCompatibilityTypesPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/compatibility-types?id=${id}`, {
-        method: "DELETE",
-      })
+      await deleteMutation.mutateAsync(id)
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "削除に失敗しました")
-      }
-
-      fetchTypes()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "エラーが発生しました")
+      // Error is handled by React Query
+      console.error("Error deleting:", err)
     }
   }
 

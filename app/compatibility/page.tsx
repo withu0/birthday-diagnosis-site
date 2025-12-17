@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -9,90 +8,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
-
-interface CompatibilityResult {
-  personA: {
-    name: string
-    birthDate: string
-    valuable: string
-    problem: string
-    valuable_lb: string
-    problem_lb: string
-  }
-  personB: {
-    name: string
-    birthDate: string
-    valuable: string
-    problem: string
-    valuable_lb: string
-    problem_lb: string
-  }
-  results: Array<{
-    compatibilityType: number
-    sheetName: string
-    name: string
-    description: string
-    count: number
-    records: Array<{
-      aPeach: string | null
-      aHard: string | null
-      bPeach: string | null
-      bHard: string | null
-    }>
-  }>
-  totalMatches: number
-}
+import { useCompatibilityDiagnosis, CompatibilityResult } from "@/lib/hooks/use-compatibility"
 
 export default function CompatibilityPage() {
-  const router = useRouter()
   const [personA, setPersonA] = useState({ name: "", birthDate: "" })
   const [personB, setPersonB] = useState({ name: "", birthDate: "" })
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<CompatibilityResult | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  
+  const compatibilityMutation = useCompatibilityDiagnosis()
+  const result = compatibilityMutation.data
+  const loading = compatibilityMutation.isPending
+  const error = compatibilityMutation.error?.message || null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    setResult(null)
 
     if (!personA.name || !personA.birthDate || !personB.name || !personB.birthDate) {
-      setError("両方の方の名前と生年月日を入力してください")
       return
     }
 
-    setLoading(true)
-
-    try {
-      const response = await fetch("/api/compatibility", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          personA: {
-            name: personA.name,
-            birthDate: personA.birthDate,
-          },
-          personB: {
-            name: personB.name,
-            birthDate: personB.birthDate,
-          },
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "相性診断の取得に失敗しました")
-      }
-
-      const data = await response.json()
-      setResult(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "エラーが発生しました")
-    } finally {
-      setLoading(false)
-    }
+    compatibilityMutation.mutate({
+      personA: {
+        name: personA.name,
+        birthDate: personA.birthDate,
+      },
+      personB: {
+        name: personB.name,
+        birthDate: personB.birthDate,
+      },
+    })
   }
 
   return (

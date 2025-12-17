@@ -16,6 +16,13 @@ import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { AuthButton } from "@/components/auth/auth-button";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { 
+  useBasicDiagnosis, 
+  useTalentDiagnosis, 
+  useDiagnosisList, 
+  useSaveDiagnosis,
+  type DiagnosisResult 
+} from "@/lib/hooks/use-diagnosis";
 
 const calculateAge = (birthDate: string) => {
   const today = new Date();
@@ -162,75 +169,7 @@ const SectionTitle = ({
   );
 };
 
-// Interface for the API response (flattened structure)
-interface DiagnosisResult {
-  // Basic diagnosis results
-  essential: string;
-  essential_lb: string;
-  attractive: string;
-  attractive_lb: string;
-  valuable: string;
-  valuable_lb: string;
-  problem: string;
-  problem_lb: string;
-
-  // Talent section
-  talent_title: string;
-  talent_subtitle: string;
-  talent_content: string;
-  talent_additionalTitle: string;
-  talent_additionalContent: string;
-  talent_valuableTitle: string;
-  talent_valuableSubtitle: string;
-
-  // Energy score
-  energy_action: string;
-  energy_focus: string;
-  energy_stamina: string;
-  energy_creative: string;
-  energy_influence: string;
-  energy_emotional: string;
-  energy_recovery: string;
-  energy_intuition: string;
-  energy_judgment: string;
-  energy_adaptability: string;
-  energy_total: string;
-
-  // Work section
-  work_recommend: string;
-  work_tenConcept: string;
-  work_workContent: string;
-
-  // Like section
-  like_title: string;
-  like_subtitle: string;
-  like_content: string;
-
-  // Impressive section
-  impressive_title: string;
-  impressive_subtitle: string;
-  impressive_strong: string;
-  impressive_likeDislike: string;
-
-  // Love affair section
-  loveAffair_content: string;
-
-  // Marriage section
-  marriage_content: string;
-
-  // Stress section
-  stress_plus: string;
-  stress_minus: string;
-  stress_fiveGrowth: string;
-
-  // Face muscle section
-  faceMuscle_value: string;
-
-  // Attractive valuable section
-  attractiveValuable_title: string;
-  attractiveValuable_content: string;
-}
-
+// DiagnosisLogEntry interface
 interface DiagnosisLogEntry {
   id: string;
   name: string;
@@ -243,20 +182,22 @@ const BirthdayDiagnosis = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [basicResult, setBasicResult] = useState<Partial<DiagnosisResult> | null>(null);
-  const [talentResult, setTalentResult] = useState<Partial<DiagnosisResult> | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingTalent, setIsLoadingTalent] = useState(false);
+  const [shouldFetchBasic, setShouldFetchBasic] = useState(false);
   const [currentThoughts, setCurrentThoughts] = useState("");
   const [futureGoals, setFutureGoals] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [diagnosisLog, setDiagnosisLog] = useState<DiagnosisLogEntry[]>([]);
-  const [isLoadingLog, setIsLoadingLog] = useState(false);
 
-  // Fetch diagnosis log on mount
-  useEffect(() => {
-    fetchDiagnosisLog();
-  }, []);
+  // React Query hooks
+  const { data: diagnosisList, isLoading: isLoadingLog } = useDiagnosisList();
+  const { data: basicResult, isLoading: isLoadingBasic, error: basicError } = useBasicDiagnosis(
+    birthDate || null,
+    shouldFetchBasic
+  );
+  const { data: talentResult, isLoading: isLoadingTalent, error: talentError } = useTalentDiagnosis(
+    basicResult || null,
+    shouldFetchBasic && !!basicResult
+  );
+  const saveDiagnosisMutation = useSaveDiagnosis();
 
   // Get query parameters on mount
   useEffect(() => {
@@ -269,41 +210,6 @@ const BirthdayDiagnosis = () => {
     if (categoryParam) setSelectedCategory(categoryParam);
   }, [searchParams]);
 
-  const fetchDiagnosisLog = async () => {
-    setIsLoadingLog(true);
-    try {
-      const response = await fetch("/api/diagnosis/list");
-      if (response.ok) {
-        const data = await response.json();
-        setDiagnosisLog(data.results || []);
-      }
-    } catch (error) {
-      console.error("Error fetching diagnosis log:", error);
-    } finally {
-      setIsLoadingLog(false);
-    }
-  };
-
-  const saveDiagnosisResult = async (resultData: Partial<DiagnosisResult>) => {
-    try {
-      await fetch("/api/diagnosis/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          birthDate,
-          resultData,
-        }),
-      });
-      // Refresh the log after saving
-      fetchDiagnosisLog();
-    } catch (error) {
-      console.error("Error saving diagnosis result:", error);
-    }
-  };
-
   // Auto-trigger diagnosis when params are set
   useEffect(() => {
     const nameParam = searchParams.get("name");
@@ -314,23 +220,43 @@ const BirthdayDiagnosis = () => {
       birthDateParam &&
       name === nameParam &&
       birthDate === birthDateParam &&
-      !basicResult &&
-      !isLoading
+      !shouldFetchBasic
     ) {
-      // Use a ref or state to prevent multiple calls
       const timer = setTimeout(() => {
-        handleDiagnosis();
+        setShouldFetchBasic(true);
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [name, birthDate, searchParams, basicResult, isLoading]);
+  }, [name, birthDate, searchParams, shouldFetchBasic]);
 
-  const handleDiagnosis = async () => {
+  // Save diagnosis when both basic and talent are ready
+  useEffect(() => {
+    if (basicResult && talentResult && name && birthDate) {
+      const combinedResult = {
+        ...basicResult,
+        ...talentResult,
+      };
+      saveDiagnosisMutation.mutate({
+        name,
+        birthDate,
+        resultData: combinedResult,
+      });
+    }
+  }, [basicResult, talentResult, name, birthDate]);
+
+  // Show errors
+  useEffect(() => {
+    if (basicError || talentError) {
+      const errorMessage = basicError?.message || talentError?.message || "不明なエラー";
+      alert(`診断中にエラーが発生しました: ${errorMessage}`);
+    }
+  }, [basicError, talentError]);
+
+  const handleDiagnosis = () => {
     if (!birthDate || !name) return;
 
     // Validate birth date
     const date = new Date(birthDate);
-    const today = new Date();
     if (isNaN(date.getTime())) {
       alert("有効な生年月日を入力してください");
       return;
@@ -340,96 +266,11 @@ const BirthdayDiagnosis = () => {
       return;
     }
 
-    setIsLoading(true);
-    setBasicResult(null); // Clear previous results
-    setTalentResult(null); // Clear previous talent results
-
-    try {
-      console.log("[frontend] Starting diagnosis for:", name, birthDate);
-
-      // Step 1: Fetch basic diagnosis data
-      console.log("[frontend] Fetching basic diagnosis data...");
-      const basicResponse = await fetch("/api/judge/basic", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ birthDate }),
-      });
-
-      if (!basicResponse.ok) {
-        const errorData = await basicResponse.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || `Basic API request failed: ${basicResponse.status}`
-        );
-      }
-
-      const basicData = await basicResponse.json();
-      console.log("[frontend] Received basic data:", basicData);
-
-      // Validate basic data
-      if (
-        !basicData.essential ||
-        !basicData.attractive ||
-        !basicData.valuable ||
-        !basicData.problem
-      ) {
-        throw new Error("Invalid basic data from API");
-      }
-
-      // Show basic results immediately
-      setBasicResult(basicData);
-      setIsLoading(false); // Basic loading is done
-
-      // Step 2: Fetch talent data using the mapped values from basic data
-      setIsLoadingTalent(true);
-      console.log("[frontend] Fetching talent data...");
-      const talentResponse = await fetch("/api/judge/talent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          essential_lb: basicData.essential_lb,
-          valuable_lb: basicData.valuable_lb,
-          attractive_lb: basicData.attractive_lb,
-          problem_lb: basicData.problem_lb,
-        }),
-      });
-
-      if (!talentResponse.ok) {
-        const errorData = await talentResponse.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-            `Talent API request failed: ${talentResponse.status}`
-        );
-      }
-
-      const talentData = await talentResponse.json();
-      console.log("[frontend] Received talent data:", talentData);
-
-      // Show talent results when ready
-      setTalentResult(talentData);
-
-      // Save diagnosis result to database after both basic and talent data are fetched
-      const combinedResult = {
-        ...basicData,
-        ...talentData,
-      };
-      await saveDiagnosisResult(combinedResult);
-    } catch (error) {
-      console.error("[frontend] Diagnosis error:", error);
-      alert(
-        `診断中にエラーが発生しました: ${
-          error instanceof Error ? error.message : "不明なエラー"
-        }`
-      );
-      setIsLoading(false);
-      setIsLoadingTalent(false);
-    } finally {
-      setIsLoadingTalent(false);
-    }
+    setShouldFetchBasic(true);
   };
+
+  const isLoading = isLoadingBasic;
+  const diagnosisLog = diagnosisList?.results || [];
 
   return (
     <ProtectedRoute>
@@ -1096,8 +937,7 @@ const BirthdayDiagnosis = () => {
                   <div className="text-center">
                     <Button
                       onClick={() => {
-                        setBasicResult(null);
-                        setTalentResult(null);
+                        setShouldFetchBasic(false);
                         setBirthDate("");
                         setName("");
                         setCurrentThoughts("");

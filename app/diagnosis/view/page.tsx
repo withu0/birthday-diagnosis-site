@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Card,
@@ -12,6 +11,7 @@ import {
 import Link from "next/link";
 import { AuthButton } from "@/components/auth/auth-button";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { useDiagnosisById } from "@/lib/hooks/use-diagnosis";
 
 // Helper function to convert line breaks to JSX
 const formatTextWithLineBreaks = (text: string) => {
@@ -197,40 +197,10 @@ interface DiagnosisResult {
 
 const DiagnosisView = () => {
   const searchParams = useSearchParams();
-  const [diagnosisData, setDiagnosisData] = useState<{
-    name: string;
-    birthDate: string;
-    resultData: DiagnosisResult;
-    createdAt: string;
-  } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDiagnosis = async () => {
-      const id = searchParams.get("id");
-      if (!id) {
-        setError("診断IDが指定されていません");
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`/api/diagnosis/${id}`);
-        if (!response.ok) {
-          throw new Error("診断結果の取得に失敗しました");
-        }
-        const data = await response.json();
-        setDiagnosisData(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "エラーが発生しました");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDiagnosis();
-  }, [searchParams]);
+  const id = searchParams.get("id");
+  
+  const { data: diagnosisData, isLoading, error: queryError } = useDiagnosisById(id);
+  const error = queryError?.message || (id ? null : "診断IDが指定されていません");
 
   if (isLoading) {
     return (
