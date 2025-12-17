@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { payments, memberships, users } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { getUnivaPaySDK } from "@/lib/univapay"
-import { ResponseError, TransactionTokenType, PaymentType } from "univapay-node"
+import { ResponseError } from "univapay-node"
 import { createUser, hashPassword } from "@/lib/auth"
 import crypto from "crypto"
 
@@ -112,114 +112,6 @@ export async function POST(request: NextRequest) {
       { error: "支払い処理中にエラーが発生しました" },
       { status: 500 }
     )
-  }
-}
-
-// UnivaPay クレジットカード決済関数（ECFormLinkを使用）
-// 直接カードトークン作成が無効なため、ECFormLink（ホストページ）を使用
-async function createCreditCardPayment(
-  paymentId: string,
-  data: z.infer<typeof paymentSchema>
-) {
-  try {
-    const sdk = getUnivaPaySDK()
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-
-    // ECForm IDを取得（環境変数から）
-    const formId = process.env.UNIVAPAY_FORM_ID
-    
-    if (!formId) {
-      throw new Error(
-        "UnivaPay ECForm IDが設定されていません。\n\n" +
-        "以下の手順で設定してください:\n" +
-        "1. UnivaPayダッシュボードにログイン\n" +
-        "2. 店舗 > 選択した店舗 > ECフォーム ページに移動\n" +
-        "3. 新しいECフォームを作成（または既存のフォームを使用）\n" +
-        "4. ECフォームのIDをコピー\n" +
-        "5. 環境変数UNIVAPAY_FORM_IDにECフォームIDを設定\n\n" +
-        "例: UNIVAPAY_FORM_ID=your_form_id_here"
-      )
-    }
-
-    // 一時的なECFormLinkを作成
-    // expiry: 24時間後（ISO 8601形式）
-    const expiryDate = new Date()
-    expiryDate.setHours(expiryDate.getHours() + 24)
-
-    // JWTトークンを取得（認証トークン）
-    const token = process.env.UNIVAPAY_TOKEN || process.env.UNIVAPAY_STORE_JWT
-    
-    // ECFormLinkを作成（公開APIで必要なフィールドのみを渡す）
-    // jwtは必須フィールドのため、認証トークンを使用
-    const ecFormLinkParams: any = {
-      formId: formId,
-      amount: Math.round(data.totalAmount), // 整数に変換（最小通貨単位）
-      currency: "JPY",
-      description: `12SKINS利用料 - ${data.planType}`,
-      tokenType: TransactionTokenType.ONE_TIME,
-      expiry: expiryDate.toISOString(),
-      tokenOnly: false, // トークンだけでなく、決済も実行
-      allowCardInstallments: false, // 分割払いを許可しない
-      jwt: token, // 認証トークンをjwtフィールドに含める（APIが要求）
-      metadata: {
-        payment_id: paymentId,
-        plan_type: data.planType,
-        customer_name: data.name,
-        customer_email: data.email,
-      },
-    }
-
-    const ecFormLink = await sdk.ecFormLinks.createTemporary(ecFormLinkParams)
-
-    // デバッグ: レスポンス構造を確認
-    console.log("UnivaPay ECFormLink Response:", JSON.stringify(ecFormLink, null, 2))
-
-    // ECFormLink URLを取得
-    // destinationフィールドがある場合はそれを使用、なければJWTを使用してURLを構築
-    let checkoutUrl = ecFormLink.destination
-
-    // destinationがない場合は、JWTを使用して決済ページのURLを構築
-    // UnivaPayのホストページURL形式: https://checkout.univapay.com/{jwt}
-    if (!checkoutUrl && ecFormLink.jwt) {
-      const apiEndpoint = process.env.UNIVAPAY_API_URL || "https://api.univapay.com"
-      // APIエンドポイントからcheckoutエンドポイントを推測
-      const checkoutBaseUrl = apiEndpoint.replace("api.", "checkout.") || "https://checkout.univapay.com"
-      checkoutUrl = `${checkoutBaseUrl}/${ecFormLink.jwt}`
-    }
-
-    // それでもURLが取得できない場合はエラー
-    if (!checkoutUrl) {
-      console.error("Checkout URL not found in response:", ecFormLink)
-      throw new Error("UnivaPayから決済URLを取得できませんでした。レスポンス構造を確認してください。")
-    }
-
-    return {
-      success: true,
-      orderId: ecFormLink.id,
-      transactionId: ecFormLink.id,
-      paymentUrl: checkoutUrl,
-    }
-  } catch (error) {
-    console.error("UnivaPay SDK error:", error)
-    
-    if (error instanceof ResponseError) {
-      console.error("UnivaPay API error details:", {
-        httpCode: (error as any).errorResponse?.httpCode,
-        code: (error as any).errorResponse?.code,
-        message: error.message,
-        errors: (error as any).errorResponse?.errors,
-      })
-      return {
-        success: false,
-        error: error.message || "UnivaPay API error",
-        details: (error as any).errorResponse?.errors,
-      }
-    }
-
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
   }
 }
 

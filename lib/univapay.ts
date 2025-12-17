@@ -6,19 +6,18 @@ export function getUnivaPaySDK() {
   const apiEndpoint = process.env.UNIVAPAY_API_URL || "https://api.univapay.com"
   
   // 環境変数から認証情報を取得
-  // token = JWTトークン、secret = シークレット、store id = ストアID（オプション）
-  const token = process.env.UNIVAPAY_TOKEN || process.env.UNIVAPAY_STORE_JWT
-  const secret = process.env.UNIVAPAY_SECRET || process.env.UNIVAPAY_STORE_JWT_SECRET
-  const storeId = process.env.UNIVAPAY_STORE_ID
+  // token = JWTトークン、secret = シークレット
+  const token = process.env.UNIVAPAY_TOKEN
+  const secret = process.env.UNIVAPAY_SECRET
 
   if (!token || !secret) {
     throw new Error(
       "UnivaPay credentials are not configured. Please set UNIVAPAY_TOKEN and UNIVAPAY_SECRET environment variables.\n\n" +
       "Required environment variables:\n" +
-      "- UNIVAPAY_TOKEN: Your UnivaPay JWT token\n" +
-      "- UNIVAPAY_SECRET: Your UnivaPay secret\n" +
-      "- UNIVAPAY_STORE_ID: Your store ID (optional, usually included in JWT)\n" +
-      "- UNIVAPAY_API_URL: API endpoint (optional, defaults to https://api.univapay.com)"
+      "- UNIVAPAY_TOKEN: Your UnivaPay JWT token (App Token)\n" +
+      "- UNIVAPAY_SECRET: Your UnivaPay secret (App Secret)\n\n" +
+      "Optional environment variables:\n" +
+      "- UNIVAPAY_API_URL: API endpoint (defaults to https://api.univapay.com)"
     )
   }
 

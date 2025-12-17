@@ -48,3 +48,25 @@
     background: linear-gradient(to right, #9B9B9B, #FFFFFF, #9B9B9B);
   }
 }
+
+/* Fix Radix UI dropdown menu visibility */
+[data-radix-popper-content-wrapper] {
+  z-index: 100 !important;
+  position: absolute !important;
+}
+
+[data-radix-popper-content-wrapper] > * {
+  position: relative !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Ensure dropdown content is visible */
+[data-radix-dropdown-menu-content] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  background-color: white !important;
+  color: rgb(17, 24, 39) !important;
+}

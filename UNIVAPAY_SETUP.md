@@ -20,17 +20,15 @@
 # データベース
 DATABASE_URL=postgresql://user:password@localhost:5432/dbname
 
-# UnivaPay API設定
-# secret、store id、tokenのみで初期化可能
+# UnivaPay API設定（バックエンド用）
 # 設定方法: 店舗 > 店舗を選択 > 開発 > アプリトークン ページで作成
-UNIVAPAY_API_URL=https://api.univapay.com
-UNIVAPAY_TOKEN=your_univapay_jwt_token
-UNIVAPAY_SECRET=your_univapay_secret
-UNIVAPAY_STORE_ID=your_store_id  # オプション（通常はJWTに含まれています）
+UNIVAPAY_TOKEN=your_univapay_jwt_token  # アプリトークン（JWT）
+UNIVAPAY_SECRET=your_univapay_secret    # アプリシークレット
+UNIVAPAY_API_URL=https://api.univapay.com  # オプション（デフォルト: https://api.univapay.com）
 
 # UnivaPay ウィジェット設定（フロントエンド用）
 NEXT_PUBLIC_UNIVAPAY_APP_ID=your_app_id  # アプリトークン（JWT）を設定
-NEXT_PUBLIC_UNIVAPAY_RETURN_URL=http://localhost:3000/payment/return  # 3DSリダイレクト後のURL
+NEXT_PUBLIC_UNIVAPAY_RETURN_URL=http://localhost:3000/payment/return  # オプション（3DSリダイレクト後のURL）
 
 # UnivaPay Webhook設定（オプション）
 UNIVAPAY_WEBHOOK_AUTH=your_webhook_auth_secret  # Webhook認証用の共有シークレット
@@ -70,14 +68,13 @@ npm run db:migrate
    - 作成されたトークンから JWT をコピーする
    - シークレットを保存する
 3. 環境変数に設定：
-   - `UNIVAPAY_TOKEN`: コピーしたJWTトークン（またはtoken）
-   - `UNIVAPAY_SECRET`: 保存したシークレット（secret）
-   - `UNIVAPAY_STORE_ID`: ストアID（オプション、通常はJWTに含まれています）
-   - `UNIVAPAY_FORM_ID`: ECフォームID（決済リンク作成に必要）
+   - `UNIVAPAY_TOKEN`: コピーしたJWTトークン（App Token）
+   - `UNIVAPAY_SECRET`: 保存したシークレット（App Secret）
+   - `NEXT_PUBLIC_UNIVAPAY_APP_ID`: 同じJWTトークン（フロントエンド用）
 
 **注意**: 
 - Store IDはJWTトークンに含まれているため、別途指定する必要はありません。SDKが自動的にJWTからStore IDを認識します。
-- ECForm IDは、UnivaPayダッシュボードでECフォームを作成した後に取得できます。
+- `UNIVAPAY_TOKEN`と`NEXT_PUBLIC_UNIVAPAY_APP_ID`には同じJWTトークンを設定します。
 
 詳細は[公式ドキュメント](https://docs.univapay.com/docs/api/)を参照してください。
 
