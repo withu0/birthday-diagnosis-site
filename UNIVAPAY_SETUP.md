@@ -21,12 +21,19 @@
 DATABASE_URL=postgresql://user:password@localhost:5432/dbname
 
 # UnivaPay API設定
-# 公式SDKを使用するため、JWTとシークレットが必要です
-# Store IDはJWTトークンに含まれているため、別途指定する必要はありません
+# secret、store id、tokenのみで初期化可能
 # 設定方法: 店舗 > 店舗を選択 > 開発 > アプリトークン ページで作成
 UNIVAPAY_API_URL=https://api.univapay.com
-UNIVAPAY_STORE_JWT=your_store_jwt_token
-UNIVAPAY_STORE_JWT_SECRET=your_store_jwt_secret
+UNIVAPAY_TOKEN=your_univapay_jwt_token
+UNIVAPAY_SECRET=your_univapay_secret
+UNIVAPAY_STORE_ID=your_store_id  # オプション（通常はJWTに含まれています）
+
+# UnivaPay ウィジェット設定（フロントエンド用）
+NEXT_PUBLIC_UNIVAPAY_APP_ID=your_app_id  # アプリトークン（JWT）を設定
+NEXT_PUBLIC_UNIVAPAY_RETURN_URL=http://localhost:3000/payment/return  # 3DSリダイレクト後のURL
+
+# UnivaPay Webhook設定（オプション）
+UNIVAPAY_WEBHOOK_AUTH=your_webhook_auth_secret  # Webhook認証用の共有シークレット
 
 # アプリケーションURL
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
@@ -63,10 +70,14 @@ npm run db:migrate
    - 作成されたトークンから JWT をコピーする
    - シークレットを保存する
 3. 環境変数に設定：
-   - `UNIVAPAY_STORE_JWT`: コピーしたJWTトークン
-   - `UNIVAPAY_STORE_JWT_SECRET`: 保存したシークレット
+   - `UNIVAPAY_TOKEN`: コピーしたJWTトークン（またはtoken）
+   - `UNIVAPAY_SECRET`: 保存したシークレット（secret）
+   - `UNIVAPAY_STORE_ID`: ストアID（オプション、通常はJWTに含まれています）
+   - `UNIVAPAY_FORM_ID`: ECフォームID（決済リンク作成に必要）
 
-**注意**: Store IDはJWTトークンに含まれているため、別途指定する必要はありません。SDKが自動的にJWTからStore IDを認識します。
+**注意**: 
+- Store IDはJWTトークンに含まれているため、別途指定する必要はありません。SDKが自動的にJWTからStore IDを認識します。
+- ECForm IDは、UnivaPayダッシュボードでECフォームを作成した後に取得できます。
 
 詳細は[公式ドキュメント](https://docs.univapay.com/docs/api/)を参照してください。
 
@@ -109,13 +120,26 @@ http://localhost:3000/payment
 
 ### 決済フロー
 
+#### クレジットカード決済（UnivaPayウィジェット使用）
+
 1. ユーザーが支払いフォームで情報を入力
 2. プランを選択（50,000円、80,000円、100,000円）
-3. 支払い方法を選択（銀行振込、クレジットカード、口座引き落とし）
-4. UnivaPay決済ページへリダイレクト
-5. 決済完了後、コールバックで処理
-6. 自動的にID/パスワードを生成し、メール送信
-7. 6ヶ月後に自動的に閲覧権限を削除
+3. 支払い方法で「クレジットカード決済」を選択
+4. フォーム送信後、UnivaPayウィジェットが開く
+5. ウィジェットでカード情報を入力し、トークンが作成される
+6. トークンを使用してサーバー側で決済（チャージ）を作成
+7. 3Dセキュア認証が必要な場合、認証後にリダイレクト
+8. 決済完了後、Webhookまたはポーリングでステータス更新
+9. 自動的にID/パスワードを生成し、メール送信
+10. 6ヶ月後に自動的に閲覧権限を削除
+
+#### 銀行振込
+
+1. ユーザーが支払いフォームで情報を入力
+2. プランを選択
+3. 支払い方法で「銀行振込」を選択
+4. フォーム送信後、即座に決済完了として処理
+5. 自動的にID/パスワードを生成し、メール送信
 
 ## APIエンドポイント
 
@@ -143,9 +167,42 @@ Content-Type: application/json
 
 ### 決済コールバック
 
+#### Webhook（POST）
+
 ```
 POST /api/payment/callback
-GET /api/payment/callback?payment_id=...&order_id=...&status=...
+Authorization: Bearer {UNIVAPAY_WEBHOOK_AUTH}
+Content-Type: application/json
+
+{
+  "event": "charge.finished",
+  "object": "charge",
+  "id": "charge_id",
+  "status": "successful",
+  ...
+}
+```
+
+#### 3DSリダイレクト（GET）
+
+```
+GET /api/payment/callback?univapayChargeId=...&status=...&paymentId=...
+```
+
+このエンドポイントは `/payment/return` ページにリダイレクトします。
+
+### 決済チャージ作成（ウィジェットトークン使用）
+
+```
+POST /api/payment/checkout/charge
+Content-Type: application/json
+
+{
+  "paymentId": "uuid",
+  "transaction_token_id": "token_from_widget",
+  "amount": 55000,
+  "redirect_endpoint": "http://localhost:3000/payment/return"
+}
 ```
 
 ### 決済確認

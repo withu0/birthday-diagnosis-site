@@ -2,17 +2,16 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
-import { useAdmin } from "@/lib/hooks/use-admin"
 
 export default function Home() {
   const router = useRouter()
-  const { isAdmin } = useAdmin()
   const [name, setName] = useState("")
   const [birthDate, setBirthDate] = useState("")
 
@@ -26,10 +25,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       {/* ヘッダー */}
-      <header className="border-b border-gold/30 bg-white">
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
+            <Link href="/" className="flex items-center">
               <Image
                 src="/brand.avif"
                 alt="12 SKINS"
@@ -37,29 +36,16 @@ export default function Home() {
                 height={40}
                 className="h-8 w-auto"
               />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                className="border-silver text-silver-dark text-sm"
-                onClick={() => router.push("/payment")}
+            </Link>
+            <nav className="flex items-center gap-6">
+              <Link
+                href="/pricing"
+                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
               >
-                お支払い
-              </Button>
-              <Button variant="outline" className="border-silver text-silver-dark text-sm">
-                履歴検索ページ
-              </Button>
-              {isAdmin && (
-                <Button 
-                  variant="outline" 
-                  className="border-silver text-silver-dark text-sm"
-                  onClick={() => router.push("/admin")}
-                >
-                管理画面
-              </Button>
-              )}
+                プラン選択
+              </Link>
               <AuthButton />
-            </div>
+            </nav>
           </div>
         </div>
       </header>

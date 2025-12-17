@@ -6,134 +6,127 @@ import { createUser } from "@/lib/auth"
 import { hashPassword } from "@/lib/auth"
 import crypto from "crypto"
 
-// UnivaPayからのコールバックを処理
+// UnivaPay webhook handler
 export async function POST(request: NextRequest) {
   try {
+    // Optional: Verify webhook authentication
+    // UnivaPay may send webhook auth in Authorization header
+    const webhookAuth = process.env.UNIVAPAY_WEBHOOK_AUTH
+    if (webhookAuth) {
+      const authHeader = request.headers.get("Authorization") || ""
+      const expected = `Bearer ${webhookAuth}`
+      if (authHeader !== expected) {
+        return NextResponse.json({ error: "Unauthorized webhook" }, { status: 401 })
+      }
+    }
+
     const body = await request.json()
     
-    // UnivaPayからのコールバックデータを検証
-    // 実際の実装はUnivaPayのドキュメントに従ってください
-    const { order_id, transaction_id, status, payment_id } = body
+    // UnivaPay webhook payload structure
+    // Extract event type and object data
+    const eventType = body.event || body.type || body.status
+    const obj = body.object
+    const dataObj = body.data || body
 
-    if (!payment_id) {
-      return NextResponse.json({ error: "Payment ID is required" }, { status: 400 })
+    // Extract charge/subscription IDs from various possible shapes
+    let chargeId: string | null = null
+    let subscriptionId: string | null = null
+
+    if (obj === "charge" || obj === "charges") {
+      chargeId = body.id || dataObj.id || body.charge_id
+    } else if (obj === "subscription" || obj === "subscriptions") {
+      subscriptionId = body.id || dataObj.id || body.subscription_id
+    } else {
+      // Try nested shapes
+      chargeId = body.charge?.id || dataObj.charge_id || body.chargeId
+      subscriptionId = body.subscription?.id || dataObj.subscription_id || body.subscriptionId
     }
 
-    // 支払いレコードを取得
-    const [payment] = await db
-      .select()
-      .from(payments)
-      .where(eq(payments.id, payment_id))
-      .limit(1)
+    const newStatus = body.status || dataObj.status
 
-    if (!payment) {
-      return NextResponse.json({ error: "Payment not found" }, { status: 404 })
-    }
-
-    // 決済が完了した場合
-    if (status === "completed" || status === "paid") {
-      // 支払いステータスを更新
-      await db
-        .update(payments)
-        .set({
-          status: "completed",
-          univapayOrderId: order_id || payment.univapayOrderId,
-          univapayTransactionId: transaction_id,
-          updatedAt: new Date(),
-        })
-        .where(eq(payments.id, payment_id))
-
-      // 既に会員権限が作成されているか確認
-      const [existingMembership] = await db
+    // Find payment by UnivaPay charge/transaction ID
+    let payment = null
+    if (chargeId) {
+      const [found] = await db
         .select()
-        .from(memberships)
-        .where(eq(memberships.paymentId, payment_id))
+        .from(payments)
+        .where(eq(payments.univapayTransactionId, chargeId.toString()))
         .limit(1)
+      payment = found
+    }
 
-      if (!existingMembership) {
-        // 会員権限を作成
-        await createMembership(payment)
+    if (!payment && subscriptionId) {
+      const [found] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.univapayTransactionId, subscriptionId.toString()))
+        .limit(1)
+      payment = found
+    }
+
+    // If payment found, update status
+    if (payment) {
+      let updatedStatus = payment.status
+
+      // Map UnivaPay status to our status
+      if (newStatus === "successful" || newStatus === "paid" || newStatus === "completed") {
+        updatedStatus = "completed"
+      } else if (newStatus === "failed" || newStatus === "error") {
+        updatedStatus = "failed"
+      } else if (newStatus === "cancelled" || newStatus === "canceled") {
+        updatedStatus = "cancelled"
       }
 
-      return NextResponse.json({ success: true, message: "Payment processed successfully" })
-    } else if (status === "failed" || status === "cancelled") {
-      // 決済が失敗またはキャンセルされた場合
       await db
         .update(payments)
         .set({
-          status: status === "failed" ? "failed" : "cancelled",
+          status: updatedStatus,
           updatedAt: new Date(),
         })
-        .where(eq(payments.id, payment_id))
+        .where(eq(payments.id, payment.id))
 
-      return NextResponse.json({ success: true, message: "Payment status updated" })
+      // If payment completed, create membership if not exists
+      if (updatedStatus === "completed") {
+        const [existingMembership] = await db
+          .select()
+          .from(memberships)
+          .where(eq(memberships.paymentId, payment.id))
+          .limit(1)
+
+        if (!existingMembership) {
+          await createMembership(payment)
+        }
+      }
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error("Payment callback error:", error)
-    return NextResponse.json(
-      { error: "Callback processing failed" },
-      { status: 500 }
-    )
+    console.error("Payment webhook error:", error)
+    // Always return 200 to acknowledge webhook receipt
+    return NextResponse.json({ ok: true })
   }
 }
 
-// GETリクエストも処理（UnivaPayがGETでコールバックする場合）
+// GETリクエストも処理（3DSリダイレクト後のコールバック）
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const paymentId = searchParams.get("payment_id")
-  const orderId = searchParams.get("order_id")
+  const chargeId = searchParams.get("univapayChargeId") || searchParams.get("charge_id")
+  const tokenId = searchParams.get("univapayTokenId") || searchParams.get("token_id")
   const status = searchParams.get("status")
+  const paymentId = searchParams.get("payment_id")
 
-  if (!paymentId) {
-    return NextResponse.redirect(new URL("/payment/cancel", request.url))
-  }
+  // Redirect to return page with query params
+  const returnUrl = new URL("/payment/return", request.url)
+  if (chargeId) returnUrl.searchParams.set("univapayChargeId", chargeId)
+  if (tokenId) returnUrl.searchParams.set("univapayTokenId", tokenId)
+  if (status) returnUrl.searchParams.set("status", status)
+  if (paymentId) returnUrl.searchParams.set("paymentId", paymentId)
 
-  try {
-    const [payment] = await db
-      .select()
-      .from(payments)
-      .where(eq(payments.id, paymentId))
-      .limit(1)
-
-    if (!payment) {
-      return NextResponse.redirect(new URL("/payment/cancel", request.url))
-    }
-
-    if (status === "completed" || status === "paid") {
-      await db
-        .update(payments)
-        .set({
-          status: "completed",
-          univapayOrderId: orderId || payment.univapayOrderId,
-          updatedAt: new Date(),
-        })
-        .where(eq(payments.id, paymentId))
-
-      // 会員権限を作成
-      const [existingMembership] = await db
-        .select()
-        .from(memberships)
-        .where(eq(memberships.paymentId, paymentId))
-        .limit(1)
-
-      if (!existingMembership) {
-        await createMembership(payment)
-      }
-
-      return NextResponse.redirect(new URL(`/payment/success?paymentId=${paymentId}`, request.url))
-    }
-
-    return NextResponse.redirect(new URL(`/payment/cancel?paymentId=${paymentId}`, request.url))
-  } catch (error) {
-    console.error("Payment callback error:", error)
-    return NextResponse.redirect(new URL("/payment/cancel", request.url))
-  }
+  return NextResponse.redirect(returnUrl)
 }
 
-// 会員権限を作成し、ID/パスワードを生成してメール送信
-async function createMembership(payment: typeof payments.$inferSelect) {
+// Export createMembership for use in other routes
+export async function createMembership(payment: typeof payments.$inferSelect) {
   // 既存のユーザーを確認（メールアドレスで検索）
   const [existingUser] = await db
     .select()

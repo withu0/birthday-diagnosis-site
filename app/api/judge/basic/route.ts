@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { google } from "googleapis"
+import dateRangeGroups from "../../../../date-range-groups.json"
 
 const GOOGLE_SHEET_ID1 = process.env.GOOGLE_SHEET_ID1
 const SHEET_NAME = "分類表"
@@ -10,6 +11,17 @@ interface LookupData {
   attractive: string
   valuable: string
   problem: string
+}
+
+interface DateRangeGroup {
+  groupId: string
+  startYear: number
+  endYear: number
+  startDate: string
+  endDate: string
+  startRow: number
+  endRow: number
+  rowCount: number
 }
 
 // Mapping for essential/attractive values (skin types)
@@ -73,7 +85,15 @@ const getDummyData = (): LookupData[] => {
   ]
 }
 
-const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
+/**
+ * Find the date range group for a given year
+ */
+const findGroupForYear = (year: number): DateRangeGroup | null => {
+  const groups = dateRangeGroups.groups as DateRangeGroup[]
+  return groups.find(group => year >= group.startYear && year <= group.endYear) || null
+}
+
+const fetchGoogleSheetData = async (group: DateRangeGroup | null = null): Promise<LookupData[]> => {
   try {
     console.log("[basic] Starting Google Sheets API fetch on server")
     console.log("[basic] Spreadsheet ID:", GOOGLE_SHEET_ID1)
@@ -107,9 +127,21 @@ const fetchGoogleSheetData = async (): Promise<LookupData[]> => {
       throw new Error(`Cannot access spreadsheet. Please check: 1) Spreadsheet ID is correct, 2) Service account has access to the sheet, 3) Sheet is not deleted. Error: ${metaError}`)
     }
     
+    // Determine the range to fetch based on the group
+    let range: string
+    if (group) {
+      // Fetch only the rows for the specific group
+      range = `${SHEET_NAME}!C${group.startRow}:K${group.endRow}`
+      console.log(`[basic] Fetching optimized range for group ${group.groupId}: rows ${group.startRow} to ${group.endRow} (${group.rowCount} rows)`)
+    } else {
+      // Fallback to full range if no group provided
+      range = `${SHEET_NAME}!C22:K48234`
+      console.log("[basic] No group specified, fetching full range")
+    }
+    
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: GOOGLE_SHEET_ID1,
-      range: `${SHEET_NAME}!C22:K48234`,
+      range: range,
     })
 
     console.log("[basic] Google Sheets API response received")
@@ -165,7 +197,19 @@ export async function POST(request: NextRequest) {
 
     console.log("[basic] API route called with birthDate:", birthDate)
 
-    const sheetData = await fetchGoogleSheetData()
+    // Determine which group this date belongs to based on the year
+    const date = new Date(birthDate)
+    const year = date.getFullYear()
+    const group = findGroupForYear(year)
+    
+    if (group) {
+      console.log(`[basic] Found group ${group.groupId} for year ${year}`)
+    } else {
+      console.log(`[basic] No group found for year ${year}, will fetch full range`)
+    }
+
+    // Fetch only the data for the relevant group
+    const sheetData = await fetchGoogleSheetData(group)
 
     if (sheetData.length === 0) {
       return NextResponse.json({ error: "No data found in Google Sheets" }, { status: 404 })

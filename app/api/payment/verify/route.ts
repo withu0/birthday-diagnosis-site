@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { payments } from "@/lib/db/schema"
+import { payments, memberships } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 
 export async function GET(request: NextRequest) {
@@ -28,10 +28,22 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Check if membership exists
+    const [membership] = await db
+      .select()
+      .from(memberships)
+      .where(eq(memberships.paymentId, paymentId))
+      .limit(1)
+
     return NextResponse.json({
       paymentId: payment.id,
       status: payment.status,
       isCompleted: payment.status === "completed",
+      hasMembership: !!membership,
+      membership: membership ? {
+        username: membership.username,
+        // Note: Password is not returned for security
+      } : null,
     })
   } catch (error) {
     console.error("Payment verification error:", error)

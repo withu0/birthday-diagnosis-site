@@ -59,60 +59,46 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
-    // TODO: UnivaPay API連携（現在はコメントアウト）
-    // 実際のUnivaPay APIの実装は、UnivaPayのドキュメントに従って実装してください
-    /*
-    const univapayResponse = await createUnivaPayOrder(payment.id, validatedData)
-
-    if (univapayResponse.success && univapayResponse.paymentUrl) {
-      // UnivaPayの注文IDを保存
+    // UnivaPay API連携
+    // 銀行振込の場合は直接完了として扱う
+    if (validatedData.paymentMethod === "bank_transfer") {
+      // 銀行振込の場合は直接完了として扱う
       await db
         .update(payments)
         .set({
-          univapayOrderId: univapayResponse.orderId?.toString() || null,
+          status: "completed",
         })
         .where(eq(payments.id, payment.id))
 
+      // アカウントと会員権限を作成
+      const accountInfo = await createAccountAndMembership(payment, validatedData)
+
       return NextResponse.json({
         paymentId: payment.id,
-        paymentUrl: univapayResponse.paymentUrl,
+        message: "銀行振込の案内をメールでお送りします",
+        email: accountInfo.email,
+        password: accountInfo.password,
       })
-    } else {
-      // UnivaPay連携に失敗した場合
-      console.error("UnivaPay response error:", univapayResponse)
-      
-      // 銀行振込の場合は直接完了として扱う
-      if (validatedData.paymentMethod === "bank_transfer") {
-        return NextResponse.json({
-          paymentId: payment.id,
-          message: "銀行振込の案内をメールでお送りします",
-        })
-      }
-
-      // その他の支払い方法の場合はエラーを返す
-      const errorMessage = univapayResponse.error || "決済処理に失敗しました"
-      throw new Error(errorMessage)
     }
-    */
 
-    // 一時的に決済を成功として扱う（開発用）
-    // 支払いステータスを完了に更新
-    await db
-      .update(payments)
-      .set({
-        status: "completed",
+    // クレジットカード決済の場合は、フロントエンドでUnivaPayウィジェットを使用
+    // ウィジェットがトークンを作成した後、/api/payment/checkout/charge エンドポイントで決済を実行
+    if (validatedData.paymentMethod === "credit_card") {
+      // 支払いレコードを作成済みなので、paymentIdを返す
+      // フロントエンドでUnivaPayウィジェットを開く
+      return NextResponse.json({
+        paymentId: payment.id,
+        message: "クレジットカード決済を開始します",
       })
-      .where(eq(payments.id, payment.id))
+    }
 
-    // アカウントと会員権限を作成
-    const accountInfo = await createAccountAndMembership(payment, validatedData)
-
-    return NextResponse.json({
-      paymentId: payment.id,
-      message: "決済が完了しました（開発モード）",
-      email: accountInfo.email,
-      password: accountInfo.password,
-    })
+    // 口座引き落としの場合は未実装
+    if (validatedData.paymentMethod === "direct_debit") {
+      return NextResponse.json(
+        { error: "口座引き落とし決済は現在利用できません" },
+        { status: 400 }
+      )
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -129,9 +115,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// UnivaPay API連携関数（公式SDKを使用）
-// ドキュメント: https://docs.univapay.com/docs/api/
-async function createUnivaPayOrder(
+// UnivaPay クレジットカード決済関数（ECFormLinkを使用）
+// 直接カードトークン作成が無効なため、ECFormLink（ホストページ）を使用
+async function createCreditCardPayment(
   paymentId: string,
   data: z.infer<typeof paymentSchema>
 ) {
@@ -139,15 +125,7 @@ async function createUnivaPayOrder(
     const sdk = getUnivaPaySDK()
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
-    // 支払い方法に応じてCheckoutを作成
-    // 注意: UnivaPayのドキュメントに従って、適切なパラメータを設定してください
-    // https://docs.univapay.com/docs/api/checkouts
-    
-    // UnivaPayのECFormLink（一時的な決済リンク）を作成
-    // 注意: createTemporaryにはformIdが必須です
-    // ECFormはUnivaPayダッシュボードで事前に作成する必要があります
-    
-    // 環境変数からECForm IDを取得
+    // ECForm IDを取得（環境変数から）
     const formId = process.env.UNIVAPAY_FORM_ID
     
     if (!formId) {
@@ -162,26 +140,36 @@ async function createUnivaPayOrder(
         "例: UNIVAPAY_FORM_ID=your_form_id_here"
       )
     }
-    
+
     // 一時的なECFormLinkを作成
     // expiry: 24時間後（ISO 8601形式）
     const expiryDate = new Date()
     expiryDate.setHours(expiryDate.getHours() + 24)
+
+    // JWTトークンを取得（認証トークン）
+    const token = process.env.UNIVAPAY_TOKEN || process.env.UNIVAPAY_STORE_JWT
     
-    const ecFormLink = await sdk.ecFormLinks.createTemporary({
+    // ECFormLinkを作成（公開APIで必要なフィールドのみを渡す）
+    // jwtは必須フィールドのため、認証トークンを使用
+    const ecFormLinkParams: any = {
       formId: formId,
-      amount: data.totalAmount,
+      amount: Math.round(data.totalAmount), // 整数に変換（最小通貨単位）
       currency: "JPY",
       description: `12SKINS利用料 - ${data.planType}`,
       tokenType: TransactionTokenType.ONE_TIME,
       expiry: expiryDate.toISOString(),
+      tokenOnly: false, // トークンだけでなく、決済も実行
+      allowCardInstallments: false, // 分割払いを許可しない
+      jwt: token, // 認証トークンをjwtフィールドに含める（APIが要求）
       metadata: {
         payment_id: paymentId,
         plan_type: data.planType,
         customer_name: data.name,
         customer_email: data.email,
       },
-    } as any)
+    }
+
+    const ecFormLink = await sdk.ecFormLinks.createTemporary(ecFormLinkParams)
 
     // デバッグ: レスポンス構造を確認
     console.log("UnivaPay ECFormLink Response:", JSON.stringify(ecFormLink, null, 2))
@@ -208,6 +196,7 @@ async function createUnivaPayOrder(
     return {
       success: true,
       orderId: ecFormLink.id,
+      transactionId: ecFormLink.id,
       paymentUrl: checkoutUrl,
     }
   } catch (error) {
