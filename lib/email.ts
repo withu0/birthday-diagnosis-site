@@ -1,8 +1,7 @@
-import nodemailer from "nodemailer"
 import { google } from "googleapis"
 
-// Get access token from service account
-const getServiceAccountAccessToken = async (): Promise<{ token: string; user: string }> => {
+// Get Gmail API client using service account
+const getGmailClient = async () => {
   const clientEmail = process.env.GOOGLE_CLIENT_EMAIL
   const privateKey = process.env.GOOGLE_PRIVATE_KEY
   const gmailUser = process.env.GMAIL_USER || clientEmail
@@ -33,45 +32,53 @@ const getServiceAccountAccessToken = async (): Promise<{ token: string; user: st
   }
 
   const authClient = await auth.getClient()
-  const accessTokenResponse = await authClient.getAccessToken()
-  
-  if (!accessTokenResponse.token) {
-    throw new Error("Failed to get access token from service account")
-  }
-  
-  // TypeScript narrowing: after the check above, token is guaranteed to be string
-  const token = accessTokenResponse.token
+  const gmail = google.gmail({ version: "v1", auth: authClient })
   
   // Ensure user is always a string (clientEmail is checked above, so gmailUser will always be defined)
   const user = gmailUser || clientEmail
   
-  return {
-    token,
-    user,
-  }
+  return { gmail, user }
 }
 
-// Gmail SMTP configuration using service account
-const createTransporter = async () => {
-  const emailService = process.env.EMAIL_SERVICE || "console"
+// Create RFC 2822 formatted email message
+const createEmailMessage = (
+  from: string,
+  to: string,
+  subject: string,
+  text: string,
+  html?: string
+): string => {
+  const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substring(7)}`
   
-  if (emailService === "gmail") {
-    const { token, user } = await getServiceAccountAccessToken()
-    
-    return nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: user,
-        accessToken: token,
-        // For service accounts, we'll refresh the token manually when needed
-        // by calling getServiceAccountAccessToken again
-      },
-    })
+  let message = [
+    `From: ${from}`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/plain; charset=UTF-8`,
+    `Content-Transfer-Encoding: 7bit`,
+    ``,
+    text,
+    ``,
+  ]
+
+  if (html) {
+    message.push(
+      `--${boundary}`,
+      `Content-Type: text/html; charset=UTF-8`,
+      `Content-Transfer-Encoding: 7bit`,
+      ``,
+      html,
+      ``
+    )
   }
+
+  message.push(`--${boundary}--`)
   
-  // For console mode, return null (will be handled in sendEmail function)
-  return null
+  return message.join(`\r\n`)
 }
 
 export interface EmailOptions {
@@ -99,38 +106,35 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
   }
   
   if (emailService === "gmail") {
-    let transporter = await createTransporter()
+    const { gmail, user } = await getGmailClient()
     
-    if (!transporter) {
-      throw new Error("Failed to create Gmail transporter")
-    }
+    // Create the email message in RFC 2822 format
+    const emailMessage = createEmailMessage(
+      user,
+      options.to,
+      options.subject,
+      options.text,
+      options.html || options.text.replace(/\n/g, "<br>")
+    )
     
-    const { user } = await getServiceAccountAccessToken()
-    
-    const mailOptions = {
-      from: user,
-      to: options.to,
-      subject: options.subject,
-      text: options.text,
-      html: options.html || options.text.replace(/\n/g, "<br>"),
-    }
+    // Encode the message in base64url format (Gmail API requirement)
+    const encodedMessage = Buffer.from(emailMessage)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "")
     
     try {
-      const info = await transporter.sendMail(mailOptions)
-      console.log("✅ Email sent successfully:", info.messageId)
+      const response = await gmail.users.messages.send({
+        userId: "me",
+        requestBody: {
+          raw: encodedMessage,
+        },
+      })
+      
+      console.log("✅ Email sent successfully:", response.data.id)
       return
-    } catch (error: any) {
-      // If token expired, try refreshing and sending again
-      if (error.code === "EAUTH" || error.message?.includes("Invalid login")) {
-        console.log("🔄 Access token expired, refreshing...")
-        // Create a new transporter with a fresh token
-        transporter = await createTransporter()
-        if (transporter) {
-          const retryInfo = await transporter.sendMail(mailOptions)
-          console.log("✅ Email sent successfully after token refresh:", retryInfo.messageId)
-          return
-        }
-      }
+    } catch (error) {
       console.error("❌ Failed to send email:", error)
       throw error
     }
