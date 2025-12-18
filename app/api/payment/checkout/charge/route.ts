@@ -17,7 +17,28 @@ const chargeSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const validatedData = chargeSchema.parse(body)
+    
+    // Log the incoming request for debugging
+    console.log("Charge request body:", JSON.stringify(body, null, 2))
+    
+    // Handle transaction_token_id if it's an object (UnivaPay sometimes returns object instead of string)
+    let transactionTokenId = body.transaction_token_id
+    if (transactionTokenId && typeof transactionTokenId === 'object') {
+      transactionTokenId = transactionTokenId.id || transactionTokenId.tokenId || transactionTokenId.token || String(transactionTokenId)
+    }
+    
+    // Ensure it's a string
+    if (typeof transactionTokenId !== 'string') {
+      return NextResponse.json(
+        { error: "transaction_token_id must be a string" },
+        { status: 400 }
+      )
+    }
+    
+    const validatedData = chargeSchema.parse({
+      ...body,
+      transaction_token_id: transactionTokenId,
+    })
 
     // Get payment record
     const [payment] = await db

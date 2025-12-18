@@ -106,8 +106,24 @@ export default function PaymentPage() {
         redirect: RETURN_URL || undefined,
         paymentMethods: ['card'],
 
-        onTokenCreated: async (tokenId: string) => {
+        onTokenCreated: async (token: string | { id?: string; tokenId?: string; token?: string } | any) => {
           try {
+            // Extract token ID - handle both string and object formats
+            let tokenId: string
+            if (typeof token === 'string') {
+              tokenId = token
+            } else if (token && typeof token === 'object') {
+              tokenId = token.id || token.tokenId || token.token || String(token)
+            } else {
+              throw new Error("Invalid token format received from UnivaPay")
+            }
+            
+            if (!tokenId || typeof tokenId !== 'string') {
+              throw new Error("Invalid token format received from UnivaPay")
+            }
+            
+            console.log("Token received from UnivaPay:", token, "Extracted tokenId:", tokenId)
+
             // Send token to backend to create charge
             const response = await fetch("/api/payment/checkout/charge", {
               method: "POST",
