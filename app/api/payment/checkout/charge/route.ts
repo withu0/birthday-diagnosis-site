@@ -97,6 +97,11 @@ export async function POST(request: NextRequest) {
         idempotencyKey,
       })
 
+      console.log("✅ Charge created successfully")
+      console.log("   Charge ID:", charge.id)
+      console.log("   Charge status:", charge.status)
+      console.log("   Charge object:", JSON.stringify(charge, null, 2))
+
       // Determine payment status from charge
       const isSuccessful = charge.status === "successful" || charge.status === "completed" || charge.status === "paid"
       const newStatus = isSuccessful ? "completed" : 
@@ -104,16 +109,26 @@ export async function POST(request: NextRequest) {
                        (charge.status === "cancelled" || charge.status === "canceled") ? "cancelled" :
                        payment.status
 
+      // Extract charge ID - try multiple possible fields
+      const chargeId = charge.id?.toString() || charge.chargeId?.toString() || charge.transactionId?.toString() || null
+
+      console.log("💾 Updating payment record:")
+      console.log("   Payment ID:", validatedData.paymentId)
+      console.log("   Charge ID to store:", chargeId)
+      console.log("   New status:", newStatus)
+
       // Update payment record with charge information
       await db
         .update(payments)
         .set({
-          univapayOrderId: charge.id?.toString() || null,
-          univapayTransactionId: charge.id?.toString() || null,
+          univapayOrderId: chargeId,
+          univapayTransactionId: chargeId,
           status: newStatus,
           updatedAt: new Date(),
         })
         .where(eq(payments.id, validatedData.paymentId))
+
+      console.log("✅ Payment record updated successfully")
 
       // If payment completed immediately (no 3DS), create membership
       if (isSuccessful) {

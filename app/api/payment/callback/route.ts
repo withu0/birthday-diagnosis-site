@@ -8,6 +8,10 @@ import crypto from "crypto"
 
 // UnivaPay webhook handler
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  console.log("=== Webhook Received ===")
+  console.log(`Timestamp: ${new Date().toISOString()}`)
+  
   try {
     // Optional: Verify webhook authentication
     // UnivaPay may send webhook auth in Authorization header
@@ -16,17 +20,25 @@ export async function POST(request: NextRequest) {
       const authHeader = request.headers.get("Authorization") || ""
       const expected = `Bearer ${webhookAuth}`
       if (authHeader !== expected) {
+        console.log("❌ Webhook authentication failed")
         return NextResponse.json({ error: "Unauthorized webhook" }, { status: 401 })
       }
+      console.log("✅ Webhook authentication passed")
+    } else {
+      console.log("⚠️ Webhook authentication not configured (UNIVAPAY_WEBHOOK_AUTH not set)")
     }
 
     const body = await request.json()
+    console.log("📦 Webhook payload:", JSON.stringify(body, null, 2))
     
     // UnivaPay webhook payload structure
     // Extract event type and object data
     const eventType = body.event || body.type || body.status
     const obj = body.object
     const dataObj = body.data || body
+
+    console.log(`📋 Event type: ${eventType}`)
+    console.log(`📋 Object type: ${obj}`)
 
     // Extract charge/subscription IDs from various possible shapes
     let chargeId: string | null = null
@@ -42,41 +54,137 @@ export async function POST(request: NextRequest) {
       subscriptionId = body.subscription?.id || dataObj.subscription_id || body.subscriptionId
     }
 
-    const newStatus = body.status || dataObj.status
+    // Also try to extract from metadata if available
+    const metadata = body.metadata || dataObj.metadata || {}
+    const paymentIdFromMetadata = metadata.payment_id
 
-    // Find payment by UnivaPay charge/transaction ID
+    const newStatus = body.status || dataObj.status || body.state
+
+    console.log(`🔍 Extracted IDs:`)
+    console.log(`   - Charge ID: ${chargeId}`)
+    console.log(`   - Subscription ID: ${subscriptionId}`)
+    console.log(`   - Payment ID from metadata: ${paymentIdFromMetadata}`)
+    console.log(`   - New status: ${newStatus}`)
+
+    // Find payment by multiple methods
     let payment = null
-    if (chargeId) {
+    let searchMethod = ""
+
+    // Method 1: Search by payment ID from metadata
+    if (!payment && paymentIdFromMetadata) {
+      console.log(`🔎 Searching payment by metadata payment_id: ${paymentIdFromMetadata}`)
+      const [found] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.id, paymentIdFromMetadata))
+        .limit(1)
+      if (found) {
+        payment = found
+        searchMethod = "metadata.payment_id"
+        console.log(`✅ Found payment by metadata payment_id`)
+      }
+    }
+
+    // Method 2: Search by univapayTransactionId (charge ID)
+    if (!payment && chargeId) {
+      console.log(`🔎 Searching payment by univapayTransactionId: ${chargeId}`)
       const [found] = await db
         .select()
         .from(payments)
         .where(eq(payments.univapayTransactionId, chargeId.toString()))
         .limit(1)
-      payment = found
+      if (found) {
+        payment = found
+        searchMethod = "univapayTransactionId"
+        console.log(`✅ Found payment by univapayTransactionId`)
+      } else {
+        console.log(`❌ No payment found with univapayTransactionId: ${chargeId}`)
+      }
     }
 
+    // Method 3: Search by univapayOrderId (charge ID)
+    if (!payment && chargeId) {
+      console.log(`🔎 Searching payment by univapayOrderId: ${chargeId}`)
+      const [found] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.univapayOrderId, chargeId.toString()))
+        .limit(1)
+      if (found) {
+        payment = found
+        searchMethod = "univapayOrderId"
+        console.log(`✅ Found payment by univapayOrderId`)
+      } else {
+        console.log(`❌ No payment found with univapayOrderId: ${chargeId}`)
+      }
+    }
+
+    // Method 4: Search by subscription ID
     if (!payment && subscriptionId) {
+      console.log(`🔎 Searching payment by subscription ID: ${subscriptionId}`)
       const [found] = await db
         .select()
         .from(payments)
         .where(eq(payments.univapayTransactionId, subscriptionId.toString()))
         .limit(1)
-      payment = found
+      if (found) {
+        payment = found
+        searchMethod = "subscriptionId"
+        console.log(`✅ Found payment by subscription ID`)
+      }
     }
 
+    if (!payment) {
+      console.log(`❌ Payment not found with any method`)
+      console.log(`   Attempted searches:`)
+      if (paymentIdFromMetadata) console.log(`     - metadata.payment_id: ${paymentIdFromMetadata}`)
+      if (chargeId) console.log(`     - univapayTransactionId: ${chargeId}`)
+      if (chargeId) console.log(`     - univapayOrderId: ${chargeId}`)
+      if (subscriptionId) console.log(`     - subscriptionId: ${subscriptionId}`)
+      
+      // Log all payments with univapay IDs for debugging
+      const allPayments = await db
+        .select({
+          id: payments.id,
+          univapayOrderId: payments.univapayOrderId,
+          univapayTransactionId: payments.univapayTransactionId,
+          status: payments.status,
+        })
+        .from(payments)
+        .limit(10)
+      console.log(`📊 Recent payments with UnivaPay IDs:`, JSON.stringify(allPayments, null, 2))
+      
+      return NextResponse.json({ 
+        ok: true, 
+        message: "Payment not found",
+        searchedIds: { chargeId, subscriptionId, paymentIdFromMetadata }
+      })
+    }
+
+    console.log(`✅ Payment found via ${searchMethod}`)
+    console.log(`   Payment ID: ${payment.id}`)
+    console.log(`   Current status: ${payment.status}`)
+    console.log(`   UnivaPay Order ID: ${payment.univapayOrderId}`)
+    console.log(`   UnivaPay Transaction ID: ${payment.univapayTransactionId}`)
+
     // If payment found, update status
-    if (payment) {
-      let updatedStatus = payment.status
+    let updatedStatus = payment.status
 
-      // Map UnivaPay status to our status
-      if (newStatus === "successful" || newStatus === "paid" || newStatus === "completed") {
-        updatedStatus = "completed"
-      } else if (newStatus === "failed" || newStatus === "error") {
-        updatedStatus = "failed"
-      } else if (newStatus === "cancelled" || newStatus === "canceled") {
-        updatedStatus = "cancelled"
-      }
+    // Map UnivaPay status to our status
+    if (newStatus === "successful" || newStatus === "paid" || newStatus === "completed" || newStatus === "succeeded") {
+      updatedStatus = "completed"
+    } else if (newStatus === "failed" || newStatus === "error" || newStatus === "declined") {
+      updatedStatus = "failed"
+    } else if (newStatus === "cancelled" || newStatus === "canceled") {
+      updatedStatus = "cancelled"
+    }
 
+    console.log(`🔄 Status update:`)
+    console.log(`   From: ${payment.status}`)
+    console.log(`   To: ${updatedStatus}`)
+    console.log(`   UnivaPay status: ${newStatus}`)
+
+    if (updatedStatus !== payment.status) {
       await db
         .update(payments)
         .set({
@@ -85,8 +193,11 @@ export async function POST(request: NextRequest) {
         })
         .where(eq(payments.id, payment.id))
 
+      console.log(`✅ Payment status updated successfully`)
+
       // If payment completed, create membership if not exists
       if (updatedStatus === "completed") {
+        console.log(`🎉 Payment completed - checking for membership`)
         const [existingMembership] = await db
           .select()
           .from(memberships)
@@ -94,16 +205,39 @@ export async function POST(request: NextRequest) {
           .limit(1)
 
         if (!existingMembership) {
+          console.log(`📝 Creating membership for payment ${payment.id}`)
           await createMembership(payment)
+          console.log(`✅ Membership created successfully`)
+        } else {
+          console.log(`ℹ️ Membership already exists for this payment`)
         }
       }
+    } else {
+      console.log(`ℹ️ Status unchanged (already ${payment.status})`)
     }
 
-    return NextResponse.json({ ok: true })
+    const duration = Date.now() - startTime
+    console.log(`⏱️ Webhook processing completed in ${duration}ms`)
+    console.log("=== Webhook End ===\n")
+
+    return NextResponse.json({ 
+      ok: true,
+      paymentId: payment.id,
+      oldStatus: payment.status,
+      newStatus: updatedStatus,
+      searchMethod
+    })
   } catch (error) {
-    console.error("Payment webhook error:", error)
+    const duration = Date.now() - startTime
+    console.error("❌ Payment webhook error:", error)
+    console.error(`⏱️ Error occurred after ${duration}ms`)
+    if (error instanceof Error) {
+      console.error(`   Error message: ${error.message}`)
+      console.error(`   Stack trace: ${error.stack}`)
+    }
+    console.log("=== Webhook End (Error) ===\n")
     // Always return 200 to acknowledge webhook receipt
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, error: error instanceof Error ? error.message : "Unknown error" })
   }
 }
 
