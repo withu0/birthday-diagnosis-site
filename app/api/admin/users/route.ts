@@ -67,6 +67,10 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    // Delete related memberships first (to avoid foreign key constraint violation)
+    await db.delete(memberships).where(eq(memberships.userId, userId))
+
+    // Now delete the user
     await db.delete(users).where(eq(users.id, userId))
 
     return NextResponse.json({ message: "ユーザーを削除しました" })
