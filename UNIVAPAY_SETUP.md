@@ -41,11 +41,10 @@ CRON_SECRET=your_cron_secret_key
 
 # メール送信設定（オプション）
 EMAIL_SERVICE=console  # "console", "gmail", "sendgrid", "ses", etc.
-# Gmail Service Accountを使用する場合（Google Sheetsと同じ認証情報を使用）
+# Gmail SMTPを使用する場合（推奨）
 # EMAIL_SERVICE=gmail
-# GOOGLE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
-# GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour-Private-Key-Here\n-----END PRIVATE KEY-----"
-# GMAIL_USER=your-email@gmail.com  # オプション: ドメイン全体の委任を使用する場合
+# GMAIL_USER=your-email@gmail.com
+# GMAIL_APP_PASSWORD=your-16-character-app-password  # Gmailアプリパスワード（通常のパスワードではない）
 # SendGridを使用する場合
 # SENDGRID_API_KEY=your_sendgrid_api_key
 # AWS SESを使用する場合
@@ -88,58 +87,35 @@ npm run db:migrate
 デフォルトでは、メールはコンソールに出力されます。
 本番環境では、以下のいずれかのメールサービスを設定してください：
 
-#### Gmail Service Accountを使用する場合（推奨）
+#### Gmail SMTPを使用する場合（推奨）
 
-この方法では、Google Sheetsで使用しているのと同じサービスアカウント認証情報を使用できます。
+この方法は最もシンプルで、通常のGmailアカウントで使用できます。
 
-1. **Google Cloud Consoleでサービスアカウントを作成**（既にGoogle Sheets用に作成済みの場合はスキップ）
-   - [Google Cloud Console](https://console.cloud.google.com/)にアクセス
-   - プロジェクトを選択（Google Sheetsと同じプロジェクトを使用することを推奨）
-   - 「APIとサービス」>「認証情報」に移動
-   - 「認証情報を作成」>「サービスアカウント」を選択
-   - サービスアカウント名を入力して「作成」
-   - ロールは「編集者」または適切なロールを選択（メール送信には不要ですが、他の機能で使用する場合があります）
+1. **Gmailアカウントで2段階認証を有効にする**
+   - [Googleアカウント設定](https://myaccount.google.com/)にアクセス
+   - 「セキュリティ」に移動
+   - 「2段階認証プロセス」を有効化（まだ有効でない場合）
 
-2. **サービスアカウントキーをダウンロード**
-   - 作成したサービスアカウントをクリック
-   - 「キー」タブに移動
-   - 「キーを追加」>「新しいキーを作成」を選択
-   - キーのタイプ: 「JSON」を選択
-   - 「作成」をクリックしてJSONファイルをダウンロード
+2. **アプリパスワードを生成**
+   - Googleアカウント設定 > セキュリティ > 2段階認証プロセス
+   - 「アプリパスワード」を選択（2段階認証が有効な場合に表示されます）
+   - 「アプリを選択」で「メール」を選択
+   - 「デバイスを選択」で「その他（カスタム名）」を選択してアプリ名を入力（例: "12SKINS Email Service"）
+   - 「生成」をクリック
+   - 表示された16文字のパスワードをコピー（後で使用します）
 
-3. **Gmail APIを有効化**
-   - 「APIとサービス」>「ライブラリ」に移動
-   - "Gmail API"を検索して有効化
-
-4. **環境変数に設定**
+3. **環境変数に設定**
    ```env
    EMAIL_SERVICE=gmail
-   GOOGLE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
-   GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour-Private-Key-Here\n-----END PRIVATE KEY-----"
+   GMAIL_USER=your-email@gmail.com
+   GMAIL_APP_PASSWORD=your-16-character-app-password
    ```
-   
-   JSONファイルから以下を取得：
-   - `client_email` → `GOOGLE_CLIENT_EMAIL`
-   - `private_key` → `GOOGLE_PRIVATE_KEY`（改行文字 `\n` を含む完全な文字列）
-
-5. **（オプション）ドメイン全体の委任を設定**
-   
-   特定のGmailアドレスからメールを送信したい場合（Google Workspaceドメインのみ）：
-   
-   ```env
-   GMAIL_USER=your-email@yourdomain.com
-   ```
-   
-   その後、Google Workspace管理コンソールで：
-   - 「セキュリティ」>「API制御」>「ドメイン全体の委任」に移動
-   - サービスアカウントのクライアントIDを追加
-   - スコープ: `https://www.googleapis.com/auth/gmail.send` を追加
 
 **重要**: 
-- サービスアカウントのメールアドレスから直接送信する場合は、`GMAIL_USER`は不要です
-- Google Workspaceドメインでない通常のGmailアカウントから送信する場合は、ドメイン全体の委任は使用できません
-- その場合は、サービスアカウントのメールアドレス（`your-service-account@your-project.iam.gserviceaccount.com`）から送信されます
-- サービスアカウントのメールアドレスは受信できないため、返信はできません
+- 通常のGmailパスワードではなく、**アプリパスワード**を使用してください
+- アプリパスワードは16文字の英数字です（スペースなし）
+- 2段階認証が有効でない場合、アプリパスワードは生成できません
+- アプリパスワードは安全に保管してください（環境変数やシークレット管理サービスに保存）
 
 #### SendGridを使用する場合
 
