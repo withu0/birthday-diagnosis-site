@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { users, memberships } from "@/lib/db/schema"
+import { users, memberships, payments } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { isAdmin } from "@/lib/admin"
 import { createUser, hashPassword } from "@/lib/auth"
@@ -69,6 +69,12 @@ export async function DELETE(request: NextRequest) {
 
     // Delete related memberships first (to avoid foreign key constraint violation)
     await db.delete(memberships).where(eq(memberships.userId, userId))
+
+    // Set payments.userId to null (preserve payment records for audit purposes)
+    await db
+      .update(payments)
+      .set({ userId: null })
+      .where(eq(payments.userId, userId))
 
     // Now delete the user
     await db.delete(users).where(eq(users.id, userId))
