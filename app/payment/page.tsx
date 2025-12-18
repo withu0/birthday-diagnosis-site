@@ -57,7 +57,7 @@ export default function PaymentPage() {
   }, [validPlan, router])
 
   const [selectedPlan] = useState<string>(validPlan || "basic")
-  const [paymentMethod, setPaymentMethod] = useState<string>("bank_transfer")
+  const [paymentMethod, setPaymentMethod] = useState<string>("credit_card")
   const [formData, setFormData] = useState({
     companyName: "",
     name: "",
@@ -375,7 +375,8 @@ export default function PaymentPage() {
                   <div className="pb-6 border-b">
                     <Label className="text-base font-semibold mb-4 block">お支払い方法</Label>
                     <div className="grid grid-cols-1 gap-3">
-                      <button
+                      {/* Bank Transfer - Commented out */}
+                      {/* <button
                         type="button"
                         onClick={() => setPaymentMethod("bank_transfer")}
                         className={`p-4 rounded-xl border-2 transition-all text-left ${
@@ -399,7 +400,7 @@ export default function PaymentPage() {
                             </div>
                           </div>
                         </div>
-                      </button>
+                      </button> */}
 
                       <button
                         type="button"
@@ -431,7 +432,8 @@ export default function PaymentPage() {
                         </div>
                       </button>
 
-                      <button
+                      {/* Direct Debit - Commented out */}
+                      {/* <button
                         type="button"
                         onClick={() => setPaymentMethod("direct_debit")}
                         className={`p-4 rounded-xl border-2 transition-all text-left ${
@@ -455,7 +457,7 @@ export default function PaymentPage() {
                             </div>
                           </div>
                         </div>
-                      </button>
+                      </button> */}
                     </div>
                   </div>
 

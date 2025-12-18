@@ -1,196 +1,121 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export default function PaymentReturnPage() {
-  const searchParams = useSearchParams()
   const router = useRouter()
 
-  const chargeId = useMemo(
-    () => searchParams.get("univapayChargeId") || searchParams.get("charge_id") || "",
-    [searchParams]
-  )
-  const tokenId = useMemo(
-    () => searchParams.get("univapayTokenId") || searchParams.get("token_id") || "",
-    [searchParams]
-  )
-  const status = useMemo(() => searchParams.get("status") || "", [searchParams])
-  const paymentId = useMemo(() => searchParams.get("paymentId") || "", [searchParams])
-
-  const [seconds, setSeconds] = useState(5) // redirect countdown
-  const [auto, setAuto] = useState(true)
-  const [paymentStatus, setPaymentStatus] = useState<string | null>(null)
-  const [isChecking, setIsChecking] = useState(true)
-
-  // Check payment status when component mounts or paymentId changes
-  useEffect(() => {
-    if (!paymentId) {
-      setIsChecking(false)
-      return
-    }
-
-    const checkPaymentStatus = async () => {
-      try {
-        const response = await fetch(`/api/payment/verify?paymentId=${paymentId}`)
-        const data = await response.json()
-        
-        if (data.status) {
-          setPaymentStatus(data.status)
-        }
-      } catch (error) {
-        console.error("Failed to check payment status:", error)
-      } finally {
-        setIsChecking(false)
-      }
-    }
-
-    checkPaymentStatus()
-
-    // Poll payment status every 3 seconds for up to 30 seconds (for webhook updates)
-    const pollInterval = setInterval(() => {
-      checkPaymentStatus()
-    }, 3000)
-
-    const timeout = setTimeout(() => {
-      clearInterval(pollInterval)
-    }, 30000) // Stop polling after 30 seconds
-
-    return () => {
-      clearInterval(pollInterval)
-      clearTimeout(timeout)
-    }
-  }, [paymentId])
-
-  // Auto-redirect based on payment status
-  useEffect(() => {
-    if (!auto || isChecking || !paymentStatus) return
-
-    if (paymentStatus === "completed") {
-      // Redirect to success page immediately if completed
-      if (seconds <= 0) {
-        router.push(`/payment/success?paymentId=${paymentId}`)
-        return
-      }
-    } else if (paymentStatus === "failed" || paymentStatus === "cancelled") {
-      // Redirect to cancel page if failed
-      if (seconds <= 0) {
-        router.push(`/payment/cancel?paymentId=${paymentId}`)
-        return
-      }
-    } else {
-      // Still pending, wait for countdown
-      if (seconds <= 0) {
-        router.push(`/payment/success?paymentId=${paymentId}`)
-        return
-      }
-    }
-
-    const t = setTimeout(() => setSeconds((s) => s - 1), 1000)
-    return () => clearTimeout(t)
-  }, [auto, seconds, router, paymentId, paymentStatus, isChecking])
-
-  const banner = (() => {
-    const statusLower = status.toLowerCase()
-    if (statusLower === "successful" || statusLower === "completed" || statusLower === "paid") {
-      return {
-        cls: "border-green-200 bg-green-50 text-green-700",
-        text: "3Dセキュア認証が正常に完了しました。決済が完了次第、会員権限が付与されます。",
-      }
-    }
-    if (statusLower === "failed" || statusLower === "error" || statusLower === "cancelled") {
-      return {
-        cls: "border-red-200 bg-red-50 text-red-700",
-        text: "3Dセキュア認証が失敗したか、キャンセルされました。再度お試しください。",
-      }
-    }
-    return {
-      cls: "border-amber-200 bg-amber-50 text-amber-800",
-      text: "3Dセキュア認証から戻りました。決済状況を確認中です。",
-    }
-  })()
-
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-xl">決済処理中</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600">
-            3Dセキュア認証の処理が完了しました。決済状況を確認しています。
-          </p>
-
-          <div className={`rounded-md border p-3 text-sm ${banner.cls}`}>{banner.text}</div>
-
-          {(chargeId || tokenId || status) && (
-            <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700 space-y-1">
-              <div>
-                Charge ID: <code className="break-all">{chargeId || "—"}</code>
-              </div>
-              <div>
-                Token ID: <code className="break-all">{tokenId || "—"}</code>
-              </div>
-              <div>
-                Status: <code>{status || "—"}</code>
-              </div>
-            </div>
-          )}
-
-          {isChecking && (
-            <div className="text-center text-sm text-gray-600">
-              決済状況を確認中...
-            </div>
-          )}
-
-          <div className="flex items-center justify-between pt-4">
-            <Button
-              onClick={() => {
-                if (paymentStatus === "completed" && paymentId) {
-                  router.push(`/payment/success?paymentId=${paymentId}`)
-                } else if (paymentStatus === "failed" || paymentStatus === "cancelled") {
-                  router.push(`/payment/cancel?paymentId=${paymentId}`)
-                } else if (paymentId) {
-                  router.push(`/payment/success?paymentId=${paymentId}`)
-                } else {
-                  router.push("/payment")
-                }
-              }}
-              className="bg-gray-700 hover:bg-gray-800"
-              disabled={isChecking}
-            >
-              {paymentStatus === "completed"
-                ? "決済完了ページへ"
-                : paymentStatus === "failed" || paymentStatus === "cancelled"
-                ? "決済失敗ページへ"
-                : "決済状況を確認"}
-            </Button>
-
-            <div className="text-xs text-gray-500">
-              {auto ? (
-                <button
-                  onClick={() => setAuto(false)}
-                  className="underline hover:no-underline"
-                >
-                  {seconds}秒後に自動リダイレクト — 停止
-                </button>
-              ) : (
-                <span>自動リダイレクト停止中</span>
-              )}
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/brand.avif"
+                alt="12 SKINS"
+                width={120}
+                height={40}
+                className="h-8 w-auto"
+              />
+            </Link>
           </div>
+        </div>
+      </header>
 
-          <Button
-            onClick={() => router.push("/payment")}
-            variant="outline"
-            className="w-full"
-          >
-            ← 決済ページに戻る
-          </Button>
-        </CardContent>
-      </Card>
+      <main className="container mx-auto px-4 py-12 max-w-2xl">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg
+                  className="w-10 h-10 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <CardTitle className="text-2xl text-center text-green-600">
+                お支払いが完了しました
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center space-y-4">
+              <p className="text-lg text-gray-700">
+                お支払いありがとうございます。
+              </p>
+              <p className="text-gray-600">
+                会員サイトへのログイン認証情報をメールにてお送りいたしました。
+                <br />
+                メールをご確認いただき、記載されている認証情報でログインしてください。
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div className="text-sm text-blue-800">
+                  <p className="font-semibold mb-1">メールが届かない場合</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-700">
+                    <li>迷惑メールフォルダをご確認ください</li>
+                    <li>メールアドレスが正しく入力されているかご確認ください</li>
+                    <li>数分待ってから再度ご確認ください</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 space-y-3">
+              <Button
+                onClick={() => router.push("/login")}
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+              >
+                ログインページへ
+              </Button>
+              <Button
+                onClick={() => router.push("/")}
+                variant="outline"
+                className="w-full"
+              >
+                トップページに戻る
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+
+      <footer className="border-t bg-gray-50 mt-12">
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p className="text-gray-600 text-sm">
+            Copyright © 株式会社美容総研 All Rights Reserved. Powered by MyASP (マイスピー)
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }

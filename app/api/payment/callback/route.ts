@@ -370,7 +370,7 @@ ${payment.name}様
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-会員サイトURL: ${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/member
+会員サイトURL: ${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/login
 
 ※この認証情報は6ヶ月間有効です。
 ※このメールは自動送信されています。返信はできません。
