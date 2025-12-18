@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
 
 interface UserProfile {
@@ -108,6 +110,14 @@ export default function MyPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editName, setEditName] = useState("")
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -132,6 +142,106 @@ export default function MyPage() {
 
     fetchProfile()
   }, [router])
+
+  // Initialize edit form when entering edit mode
+  useEffect(() => {
+    if (isEditing && profile) {
+      setEditName(profile.user.name)
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+      setSaveError(null)
+      setSaveSuccess(false)
+    }
+  }, [isEditing, profile])
+
+  const handleSaveProfile = async () => {
+    if (!profile) return
+
+    setSaveError(null)
+    setSaveSuccess(false)
+
+    // Validate password if new password is provided
+    if (newPassword) {
+      if (newPassword.length < 6) {
+        setSaveError("パスワードは6文字以上で入力してください")
+        return
+      }
+      if (newPassword !== confirmPassword) {
+        setSaveError("新しいパスワードと確認用パスワードが一致しません")
+        return
+      }
+      if (!currentPassword) {
+        setSaveError("パスワードを変更する場合は、現在のパスワードを入力してください")
+        return
+      }
+    }
+
+    setIsSaving(true)
+
+    try {
+      const updateData: {
+        name?: string
+        currentPassword?: string
+        newPassword?: string
+      } = {}
+
+      if (editName !== profile.user.name) {
+        updateData.name = editName
+      }
+
+      if (newPassword) {
+        updateData.currentPassword = currentPassword
+        updateData.newPassword = newPassword
+      }
+
+      // Only send request if there are changes
+      if (Object.keys(updateData).length === 0) {
+        setIsEditing(false)
+        setIsSaving(false)
+        return
+      }
+
+      const response = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "更新に失敗しました")
+      }
+
+      setSaveSuccess(true)
+      
+      // Refresh profile data
+      const profileResponse = await fetch("/api/user/profile")
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json()
+        setProfile(profileData)
+      }
+
+      // Reset form and exit edit mode after a short delay
+      setTimeout(() => {
+        setIsEditing(false)
+        setSaveSuccess(false)
+      }, 2000)
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "更新に失敗しました")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setSaveError(null)
+    setSaveSuccess(false)
+  }
 
   if (isLoading) {
     return (
@@ -208,24 +318,144 @@ export default function MyPage() {
             {/* User Information */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle>アカウント情報</CardTitle>
-                <CardDescription>基本情報</CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>アカウント情報</CardTitle>
+                    <CardDescription>基本情報</CardDescription>
+                  </div>
+                  {!isEditing && (
+                    <Button
+                      onClick={() => setIsEditing(true)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      編集
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">お名前</div>
-                    <div className="text-lg font-semibold text-gray-900">{user.name}</div>
+                {isEditing ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-name">お名前</Label>
+                        <Input
+                          id="edit-name"
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          placeholder="お名前を入力"
+                          disabled={isSaving}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email-display">メールアドレス</Label>
+                        <Input
+                          id="email-display"
+                          type="email"
+                          value={user.email}
+                          disabled
+                          className="bg-gray-100 cursor-not-allowed"
+                        />
+                        <p className="text-xs text-gray-500">メールアドレスは変更できません</p>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500 mb-1">アカウント作成日</div>
+                        <div className="text-gray-900">{formatDate(user.createdAt)}</div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-gray-900">パスワードを変更</h3>
+                      <p className="text-sm text-gray-600">
+                        パスワードを変更する場合のみ、以下を入力してください。
+                      </p>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="current-password">現在のパスワード</Label>
+                          <Input
+                            id="current-password"
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            placeholder="現在のパスワードを入力"
+                            disabled={isSaving}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">新しいパスワード</Label>
+                          <Input
+                            id="new-password"
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="新しいパスワード（6文字以上）"
+                            disabled={isSaving}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-password">新しいパスワード（確認）</Label>
+                          <Input
+                            id="confirm-password"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="新しいパスワードを再入力"
+                            disabled={isSaving}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {saveError && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                        <p className="text-sm text-red-600">{saveError}</p>
+                      </div>
+                    )}
+
+                    {saveSuccess && (
+                      <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                        <p className="text-sm text-green-600">プロフィールを更新しました</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 pt-4">
+                      <Button
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                        className="flex-1"
+                      >
+                        {isSaving ? "保存中..." : "保存"}
+                      </Button>
+                      <Button
+                        onClick={handleCancelEdit}
+                        variant="outline"
+                        disabled={isSaving}
+                        className="flex-1"
+                      >
+                        キャンセル
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">メールアドレス</div>
-                    <div className="text-lg font-semibold text-gray-900">{user.email}</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-gray-500 mb-1">お名前</div>
+                      <div className="text-lg font-semibold text-gray-900">{user.name}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500 mb-1">メールアドレス</div>
+                      <div className="text-lg font-semibold text-gray-900">{user.email}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500 mb-1">アカウント作成日</div>
+                      <div className="text-gray-900">{formatDate(user.createdAt)}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">アカウント作成日</div>
-                    <div className="text-gray-900">{formatDate(user.createdAt)}</div>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
