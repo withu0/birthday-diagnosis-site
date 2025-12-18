@@ -5,8 +5,8 @@ const createTransporter = () => {
   const emailService = process.env.EMAIL_SERVICE || "console"
   
   if (emailService === "gmail") {
-    const gmailUser = process.env.GMAIL_USER
-    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD
+    const gmailUser = process.env.GMAIL_USER?.trim()
+    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD?.trim()
     
     if (!gmailUser || !gmailAppPassword) {
       throw new Error(
@@ -14,11 +14,24 @@ const createTransporter = () => {
       )
     }
     
+    // Validate email format
+    if (!gmailUser.includes("@")) {
+      throw new Error(`Invalid Gmail address: ${gmailUser}`)
+    }
+    
+    // Validate app password format (should be 16 characters, no spaces)
+    const cleanPassword = gmailAppPassword.replace(/\s/g, "")
+    if (cleanPassword.length !== 16) {
+      console.warn(
+        `⚠️ Warning: Gmail app password should be 16 characters. Got ${cleanPassword.length} characters.`
+      )
+    }
+    
     return nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: gmailUser,
-        pass: gmailAppPassword, // Use App Password, not regular password
+        pass: cleanPassword, // Use App Password (trimmed and spaces removed)
       },
     })
   }
@@ -72,8 +85,24 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       const info = await transporter.sendMail(mailOptions)
       console.log("✅ Email sent successfully:", info.messageId)
       return
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Failed to send email:", error)
+      
+      // Provide helpful error messages for common issues
+      if (error.code === "EAUTH") {
+        const errorMessage = error.response || error.message || ""
+        if (errorMessage.includes("BadCredentials") || errorMessage.includes("Username and Password not accepted")) {
+          throw new Error(
+            "Gmail authentication failed. Please check:\n" +
+            "1. GMAIL_USER is correct (full email address)\n" +
+            "2. GMAIL_APP_PASSWORD is correct (16-character app password, not regular password)\n" +
+            "3. 2-Step Verification is enabled on your Gmail account\n" +
+            "4. App password was generated correctly (no spaces, exactly 16 characters)\n" +
+            `Error details: ${errorMessage}`
+          )
+        }
+      }
+      
       throw error
     }
   }

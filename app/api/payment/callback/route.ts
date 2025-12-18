@@ -270,6 +270,8 @@ export async function createMembership(payment: typeof payments.$inferSelect) {
     .limit(1)
 
   let userId: string
+  let userPassword: string | null = null // Store the password to send in email (only for new users)
+  let shouldSendCredentials = false
 
   if (existingUser) {
     // 既存のユーザーを使用
@@ -280,12 +282,42 @@ export async function createMembership(payment: typeof payments.$inferSelect) {
       .update(payments)
       .set({ userId })
       .where(eq(payments.id, payment.id))
+
+    // 既存の会員権限を確認
+    const [existingMembership] = await db
+      .select()
+      .from(memberships)
+      .where(eq(memberships.userId, userId))
+      .limit(1)
+
+    if (existingMembership) {
+      // 既存の会員権限がある場合、有効期限を延長（パスワードは変更しない）
+      const newExpiresAt = new Date()
+      newExpiresAt.setMonth(newExpiresAt.getMonth() + 6)
+
+      await db
+        .update(memberships)
+        .set({
+          paymentId: payment.id,
+          accessExpiresAt: newExpiresAt,
+          isActive: true,
+          updatedAt: new Date(),
+        })
+        .where(eq(memberships.id, existingMembership.id))
+
+      // サブスクリプション延長のメールを送信
+      await sendSubscriptionExtensionEmail(payment, newExpiresAt)
+
+      return existingMembership
+    }
+    // 既存ユーザーだが会員権限がない場合は、新しい会員権限を作成（認証情報は送信しない）
   } else {
     // 新しいユーザーを作成
     // 会員サイト用のパスワードを生成
-    const memberPassword = generatePassword()
-    const user = await createUser(payment.email, payment.name, memberPassword)
+    userPassword = generatePassword()
+    const user = await createUser(payment.email, payment.name, userPassword)
     userId = user.id
+    shouldSendCredentials = true
     
     // 支払いレコードにユーザーIDを関連付ける
     await db
@@ -294,10 +326,10 @@ export async function createMembership(payment: typeof payments.$inferSelect) {
       .where(eq(payments.id, payment.id))
   }
 
-  // 会員サイト用のユーザー名とパスワードを生成
+  // 新しい会員権限を作成（新規ユーザーの場合のみ）
   const username = generateUsername()
-  const password = generatePassword()
-  const passwordHash = await hashPassword(password)
+  const membershipPassword = generatePassword()
+  const passwordHash = await hashPassword(membershipPassword)
 
   // 6ヶ月後の有効期限を計算
   const accessExpiresAt = new Date()
@@ -317,16 +349,18 @@ export async function createMembership(payment: typeof payments.$inferSelect) {
     })
     .returning()
 
-  // メール送信
-  await sendCredentialsEmail(payment, username, password)
+  // 新規ユーザーの場合のみ、認証情報をメールで送信
+  if (shouldSendCredentials && userPassword) {
+    await sendCredentialsEmail(payment, payment.email, userPassword)
 
-  // メール送信日時を更新
-  await db
-    .update(memberships)
-    .set({
-      credentialsSentAt: new Date(),
-    })
-    .where(eq(memberships.id, membership.id))
+    // メール送信日時を更新
+    await db
+      .update(memberships)
+      .set({
+        credentialsSentAt: new Date(),
+      })
+      .where(eq(memberships.id, membership.id))
+  }
 
   return membership
 }
@@ -346,7 +380,7 @@ function generatePassword(): string {
 // 認証情報をメールで送信
 async function sendCredentialsEmail(
   payment: typeof payments.$inferSelect,
-  username: string,
+  email: string,
   password: string
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
@@ -364,7 +398,7 @@ ${payment.name}様
 【会員サイトアクセス情報】
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-ユーザーID: ${username}
+メールアドレス: ${email}
 パスワード: ${password}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -399,12 +433,12 @@ Copyright © 株式会社美容総研 All Rights Reserved.
       <h2 style="color: #333; font-size: 18px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px;">【会員サイトアクセス情報】</h2>
       
       <div style="margin-bottom: 15px;">
-        <strong style="color: #666; display: inline-block; width: 100px;">ユーザーID:</strong>
-        <span style="font-size: 16px; font-weight: bold; color: #333;">${username}</span>
+        <strong style="color: #666; display: inline-block; width: 120px;">メールアドレス:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #333;">${email}</span>
       </div>
       
       <div style="margin-bottom: 15px;">
-        <strong style="color: #666; display: inline-block; width: 100px;">パスワード:</strong>
+        <strong style="color: #666; display: inline-block; width: 120px;">パスワード:</strong>
         <span style="font-size: 16px; font-weight: bold; color: #333;">${password}</span>
       </div>
     </div>
@@ -439,6 +473,105 @@ Copyright © 株式会社美容総研 All Rights Reserved.
     console.error("❌ Failed to send credentials email:", error)
     // Don't throw error to prevent payment processing from failing
     // Email failure should be logged but not block the membership creation
+  }
+}
+
+// サブスクリプション延長のメールを送信
+async function sendSubscriptionExtensionEmail(
+  payment: typeof payments.$inferSelect,
+  newExpiresAt: Date
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+  const loginUrl = `${baseUrl}/login`
+
+  // Format expiration date
+  const expiresAtFormatted = new Date(newExpiresAt).toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+
+  const emailText = `
+12SKINS会員サイト サブスクリプション延長のお知らせ
+
+${payment.name}様
+
+お支払いありがとうございます。
+会員サイトのサブスクリプションを延長いたしました。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【サブスクリプション情報】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+新しい有効期限: ${expiresAtFormatted}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+会員サイトURL: ${loginUrl}
+
+※既存のメールアドレスとパスワードでログインできます。
+※このメールは自動送信されています。返信はできません。
+
+ご不明な点がございましたら、お問い合わせください。
+
+Copyright © 株式会社美容総研 All Rights Reserved.
+`
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12SKINS会員サイト サブスクリプション延長のお知らせ</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f9f9f9; padding: 30px; border-radius: 8px;">
+    <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">12SKINS会員サイト サブスクリプション延長のお知らせ</h1>
+    
+    <p style="font-size: 16px; margin-bottom: 20px;">${payment.name}様</p>
+    
+    <p style="font-size: 16px; margin-bottom: 30px;">お支払いありがとうございます。<br>会員サイトのサブスクリプションを延長いたしました。</p>
+    
+    <div style="background-color: #fff; border: 2px solid #ddd; border-radius: 6px; padding: 25px; margin-bottom: 30px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px;">【サブスクリプション情報】</h2>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #666; display: inline-block; width: 140px;">新しい有効期限:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #333;">${expiresAtFormatted}</span>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <a href="${loginUrl}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">会員サイトにログイン</a>
+    </div>
+    
+    <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+      <p style="margin-bottom: 10px;">※既存のメールアドレスとパスワードでログインできます。</p>
+      <p style="margin-bottom: 10px;">※このメールは自動送信されています。返信はできません。</p>
+      <p style="margin-bottom: 0;">ご不明な点がございましたら、お問い合わせください。</p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #999;">
+      <p>Copyright © 株式会社美容総研 All Rights Reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+`
+
+  try {
+    await sendEmail({
+      to: payment.email,
+      subject: "12SKINS会員サイト サブスクリプション延長のお知らせ",
+      text: emailText,
+      html: emailHtml,
+    })
+    console.log(`✅ Subscription extension email sent to ${payment.email}`)
+  } catch (error) {
+    console.error("❌ Failed to send subscription extension email:", error)
+    // Don't throw error to prevent payment processing from failing
+    // Email failure should be logged but not block the membership update
   }
 }
 
