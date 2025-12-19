@@ -235,7 +235,35 @@ export default function PaymentPage() {
         return
       }
 
-      // For bank transfer, use existing flow
+      // For bank transfer and direct debit, redirect to check email page
+      if (paymentMethod === "bank_transfer" || paymentMethod === "direct_debit") {
+        const response = await fetch("/api/payment/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            planType: selectedPlan,
+            paymentMethod,
+            ...formData,
+            amount: currentPlan.amount,
+            taxAmount,
+            totalAmount,
+          }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || "支払い処理に失敗しました")
+        }
+
+        // Redirect to check email page for bank transfer and direct debit
+        router.push(`/payment/check-email?paymentId=${data.paymentId}`)
+        return
+      }
+
+      // For other payment methods (should not reach here, but keeping for safety)
       const response = await fetch("/api/payment/create", {
         method: "POST",
         headers: {
@@ -266,7 +294,7 @@ export default function PaymentPage() {
         // 成功ページにリダイレクト（認証情報をクエリパラメータで渡す）
         router.push(`/payment/success?paymentId=${data.paymentId}&email=${encodeURIComponent(data.email)}&password=${encodeURIComponent(data.password)}`)
       } else if (data.message) {
-        // 銀行振込などの場合
+        // Other payment methods
         alert(data.message)
         router.push(`/payment/success?paymentId=${data.paymentId}`)
       } else {

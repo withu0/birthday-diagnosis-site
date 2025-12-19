@@ -318,16 +318,6 @@ export function generateBankTransferEmail(data: PaymentEmailData): string {
 
 ご決済が完了しておりませんのでご注意ください。
 
-[決済リンク]
-
-以下のリンクをクリックし
-
-ご決済を完了してください。
-
-↓
-
-${data.paymentLink || 'https://univa.cc/5AUe_w'}
-
 銀行振込でのお支払いをご希望の場合、3日以内に下記口座宛にサイト利用料${data.totalAmount.toLocaleString()}円をお振込お願い致します。
 
 【12SKINS利用料＿振込先】
@@ -417,16 +407,6 @@ export function generateDirectDebitEmail(data: PaymentEmailData): string {
 本メールの段階ではまだ、
 
 ご決済が完了しておりませんのでご注意ください。
-
-[決済リンク]
-
-以下のリンクをクリックし
-
-ご決済を完了してください。
-
-↓
-
-${data.paymentLink || 'https://univa.cc/5AUe_w'}
 
 銀行振込でのお支払いをご希望の場合、3日以内に下記口座宛にサイト利用料${data.totalAmount.toLocaleString()}円をお振込お願い致します。
 
