@@ -294,12 +294,6 @@ export default function MyPage() {
               >
                 トップページ
               </Link>
-              <Link
-                href="/pricing"
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                プラン選択
-              </Link>
               <AuthButton />
             </nav>
           </div>
@@ -523,7 +517,7 @@ export default function MyPage() {
                           会員権限の有効期限が切れています。新しいプランをお申し込みください。
                         </p>
                         <Button
-                          onClick={() => router.push("/pricing")}
+                          onClick={() => router.push("/payment?plan=basic")}
                           className="w-full sm:w-auto"
                         >
                           プランを選択
@@ -537,7 +531,7 @@ export default function MyPage() {
                           会員権限の有効期限がまもなく切れます。継続をご希望の場合は、新しいプランをお申し込みください。
                         </p>
                         <Button
-                          onClick={() => router.push("/pricing")}
+                          onClick={() => router.push("/payment?plan=basic")}
                           variant="outline"
                           className="w-full sm:w-auto"
                         >
@@ -554,7 +548,7 @@ export default function MyPage() {
                       </svg>
                     </div>
                     <p className="text-gray-600 mb-4">会員権限がありません</p>
-                    <Button onClick={() => router.push("/pricing")}>
+                    <Button onClick={() => router.push("/payment?plan=basic")}>
                       プランを選択
                     </Button>
                   </div>
@@ -626,7 +620,7 @@ export default function MyPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
-                  onClick={() => router.push("/pricing")}
+                  onClick={() => router.push("/payment?plan=basic")}
                   className="w-full"
                   variant="outline"
                 >

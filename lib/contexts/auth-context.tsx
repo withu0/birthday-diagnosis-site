@@ -12,7 +12,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const protectedRoutes = ["/diagnosis"]
+const protectedRoutes = ["/diagnosis", "/compatibility"]
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { user, isLoading, logout } = useAuth()

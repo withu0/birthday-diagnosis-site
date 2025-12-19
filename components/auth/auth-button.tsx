@@ -104,14 +104,6 @@ export function AuthButton() {
                 <User className="mr-2 h-4 w-4" />
                 <span>マイページ</span>
               </Link>
-              <Link
-                href="/pricing"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                <CreditCard className="mr-2 h-4 w-4" />
-                <span>プラン選択</span>
-              </Link>
               {isAdmin && (
                 <>
                   <div className="border-t border-gray-200 my-1" />

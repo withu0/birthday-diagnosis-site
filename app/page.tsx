@@ -38,12 +38,6 @@ export default function Home() {
               />
             </Link>
             <nav className="flex items-center gap-6">
-              <Link
-                href="/pricing"
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                プラン選択
-              </Link>
               <AuthButton />
             </nav>
           </div>

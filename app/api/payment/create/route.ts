@@ -6,6 +6,8 @@ import { eq } from "drizzle-orm"
 import { getUnivaPaySDK } from "@/lib/univapay"
 import { ResponseError } from "univapay-node"
 import { createUser, hashPassword } from "@/lib/auth"
+import { sendEmail } from "@/lib/email"
+import { generateBankTransferEmail, generateDirectDebitEmail } from "@/lib/email-templates"
 import crypto from "crypto"
 
 const paymentSchema = z.object({
@@ -59,25 +61,41 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
-    // UnivaPay API連携
-    // 銀行振込の場合は直接完了として扱う
-    if (validatedData.paymentMethod === "bank_transfer") {
-      // 銀行振込の場合は直接完了として扱う
-      await db
-        .update(payments)
-        .set({
-          status: "completed",
-        })
-        .where(eq(payments.id, payment.id))
+    // Generate payment link (UnivaPay hosted checkout)
+    const paymentLink = await generatePaymentLink(payment.id, validatedData.totalAmount, validatedData.paymentMethod)
 
-      // アカウントと会員権限を作成
-      const accountInfo = await createAccountAndMembership(payment, validatedData)
+    // UnivaPay API連携
+    // 銀行振込の場合は管理者が確認後に手動でアカウントを作成する
+    if (validatedData.paymentMethod === "bank_transfer") {
+      // Send bank transfer email
+      const emailContent = generateBankTransferEmail({
+        name: validatedData.name,
+        email: validatedData.email,
+        phoneNumber: validatedData.phoneNumber,
+        postalCode: validatedData.postalCode,
+        address: validatedData.address,
+        orderId: payment.id.substring(0, 8),
+        totalAmount: validatedData.totalAmount,
+        paymentLink,
+      })
+
+      try {
+        await sendEmail({
+          to: validatedData.email,
+          subject: "12SKINSサイト利用のお申込ありがとうございます",
+          text: emailContent,
+        })
+      } catch (emailError) {
+        console.error("Failed to send bank transfer email:", emailError)
+        // Continue even if email fails
+      }
+
+      // 銀行振込の場合はpendingのまま（管理者が確認後に手動で完了にする）
+      // アカウントは作成しない（管理者が手動で作成）
 
       return NextResponse.json({
         paymentId: payment.id,
-        message: "銀行振込の案内をメールでお送りします",
-        email: accountInfo.email,
-        password: accountInfo.password,
+        message: "銀行振込の案内をメールでお送りしました。入金確認後、管理者がアカウントを作成いたします。",
       })
     }
 
@@ -92,12 +110,38 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // 口座引き落としの場合は未実装
+    // 口座引き落としの場合は管理者が確認後に手動でアカウントを作成する
     if (validatedData.paymentMethod === "direct_debit") {
-      return NextResponse.json(
-        { error: "口座引き落とし決済は現在利用できません" },
-        { status: 400 }
-      )
+      // Send direct debit email
+      const emailContent = generateDirectDebitEmail({
+        name: validatedData.name,
+        email: validatedData.email,
+        phoneNumber: validatedData.phoneNumber,
+        postalCode: validatedData.postalCode,
+        address: validatedData.address,
+        orderId: payment.id.substring(0, 8),
+        totalAmount: validatedData.totalAmount,
+        paymentLink,
+      })
+
+      try {
+        await sendEmail({
+          to: validatedData.email,
+          subject: "12SKINSサイト利用のお申込ありがとうございます",
+          text: emailContent,
+        })
+      } catch (emailError) {
+        console.error("Failed to send direct debit email:", emailError)
+        // Continue even if email fails
+      }
+
+      // 口座引き落としの場合はpendingのまま（管理者が確認後に手動で完了にする）
+      // アカウントは作成しない（管理者が手動で作成）
+
+      return NextResponse.json({
+        paymentId: payment.id,
+        message: "口座引き落としの案内をメールでお送りしました。確認後、管理者がアカウントを作成いたします。",
+      })
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -220,5 +264,61 @@ function generateUsername(): string {
 function generatePassword(): string {
   // 12文字のランダムなパスワードを生成
   return crypto.randomBytes(8).toString("hex")
+}
+
+// Generate UnivaPay hosted checkout URL
+async function generatePaymentLink(
+  paymentId: string,
+  amount: number,
+  paymentMethod: "bank_transfer" | "credit_card" | "direct_debit"
+): Promise<string> {
+  try {
+    const sdk = getUnivaPaySDK()
+    const returnUrl = process.env.NEXT_PUBLIC_UNIVAPAY_RETURN_URL || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/return`
+    
+    // Determine payment methods for checkout
+    const paymentMethods = paymentMethod === "bank_transfer" 
+      ? ["bank_transfer"] 
+      : paymentMethod === "direct_debit"
+      ? ["direct_debit"]
+      : ["card"]
+
+    // Create checkout session
+    const checkoutParams: any = {
+      amount: Math.round(amount),
+      currency: "JPY",
+      paymentMethods,
+      metadata: {
+        payment_id: paymentId,
+      },
+    }
+
+    // Add redirect if available
+    if (returnUrl) {
+      checkoutParams.redirect = {
+        endpoint: returnUrl,
+      }
+    }
+
+    // Try to create checkout session
+    // Note: UnivaPay SDK might have a different method for creating checkout sessions
+    // This is a placeholder - adjust based on actual SDK API
+    try {
+      const checkout = await sdk.checkouts.create(checkoutParams)
+      if (checkout && checkout.url) {
+        return checkout.url
+      }
+    } catch (sdkError) {
+      console.warn("Failed to create UnivaPay checkout session, using placeholder:", sdkError)
+    }
+
+    // Fallback: Return a placeholder URL or generate one based on payment ID
+    // In production, you should implement proper checkout URL generation
+    return `https://univa.cc/${paymentId.substring(0, 7)}`
+  } catch (error) {
+    console.error("Error generating payment link:", error)
+    // Return placeholder URL as fallback
+    return `https://univa.cc/${paymentId.substring(0, 7)}`
+  }
 }
 

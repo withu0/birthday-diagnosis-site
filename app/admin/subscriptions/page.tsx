@@ -137,6 +137,36 @@ export default function AdminSubscriptionsPage() {
     }
   }
 
+  const handleCreateAccount = async (paymentId: string, customerName: string) => {
+    if (!confirm(`${customerName}様のアカウントと会員権限を作成してもよろしいですか？`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/subscriptions/${paymentId}/create-account`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "アカウント作成に失敗しました")
+      }
+
+      const data = await response.json()
+      
+      // Show credentials to admin
+      const credentialsMessage = `アカウントを作成しました！\n\nログイン情報:\nメールアドレス: ${data.user.email}\nパスワード: ${data.user.password}\n\n会員サイト情報:\nユーザー名: ${data.membership.username}\nパスワード: ${data.membership.password}\n\n※この情報は画面に表示されるだけです。必ずメモを取ってください。`
+      alert(credentialsMessage)
+
+      fetchSubscriptions()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "アカウント作成に失敗しました")
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString("ja-JP")
   }
@@ -352,25 +382,36 @@ export default function AdminSubscriptionsPage() {
                               {formatDate(sub.createdAt)}
                             </td>
                             <td className="p-3">
-                              {sub.membership && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handleToggleMembership(
-                                      sub.paymentId,
-                                      sub.membership!.isActive
-                                    )
-                                  }
-                                  className={`${
-                                    sub.membership.isActive
-                                      ? "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                                      : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                                  }`}
-                                >
-                                  {sub.membership.isActive ? "無効化" : "有効化"}
-                                </Button>
-                              )}
+                              <div className="flex gap-2">
+                                {!sub.membership && (sub.paymentMethod === "bank_transfer" || sub.paymentMethod === "direct_debit") && sub.status === "pending" && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleCreateAccount(sub.paymentId, sub.customerName)}
+                                    className="bg-blue-500 text-white hover:bg-blue-600"
+                                  >
+                                    アカウント作成
+                                  </Button>
+                                )}
+                                {sub.membership && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleToggleMembership(
+                                        sub.paymentId,
+                                        sub.membership!.isActive
+                                      )
+                                    }
+                                    className={`${
+                                      sub.membership.isActive
+                                        ? "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                                        : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
+                                    }`}
+                                  >
+                                    {sub.membership.isActive ? "無効化" : "有効化"}
+                                  </Button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}

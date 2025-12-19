@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
+import { ProtectedRoute } from "@/components/auth/protected-route"
 import { useCompatibilityDiagnosis, CompatibilityResult } from "@/lib/hooks/use-compatibility"
 
 export default function CompatibilityPage() {
@@ -39,32 +40,27 @@ export default function CompatibilityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* ヘッダー */}
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/brand.avif"
-                alt="12 SKINS"
-                width={120}
-                height={40}
-                className="h-8 w-auto"
-              />
-            </Link>
-            <nav className="flex items-center gap-6">
-              <Link
-                href="/pricing"
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                プラン選択
+    <ProtectedRoute>
+      <div className="min-h-screen bg-white">
+        {/* ヘッダー */}
+        <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex justify-between items-center">
+              <Link href="/" className="flex items-center">
+                <Image
+                  src="/brand.avif"
+                  alt="12 SKINS"
+                  width={120}
+                  height={40}
+                  className="h-8 w-auto"
+                />
               </Link>
-              <AuthButton />
-            </nav>
+              <nav className="flex items-center gap-6">
+                <AuthButton />
+              </nav>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* メインコンテンツ */}
       <main className="container mx-auto px-4 py-12 max-w-6xl">
@@ -266,14 +262,15 @@ export default function CompatibilityPage() {
         )}
       </main>
 
-      {/* フッター */}
-      <footer className="border-t border-gold/30 bg-gradient-silver mt-12">
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-silver-dark">© 2024 誕生日診断サイト - あなたの運命を知る旅</p>
-          <p className="text-sm text-silver-dark mt-2">※ この診断は娯楽目的です</p>
-        </div>
-      </footer>
-    </div>
+        {/* フッター */}
+        <footer className="border-t border-gold/30 bg-gradient-silver mt-12">
+          <div className="container mx-auto px-4 py-8 text-center">
+            <p className="text-silver-dark">© 2024 誕生日診断サイト - あなたの運命を知る旅</p>
+            <p className="text-sm text-silver-dark mt-2">※ この診断は娯楽目的です</p>
+          </div>
+        </footer>
+      </div>
+    </ProtectedRoute>
   )
 }
 
