@@ -67,6 +67,9 @@ export async function POST(request: NextRequest) {
     // UnivaPay API連携
     // 銀行振込の場合は管理者が確認後に手動でアカウントを作成する
     if (validatedData.paymentMethod === "bank_transfer") {
+      // Use the actual payment record amount to ensure accuracy
+      const paymentTotalAmount = parseFloat(payment.totalAmount)
+      
       // Send bank transfer email
       const emailContent = generateBankTransferEmail({
         name: validatedData.name,
@@ -75,7 +78,7 @@ export async function POST(request: NextRequest) {
         postalCode: validatedData.postalCode,
         address: validatedData.address,
         orderId: payment.id.substring(0, 8),
-        totalAmount: validatedData.totalAmount,
+        totalAmount: paymentTotalAmount,
         paymentLink,
       })
 
@@ -112,6 +115,9 @@ export async function POST(request: NextRequest) {
 
     // 口座引き落としの場合は管理者が確認後に手動でアカウントを作成する
     if (validatedData.paymentMethod === "direct_debit") {
+      // Use the actual payment record amount to ensure accuracy
+      const paymentTotalAmount = parseFloat(payment.totalAmount)
+      
       // Send direct debit email
       const emailContent = generateDirectDebitEmail({
         name: validatedData.name,
@@ -120,7 +126,7 @@ export async function POST(request: NextRequest) {
         postalCode: validatedData.postalCode,
         address: validatedData.address,
         orderId: payment.id.substring(0, 8),
-        totalAmount: validatedData.totalAmount,
+        totalAmount: paymentTotalAmount,
         paymentLink,
       })
 

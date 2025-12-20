@@ -117,7 +117,7 @@ export default function Home() {
           </p>
 
           {/* 8つの診断ボタン */}
-          <div className="flex flex-wrap justify-center items-center gap-6 max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center items-center md:gap-6 gap-2 max-w-4xl mx-auto">
             {[
               { key: "talent", label: "才能", image: "/talent.avif" },
               { key: "impressive", label: "印象", image: "/impressive.avif" },
@@ -132,7 +132,7 @@ export default function Home() {
                 key={item.key}
                 type="button"
                 onClick={() => handleCategoryClick(item.key)}
-                className="flex flex-col items-center justify-center p-4 rounded-full hover:scale-105 transition-transform flex-[0_0_calc(25%-1.125rem)]"
+                className="flex flex-col items-center justify-center md:p-4 p-0 rounded-full hover:scale-105 transition-transform flex-[0_0_calc(25%-1.125rem)]"
               >
                 <Image
                   src={item.image}

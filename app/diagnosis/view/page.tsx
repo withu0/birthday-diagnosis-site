@@ -120,22 +120,22 @@ const SectionTitle = ({
           background: 'linear-gradient(to bottom, rgba(160, 160, 160, 0.7), rgba(240, 240, 240, 0.95), rgba(200, 200, 200, 0.75), rgba(160, 160, 160, 0.7))',
         }}
       >
-        <div className="flex items-center justify-center relative">
+        <div className="flex items-center justify-center relative gap-4">
           {iconPath && (
             <div
-              className="absolute left-0 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={handleClick}
               title={pdfPath ? "クリックしてPDFを開く" : ""}
             >
               <img
                 src={iconPath}
                 alt={title}
-                className="w-20 h-20 object-contain"
+                className="w-16 h-16 md:w-20 md:h-20 object-contain"
               />
             </div>
           )}
           <div
-            className={`text-2xl font-bold text-silver-dark tracking-wide text-center ${!iconPath && pdfPath ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+            className={`flex-1 text-xl md:text-2xl font-bold text-silver-dark tracking-wide text-center ${!iconPath && pdfPath ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''} ${iconPath ? 'min-w-0' : ''}`}
             onClick={!iconPath ? handleClick : undefined}
             title={!iconPath && pdfPath ? "クリックしてPDFを開く" : ""}
           >
@@ -593,19 +593,19 @@ const DiagnosisView = () => {
             {/* 基本診断結果 */}
             <div className="grid grid-cols-2 gap-4">
               {/* 本質肌 */}
-              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg">
-                <div className="relative h-64">
-                  <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
+              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
+                <div className="relative md:h-64 h-32">
+                  {/* <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
                     OYA SKIN
-                  </div>
+                  </div> */}
                   <img
                     src={getSkinImagePath(result.essential_lb)}
                     alt={result.essential_lb}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-4 pt-8">
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:p-4 md:pt-8 p-2 pt-4">
                     <div className="text-white">
-                      <div className="text-2xl font-bold mb-1">
+                      <div className="md:text-2xl text-lg font-bold mb-1">
                         {result.essential_lb}
                       </div>
                       <div className="text-sm font-semibold opacity-95">50%</div>
@@ -626,19 +626,19 @@ const DiagnosisView = () => {
               </Card>
 
               {/* 魅せ肌 */}
-              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg">
-                <div className="relative h-64">
-                  <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
+              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
+                <div className="relative md:h-64 h-32">
+                  {/* <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
                     OYA SKIN
-                  </div>
+                  </div> */}
                   <img
                     src={getSkinImagePath(result.attractive_lb)}
                     alt={result.attractive_lb}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-4 pt-8">
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:p-4 md:pt-8 p-2 pt-4">
                     <div className="text-white">
-                      <div className="text-2xl font-bold mb-1">
+                      <div className="md:text-2xl text-lg font-bold mb-1">
                         {result.attractive_lb}
                       </div>
                       <div className="text-sm font-semibold opacity-95">20%</div>
@@ -658,13 +658,13 @@ const DiagnosisView = () => {
               </Card>
 
               {/* 価値肌 */}
-              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg">
-                <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white min-h-[200px]">
-                  <div className="p-8 flex items-center justify-center h-full">
+              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
+                <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white">
+                  <div className="relative md:h-64 h-32 flex items-center justify-center">
                     <img
                       src={getElementImagePath(result.valuable_lb)}
                       alt={result.valuable_lb}
-                      className="max-w-full max-h-48 object-contain"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 </div>
@@ -685,13 +685,13 @@ const DiagnosisView = () => {
               </Card>
 
               {/* トラブル肌 */}
-              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg">
-                <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white min-h-[200px]">
-                  <div className="p-8 flex items-center justify-center h-full">
+              <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
+                <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white">
+                  <div className="relative md:h-64 h-32 flex items-center justify-center">
                     <img
                       src={getElementImagePath(result.problem_lb)}
                       alt={result.problem_lb}
-                      className="max-w-full max-h-48 object-contain"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 </div>
