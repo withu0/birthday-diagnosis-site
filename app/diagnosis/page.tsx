@@ -445,11 +445,14 @@ const BirthdayDiagnosis = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="font-bold text-lg text-gold">
-                          ⚡ エネルギースコア
-                        </h3>
-                        <div className="space-y-1">
+                      <div className="space-y-4">
+                        <div className="text-center mb-6">
+                          <h3 className="font-bold text-2xl md:text-3xl text-gold mb-2 tracking-wide">
+                            ✨ エネルギースコア
+                          </h3>
+                          <p className="text-sm text-silver-dark/70">あなたの内なる美しさを数値で</p>
+                        </div>
+                        <div className="space-y-3">
                           {[
                             {
                               key: "action",
@@ -506,31 +509,58 @@ const BirthdayDiagnosis = () => {
                               label: "総合",
                               value: result.energy_total,
                             },
-                          ].map(({ key, label, value }) => (
-                            <div
-                              key={key}
-                              className={`grid grid-cols-2 gap-4 rounded-lg border ${
-                                key === "total"
-                                  ? "bg-gradient-gold border-2 border-gold shadow-lg p-4"
-                                  : "bg-gradient-gold/50 border border-gold/30 p-3"
-                              }`}
-                            >
+                          ].map(({ key, label, value }) => {
+                            const numericValue = parseInt(value) || 0;
+                            const percentage = Math.min((numericValue / 100) * 100, 100);
+                            const isTotal = key === "total";
+                            
+                            return (
                               <div
-                                className={`text-md font-semibold flex items-center ${
-                                  key === "total" ? "text-gold-dark text-3xl" : ""
+                                key={key}
+                                className={`relative overflow-hidden rounded-xl ${
+                                  isTotal
+                                    ? "bg-gradient-to-r from-gold via-gold-light to-gold border-2 border-gold shadow-xl p-5 transform transition-all hover:scale-[1.02]"
+                                    : "bg-gradient-to-r from-white via-gold-light/20 to-white border border-gold/40 shadow-md p-4 hover:shadow-lg transition-all"
                                 }`}
                               >
-                                {label}
+                                <div className="flex items-center justify-between">
+                                  <div
+                                    className={`font-semibold ${
+                                      isTotal
+                                        ? "text-gold-dark text-xl md:text-2xl"
+                                        : "text-silver-dark text-base"
+                                    }`}
+                                  >
+                                    {label}
+                                  </div>
+                                  <div
+                                    className={`font-bold ${
+                                      isTotal
+                                        ? "text-gold-dark text-3xl md:text-4xl"
+                                        : "text-gold text-xl md:text-2xl"
+                                    }`}
+                                  >
+                                    {value}
+                                  </div>
+                                </div>
+                                {!isTotal && (
+                                  <div className="relative h-2 bg-white/50 rounded-full overflow-hidden">
+                                    <div
+                                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-gold via-gold-light to-gold rounded-full transition-all duration-1000 ease-out shadow-sm"
+                                      style={{ width: `${percentage}%` }}
+                                    />
+                                    <div
+                                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full animate-pulse"
+                                      style={{ width: `${percentage}%` }}
+                                    />
+                                  </div>
+                                )}
+                                {isTotal && (
+                                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                                )}
                               </div>
-                              <div
-                                className={`text-2xl font-bold text-right flex items-center justify-end ${
-                                  key === "total" ? "text-gold-dark text-3xl" : ""
-                                }`}
-                              >
-                                {value}
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     </CardContent>
@@ -885,14 +915,18 @@ const BirthdayDiagnosis = () => {
                           {name}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                      <div className="flex items-center gap-2 md:gap-3 flex-shrink md:flex-shrink-0">
                         <span className="text-lg md:text-sm text-gray-400 font-medium whitespace-nowrap">
                           生年月日
                         </span>
-                        <div className="text-lg md:text-sm text-gray-600 font-semibold leading-tight">
-                          <div>
-                            {formattedDate.yearMonth}
-                            {formattedDate.day}
+                        <div className="text-lg md:text-sm text-gray-600 font-semibold leading-tight min-w-0 flex-shrink">
+                          <div className="flex flex-wrap items-center gap-1">
+                            <div className="whitespace-nowrap">
+                              {formattedDate.yearMonth}
+                            </div>
+                            <div className="whitespace-nowrap">
+                              {formattedDate.day}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -902,15 +936,15 @@ const BirthdayDiagnosis = () => {
                   {/* 基本診断結果 */}
                   <div className="grid grid-cols-2 gap-4">
                     {/* 本質肌 */}
-                    <Card className="relative overflow-hidden border-0 shadow-none bg-white rounded-lg py-0">
+                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="font-bold text-gold text-lg mb-1.5">
+                        <div className="font-bold text-silver-dark text-lg">
                           本質肌
                         </div>
-                        <div className="text-xs text-silver-dark mb-2 leading-relaxed">
+                        <div className="text-xs text-silver-dark text-center leading-relaxed">
                           本質的な性格 持つ才能・可能性
                         </div>
-                        <div className="text-3xl font-bold text-black mb-1 bg-red-500/30 px-1 py-2">
+                        <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
                           {result.essential_lb}
                         </div>
                       </div>
@@ -924,29 +958,19 @@ const BirthdayDiagnosis = () => {
                           alt={result.essential_lb}
                           className="w-full h-full object-contain rounded-lg"
                         />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:p-4 md:pt-8 p-2 pt-4">
-                          <div className="text-white">
-                            <div className="md:text-2xl text-lg font-bold mb-1">
-                              {result.essential_lb}
-                            </div>
-                            <div className="text-sm font-semibold opacity-95">
-                              50%
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </Card>
 
                     {/* 魅せ肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white shadow-none rounded-lg py-0">
+                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="font-bold text-gold text-lg mb-1.5">
+                        <div className="font-bold text-silver-dark text-lg">
                           魅せ肌
                         </div>
-                        <div className="text-xs text-silver-dark mb-2 leading-relaxed">
+                        <div className="text-xs text-silver-dark text-center leading-relaxed">
                           人から見える、人に魅せる個性
                         </div>
-                        <div className="text-3xl font-bold text-black mb-1 bg-red-500/30 px-1 py-2">
+                        <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
                           {result.attractive_lb}
                         </div>
                       </div>
@@ -959,22 +983,12 @@ const BirthdayDiagnosis = () => {
                           alt={result.attractive_lb}
                           className="w-full h-full object-contain"
                         />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:p-4 md:pt-8 p-2 pt-4">
-                          <div className="text-white">
-                            <div className="md:text-2xl text-lg font-bold mb-1">
-                              {result.attractive_lb}
-                            </div>
-                            <div className="text-sm font-semibold opacity-95">
-                              20%
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </Card>
 
                     {/* 価値肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white shadow-none rounded-lg py-0">
-                      <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white">
+                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
+                      <div className="relative ">
                         <div className="relative md:h-64 h-32 flex items-center justify-center">
                           <img
                             src={getElementImagePath(result.valuable_lb)}
@@ -984,10 +998,10 @@ const BirthdayDiagnosis = () => {
                         </div>
                       </div>
                       <div className="p-5 pt-0 flex justify-center items-center flex-col">
-                        <div className="font-bold text-gold text-lg mb-1.5">
+                        <div className="font-bold text-silver-dark text-lg">
                           価値肌
                         </div>
-                        <div className="text-xs text-silver-dark mb-2 leading-relaxed">
+                        <div className="text-lg text-silver-dark mb-1 text-center leading-relaxed">
                           生き方の価値パターン
                         </div>
                         <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
@@ -998,8 +1012,8 @@ const BirthdayDiagnosis = () => {
                     </Card>
 
                     {/* トラブル肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white shadow-none rounded-lg py-0">
-                      <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white">
+                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
+                      <div className="relative">
                         <div className="relative md:h-64 h-32 flex items-center justify-center">
                           <img
                             src={getElementImagePath(result.problem_lb)}
@@ -1009,10 +1023,10 @@ const BirthdayDiagnosis = () => {
                         </div>
                       </div>
                       <div className="p-5 pt-0 flex flex-col justify-center items-center">
-                        <div className="font-bold text-gold text-lg mb-1.5">
+                        <div className="font-bold text-silver-dark text-lg">
                           トラブル肌
                         </div>
-                        <div className="text-xs text-silver-dark mb-2 leading-relaxed">
+                        <div className="text-lg text-silver-dark mb-1 text-center leading-relaxed">
                           緊急時に発揮する個性
                         </div>
                         <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">

@@ -6,7 +6,7 @@
   --color-gold-dark: #9A7A32;
   --color-silver: #9B9B9B;
   --color-silver-light: #FFFFFF;
-  --color-silver-dark: #9B9B9B;
+  --color-silver-dark: #493D36;
 }
 
 /* Ensure Tailwind recognizes these custom colors */
@@ -123,6 +123,19 @@
     transform: translateX(200%) translateY(200%) rotate(45deg);
     opacity: 0;
   }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
 }
 
 .mysterious-glow {

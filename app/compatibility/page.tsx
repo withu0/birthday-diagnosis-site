@@ -125,7 +125,7 @@ export default function CompatibilityPage() {
                       type="text"
                       value={personB.name}
                       onChange={(e) => setPersonB({ ...personB, name: e.target.value })}
-                      placeholder="佐藤花子"
+                      placeholder="佐藤さくら"
                       required
                       className="bg-white border-white text-gray-800"
                     />
