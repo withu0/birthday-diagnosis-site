@@ -445,14 +445,14 @@ const BirthdayDiagnosis = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="space-y-4">
-                        <div className="text-center mb-6">
-                          <h3 className="font-bold text-2xl md:text-3xl text-gold mb-2 tracking-wide">
+                      <div className="space-y-3">
+                        <div className="text-center mb-4">
+                          <h3 className="font-bold text-xl md:text-2xl text-gold mb-1 tracking-wide">
                             ✨ エネルギースコア
                           </h3>
-                          <p className="text-sm text-silver-dark/70">あなたの内なる美しさを数値で</p>
+                          <p className="text-xs text-silver-dark/70">あなたの内なる美しさを数値で</p>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-1.5">
                           {[
                             {
                               key: "action",
@@ -517,18 +517,18 @@ const BirthdayDiagnosis = () => {
                             return (
                               <div
                                 key={key}
-                                className={`relative overflow-hidden rounded-xl ${
+                                className={`relative overflow-hidden rounded-lg ${
                                   isTotal
-                                    ? "bg-gradient-to-r from-gold via-gold-light to-gold border-2 border-gold shadow-xl p-5 transform transition-all hover:scale-[1.02]"
-                                    : "bg-gradient-to-r from-white via-gold-light/20 to-white border border-gold/40 shadow-md p-4 hover:shadow-lg transition-all"
+                                    ? "bg-gradient-to-r from-gold via-gold-light to-gold border-2 border-gold shadow-lg p-2.5 transform transition-all hover:scale-[1.01]"
+                                    : "bg-gradient-to-r from-white via-gold-light/20 to-white border border-gold/40 shadow-sm p-2 hover:shadow-md transition-all"
                                 }`}
                               >
                                 <div className="flex items-center justify-between">
                                   <div
                                     className={`font-semibold ${
                                       isTotal
-                                        ? "text-gold-dark text-xl md:text-2xl"
-                                        : "text-silver-dark text-base"
+                                        ? "text-silver-dark text-base md:text-lg"
+                                        : "text-silver-dark text-sm"
                                     }`}
                                   >
                                     {label}
@@ -536,21 +536,17 @@ const BirthdayDiagnosis = () => {
                                   <div
                                     className={`font-bold ${
                                       isTotal
-                                        ? "text-gold-dark text-3xl md:text-4xl"
-                                        : "text-gold text-xl md:text-2xl"
+                                        ? "text-gold-dark text-xl md:text-2xl"
+                                        : "text-gold text-base md:text-lg"
                                     }`}
                                   >
                                     {value}
                                   </div>
                                 </div>
                                 {!isTotal && (
-                                  <div className="relative h-2 bg-white/50 rounded-full overflow-hidden">
+                                  <div className="relative h-1 bg-white/50 rounded-full overflow-hidden mt-1">
                                     <div
-                                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-gold via-gold-light to-gold rounded-full transition-all duration-1000 ease-out shadow-sm"
-                                      style={{ width: `${percentage}%` }}
-                                    />
-                                    <div
-                                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full animate-pulse"
+                                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-gold via-gold-light to-gold rounded-full transition-all duration-1000 ease-out"
                                       style={{ width: `${percentage}%` }}
                                     />
                                   </div>
@@ -908,18 +904,18 @@ const BirthdayDiagnosis = () => {
                   >
                     <div className="flex items-center justify-between gap-2 md:gap-4">
                       <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                        <span className="text-lg md:text-sm text-gray-400 font-medium whitespace-nowrap">
+                        <span className="text-lg text-gray-400 font-medium whitespace-nowrap">
                           お名前
                         </span>
-                        <span className="text-lg md:text-sm text-gray-600 font-semibold">
+                        <span className="text-lg text-silver-dark font-semibold">
                           {name}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 md:gap-3 flex-shrink md:flex-shrink-0">
-                        <span className="text-lg md:text-sm text-gray-400 font-medium whitespace-nowrap">
+                        <span className="text-lg text-gray-400 font-medium whitespace-nowrap">
                           生年月日
                         </span>
-                        <div className="text-lg md:text-sm text-gray-600 font-semibold leading-tight min-w-0 flex-shrink">
+                        <div className="text-lg text-silver-dark font-semibold leading-tight min-w-0 flex-shrink">
                           <div className="flex flex-wrap items-center gap-1">
                             <div className="whitespace-nowrap">
                               {formattedDate.yearMonth}
