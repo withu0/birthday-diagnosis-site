@@ -1101,9 +1101,9 @@ const BirthdayDiagnosis = () => {
                   <p className="text-silver-dark">診断履歴がありません</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto overflow-y-auto max-h-96">
                   <table className="w-full border-collapse">
-                    <thead>
+                    <thead className="sticky top-0 bg-gradient-to-br from-white to-gold-light/10 z-10">
                       <tr className="border-b border-gold/30">
                         <th className="text-left py-3 px-4 text-gold font-semibold">
                           名前
