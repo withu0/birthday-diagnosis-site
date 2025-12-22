@@ -161,12 +161,12 @@ export default function Home() {
       </main>
 
       {/* フッター */}
-      <footer className="border-t border-gold/30 bg-gradient-silver mt-12">
+      {/* <footer className="border-t border-gold/30 bg-gradient-silver mt-12">
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-silver-dark">© 2024 誕生日診断サイト - あなたの運命を知る旅</p>
           <p className="text-sm text-silver-dark mt-2">※ この診断は娯楽目的です</p>
         </div>
-      </footer>
+      </footer> */}
     </div>
   )
 }

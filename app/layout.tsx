@@ -9,9 +9,9 @@ import { AuthProvider } from "@/lib/contexts/auth-context"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "誕生日診断 - あなたの運命を知る",
-  description: "生年月日から性格と運勢を診断する日本語サイト",
-  generator: "v0.app",
+  title: "12SKINS",
+  description: "生年月日から12肌診断を受けることができます",
+  generator: "WITHU",
 }
 
 export default function RootLayout({

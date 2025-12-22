@@ -16,12 +16,12 @@ import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { AuthButton } from "@/components/auth/auth-button";
 import { ProtectedRoute } from "@/components/auth/protected-route";
-import { 
-  useBasicDiagnosis, 
-  useTalentDiagnosis, 
-  useDiagnosisList, 
+import {
+  useBasicDiagnosis,
+  useTalentDiagnosis,
+  useDiagnosisList,
   useSaveDiagnosis,
-  type DiagnosisResult 
+  type DiagnosisResult,
 } from "@/lib/hooks/use-diagnosis";
 
 const calculateAge = (birthDate: string) => {
@@ -46,21 +46,42 @@ const formatTextWithLineBreaks = (text: string) => {
   ));
 };
 
+// Helper function to format date to Japanese format (YYYY年MM月DD日)
+const formatDateToJapanese = (
+  dateString: string
+): { yearMonth: string; day: string } => {
+  if (!dateString) return { yearMonth: "", day: "" };
+
+  try {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return {
+      yearMonth: `${year}年${month}`,
+      day: `月${day}日`,
+    };
+  } catch (error) {
+    return { yearMonth: "", day: "" };
+  }
+};
+
 // Helper function to get image path for skin types (essential/attractive)
 const getSkinImagePath = (skinType: string): string => {
   const imageMap: Record<string, string> = {
-    "職人肌": "/basic/職人肌.webp",
-    "平和肌": "/basic/平和肌.webp",
-    "親分肌": "/basic/親分肌.webp",
-    "コミュ肌": "/basic/コミュ肌.webp",
-    "赤ちゃん肌": "/basic/赤ちゃん肌.webp",
-    "多才肌": "/basic/多才肌.webp",
-    "スマート肌": "/basic/スマート肌.webp",
-    "ドリーム肌": "/basic/ドリーム肌.webp",
-    "ポジティブ肌": "/basic/ポジティブ肌.webp",
-    "姉御肌": "/basic/姉御肌.webp",
-    "天才肌": "/basic/天才肌.webp",
-    "オリジナル肌": "/basic/オリジナル肌.webp",
+    職人肌: "/basic/職人肌.webp",
+    平和肌: "/basic/平和肌.webp",
+    親分肌: "/basic/親分肌.webp",
+    コミュ肌: "/basic/コミュ肌.webp",
+    赤ちゃん肌: "/basic/赤ちゃん肌.webp",
+    多才肌: "/basic/多才肌.webp",
+    スマート肌: "/basic/スマート肌.webp",
+    ドリーム肌: "/basic/ドリーム肌.webp",
+    ポジティブ肌: "/basic/ポジティブ肌.webp",
+    姉御肌: "/basic/姉御肌.webp",
+    天才肌: "/basic/天才肌.webp",
+    オリジナル肌: "/basic/オリジナル肌.webp",
   };
   return imageMap[skinType] || "/basic/オリジナル肌.webp";
 };
@@ -68,16 +89,16 @@ const getSkinImagePath = (skinType: string): string => {
 // Helper function to get image path for element combinations (valuable/problem)
 const getElementImagePath = (element: string): string => {
   const imageMap: Record<string, string> = {
-    "金土": "/basic/金土.webp",
-    "銀金": "/basic/銀金.webp",
-    "金水": "/basic/金水.webp",
-    "金金": "/basic/金金.webp",
-    "銀土": "/basic/銀土.webp",
-    "銀水": "/basic/銀水.webp",
-    "金木": "/basic/金木.webp",
-    "銀火": "/basic/銀火.webp",
-    "銀木": "/basic/銀木.webp",
-    "金火": "/basic/金火.webp",
+    金土: "/basic/金土.webp",
+    銀金: "/basic/銀金.webp",
+    金水: "/basic/金水.webp",
+    金金: "/basic/金金.webp",
+    銀土: "/basic/銀土.webp",
+    銀水: "/basic/銀水.webp",
+    金木: "/basic/金木.webp",
+    銀火: "/basic/銀火.webp",
+    銀木: "/basic/銀木.webp",
+    金火: "/basic/金火.webp",
   };
   return imageMap[element] || "/basic/金木.webp";
 };
@@ -117,34 +138,35 @@ const getPdfPath = (sectionKey: string): string | null => {
 };
 
 // Section Title Component with icon and text
-const SectionTitle = ({ 
-  iconPath, 
+const SectionTitle = ({
+  iconPath,
   title,
   pdfPath,
-  sectionKey
-}: { 
-  iconPath: string | null; 
+  sectionKey,
+}: {
+  iconPath: string | null;
   title: string;
   pdfPath?: string | null;
   sectionKey?: string;
 }) => {
   const handleClick = () => {
     if (pdfPath) {
-      window.open(pdfPath, '_blank');
+      window.open(pdfPath, "_blank");
     }
   };
 
   return (
     <div className="relative mb-6">
-      <div 
+      <div
         className="rounded-lg px-6 py-4 shadow-lg border border-silver/30"
         style={{
-          background: 'linear-gradient(to bottom, rgba(160, 160, 160, 0.7), rgba(240, 240, 240, 0.95), rgba(200, 200, 200, 0.75), rgba(160, 160, 160, 0.7))',
+          background:
+            "linear-gradient(to bottom, rgba(160, 160, 160, 0.7), rgba(240, 240, 240, 0.95), rgba(200, 200, 200, 0.75), rgba(160, 160, 160, 0.7))",
         }}
       >
         <div className="flex items-center justify-center relative gap-4">
           {iconPath && (
-            <div 
+            <div
               className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={handleClick}
               title={pdfPath ? "クリックしてPDFを開く" : ""}
@@ -156,8 +178,12 @@ const SectionTitle = ({
               />
             </div>
           )}
-          <div 
-            className={`flex-1 text-xl md:text-2xl font-bold text-silver-dark tracking-wide text-center ${!iconPath && pdfPath ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''} ${iconPath ? 'min-w-0' : ''}`}
+          <div
+            className={`flex-1 text-xl md:text-2xl font-bold text-silver-dark tracking-wide text-center ${
+              !iconPath && pdfPath
+                ? "cursor-pointer hover:opacity-80 transition-opacity"
+                : ""
+            } ${iconPath ? "min-w-0" : ""}`}
             onClick={!iconPath ? handleClick : undefined}
             title={!iconPath && pdfPath ? "クリックしてPDFを開く" : ""}
           >
@@ -189,11 +215,16 @@ const BirthdayDiagnosis = () => {
 
   // React Query hooks
   const { data: diagnosisList, isLoading: isLoadingLog } = useDiagnosisList();
-  const { data: basicResult, isLoading: isLoadingBasic, error: basicError } = useBasicDiagnosis(
-    birthDate || null,
-    shouldFetchBasic
-  );
-  const { data: talentResult, isLoading: isLoadingTalent, error: talentError } = useTalentDiagnosis(
+  const {
+    data: basicResult,
+    isLoading: isLoadingBasic,
+    error: basicError,
+  } = useBasicDiagnosis(birthDate || null, shouldFetchBasic);
+  const {
+    data: talentResult,
+    isLoading: isLoadingTalent,
+    error: talentError,
+  } = useTalentDiagnosis(
     basicResult || null,
     shouldFetchBasic && !!basicResult
   );
@@ -247,7 +278,8 @@ const BirthdayDiagnosis = () => {
   // Show errors
   useEffect(() => {
     if (basicError || talentError) {
-      const errorMessage = basicError?.message || talentError?.message || "不明なエラー";
+      const errorMessage =
+        basicError?.message || talentError?.message || "不明なエラー";
       alert(`診断中にエラーが発生しました: ${errorMessage}`);
     }
   }, [basicError, talentError]);
@@ -320,7 +352,9 @@ const BirthdayDiagnosis = () => {
               <CardContent className="text-center py-12">
                 <div className="flex flex-col items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-gold mb-4"></div>
-                  <p className="text-lg text-silver-dark">基本診断を読み込み中...</p>
+                  <p className="text-lg text-silver-dark">
+                    基本診断を読み込み中...
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -345,12 +379,19 @@ const BirthdayDiagnosis = () => {
                       className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                     >
                       <CardHeader>
-                        <SectionTitle iconPath={getTextIconPath("talent")} title="才能・能力" pdfPath={getPdfPath("talent")} sectionKey="talent" />
+                        <SectionTitle
+                          iconPath={getTextIconPath("talent")}
+                          title="才能・能力"
+                          pdfPath={getPdfPath("talent")}
+                          sectionKey="talent"
+                        />
                       </CardHeader>
                       <CardContent className="text-center py-8">
                         <div className="flex flex-col items-center justify-center">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mb-3"></div>
-                          <p className="text-sm text-silver-dark">読み込み中...</p>
+                          <p className="text-sm text-silver-dark">
+                            読み込み中...
+                          </p>
                         </div>
                       </CardContent>
                     </Card>
@@ -363,7 +404,12 @@ const BirthdayDiagnosis = () => {
                     className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                   >
                     <CardHeader>
-                      <SectionTitle iconPath={getTextIconPath("talent")} title="才能・能力" pdfPath={getPdfPath("talent")} sectionKey="talent" />
+                      <SectionTitle
+                        iconPath={getTextIconPath("talent")}
+                        title="才能・能力"
+                        pdfPath={getPdfPath("talent")}
+                        sectionKey="talent"
+                      />
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
@@ -403,7 +449,7 @@ const BirthdayDiagnosis = () => {
                         <h3 className="font-bold text-lg text-gold">
                           ⚡ エネルギースコア
                         </h3>
-                        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                        <div className="space-y-1">
                           {[
                             {
                               key: "action",
@@ -463,12 +509,24 @@ const BirthdayDiagnosis = () => {
                           ].map(({ key, label, value }) => (
                             <div
                               key={key}
-                              className="bg-gradient-gold p-3 rounded-lg text-center border border-gold/30"
+                              className={`grid grid-cols-2 gap-4 rounded-lg border ${
+                                key === "total"
+                                  ? "bg-gradient-gold border-2 border-gold shadow-lg p-4"
+                                  : "bg-gradient-gold/50 border border-gold/30 p-3"
+                              }`}
                             >
-                              <div className="text-xs font-semibold mb-1">
+                              <div
+                                className={`text-md font-semibold flex items-center ${
+                                  key === "total" ? "text-gold-dark text-3xl" : ""
+                                }`}
+                              >
                                 {label}
                               </div>
-                              <div className="text-lg font-bold">
+                              <div
+                                className={`text-2xl font-bold text-right flex items-center justify-end ${
+                                  key === "total" ? "text-gold-dark text-3xl" : ""
+                                }`}
+                              >
                                 {value}
                               </div>
                             </div>
@@ -491,11 +549,11 @@ const BirthdayDiagnosis = () => {
                     className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
                   >
                     <CardHeader>
-                      <SectionTitle 
-                        iconPath={getTextIconPath("beautyThreeSource")} 
-                        title="美の3源タイプ" 
-                        pdfPath={getPdfPath("beautyThreeSource")} 
-                        sectionKey="beautyThreeSource" 
+                      <SectionTitle
+                        iconPath={getTextIconPath("beautyThreeSource")}
+                        title="美の3源タイプ"
+                        pdfPath={getPdfPath("beautyThreeSource")}
+                        sectionKey="beautyThreeSource"
                       />
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -522,7 +580,12 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("work")} title="仕事・キャリア" pdfPath={getPdfPath("work")} sectionKey="work" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("work")}
+                      title="仕事・キャリア"
+                      pdfPath={getPdfPath("work")}
+                      sectionKey="work"
+                    />
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
@@ -559,7 +622,12 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("like")} title="好きなもの" pdfPath={getPdfPath("like")} sectionKey="like" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("like")}
+                      title="好きなもの"
+                      pdfPath={getPdfPath("like")}
+                      sectionKey="like"
+                    />
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
@@ -583,7 +651,12 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("impressive")} title="印象・魅力" pdfPath={getPdfPath("impressive")} sectionKey="impressive" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("impressive")}
+                      title="印象・魅力"
+                      pdfPath={getPdfPath("impressive")}
+                      sectionKey="impressive"
+                    />
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
@@ -619,7 +692,12 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("affair")} title="恋愛" pdfPath={getPdfPath("affair")} sectionKey="affair" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("affair")}
+                      title="恋愛"
+                      pdfPath={getPdfPath("affair")}
+                      sectionKey="affair"
+                    />
                   </CardHeader>
                   <CardContent>
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
@@ -637,7 +715,12 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("marriage")} title="結婚・離婚" pdfPath={getPdfPath("marriage")} sectionKey="marriage" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("marriage")}
+                      title="結婚・離婚"
+                      pdfPath={getPdfPath("marriage")}
+                      sectionKey="marriage"
+                    />
                   </CardHeader>
                   <CardContent>
                     <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
@@ -655,7 +738,12 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("stress")} title="ストレス・成長" pdfPath={getPdfPath("stress")} sectionKey="stress" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("stress")}
+                      title="ストレス・成長"
+                      pdfPath={getPdfPath("stress")}
+                      sectionKey="stress"
+                    />
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid md:grid-cols-3 gap-4">
@@ -694,7 +782,12 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("faceMuscle")} title="顔の筋肉の癖" pdfPath={getPdfPath("faceMuscle")} sectionKey="faceMuscle" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("faceMuscle")}
+                      title="顔の筋肉の癖"
+                      pdfPath={getPdfPath("faceMuscle")}
+                      sectionKey="faceMuscle"
+                    />
                   </CardHeader>
                   <CardContent>
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
@@ -712,15 +805,24 @@ const BirthdayDiagnosis = () => {
                   className="shadow-lg border-silver/30 bg-gradient-to-br from-white to-silver-light/10"
                 >
                   <CardHeader>
-                    <SectionTitle iconPath={getTextIconPath("attractiveValuable")} title="価値観（魅力的）" pdfPath={getPdfPath("attractiveValuable")} sectionKey="attractiveValuable" />
+                    <SectionTitle
+                      iconPath={getTextIconPath("attractiveValuable")}
+                      title="価値観（魅力的）"
+                      pdfPath={getPdfPath("attractiveValuable")}
+                      sectionKey="attractiveValuable"
+                    />
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
                       <div className="font-semibold text-silver-dark mb-2">
-                        {formatTextWithLineBreaks(result.attractiveValuable_title)}
+                        {formatTextWithLineBreaks(
+                          result.attractiveValuable_title
+                        )}
                       </div>
                       <div className="text-silver-dark mt-2">
-                        {formatTextWithLineBreaks(result.attractiveValuable_content)}
+                        {formatTextWithLineBreaks(
+                          result.attractiveValuable_content
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -734,7 +836,10 @@ const BirthdayDiagnosis = () => {
                 { key: "talent", render: renderTalentSection },
                 ...(talentResult
                   ? [
-                      { key: "beautyThreeSource", render: renderBeautyThreeSourceSection },
+                      {
+                        key: "beautyThreeSource",
+                        render: renderBeautyThreeSourceSection,
+                      },
                       { key: "work", render: renderWorkSection },
                       { key: "like", render: renderLikeSection },
                       { key: "impressive", render: renderImpressiveSection },
@@ -758,51 +863,93 @@ const BirthdayDiagnosis = () => {
                   ]
                 : allSections;
 
+              // Format date for display
+              const formattedDate = formatDateToJapanese(birthDate);
+
               return (
                 <div className="space-y-8 animate-in fade-in duration-700">
-                  {/* 基本診断結果 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* 本質肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
-                      <div className="relative md:h-64 h-32">
-                        {/* <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
-                          OYA SKIN
-                        </div> */}
-                        <img
-                          src={getSkinImagePath(result.essential_lb)}
-                          alt={result.essential_lb}
-                          className="w-full h-full object-contain"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:p-4 md:pt-8 p-2 pt-4">
-                          <div className="text-white">
-                            <div className="md:text-2xl text-lg font-bold mb-1">
-                              {result.essential_lb}
-                            </div>
-                            <div className="text-sm font-semibold opacity-95">50%</div>
+                  {/* 名前と生年月日表示 */}
+                  <div
+                    className="rounded-lg px-4 md:px-6 py-3 md:py-4 shadow-lg border border-silver/30"
+                    style={{
+                      background:
+                        "linear-gradient(to bottom, rgba(160, 160, 160, 0.7), rgba(240, 240, 240, 0.95), rgba(200, 200, 200, 0.75), rgba(160, 160, 160, 0.7))",
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-2 md:gap-4">
+                      <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                        <span className="text-lg md:text-sm text-gray-400 font-medium whitespace-nowrap">
+                          お名前
+                        </span>
+                        <span className="text-lg md:text-sm text-gray-600 font-semibold">
+                          {name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                        <span className="text-lg md:text-sm text-gray-400 font-medium whitespace-nowrap">
+                          生年月日
+                        </span>
+                        <div className="text-lg md:text-sm text-gray-600 font-semibold leading-tight">
+                          <div>
+                            {formattedDate.yearMonth}
+                            {formattedDate.day}
                           </div>
                         </div>
                       </div>
-                      <CardContent className="p-5">
+                    </div>
+                  </div>
+
+                  {/* 基本診断結果 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* 本質肌 */}
+                    <Card className="relative overflow-hidden border-0 shadow-none bg-white rounded-lg py-0">
+                      <div className="flex flex-col items-center justify-center">
                         <div className="font-bold text-gold text-lg mb-1.5">
                           本質肌
                         </div>
                         <div className="text-xs text-silver-dark mb-2 leading-relaxed">
                           本質的な性格 持つ才能・可能性
                         </div>
-                        <div className="text-xs text-silver-dark mb-1">
-                          生まれ持った
-                        </div>
-                        <div className="text-xl font-bold text-gold mb-1">
+                        <div className="text-3xl font-bold text-black mb-1 bg-red-500/30 px-1 py-2">
                           {result.essential_lb}
                         </div>
-                        <div className="text-sm font-semibold text-gold">
-                          50%
+                      </div>
+
+                      <div className="relative md:h-64 h-32 ">
+                        {/* <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
+                          OYA SKIN
+                        </div> */}
+                        <img
+                          src={getSkinImagePath(result.essential_lb)}
+                          alt={result.essential_lb}
+                          className="w-full h-full object-contain rounded-lg"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:p-4 md:pt-8 p-2 pt-4">
+                          <div className="text-white">
+                            <div className="md:text-2xl text-lg font-bold mb-1">
+                              {result.essential_lb}
+                            </div>
+                            <div className="text-sm font-semibold opacity-95">
+                              50%
+                            </div>
+                          </div>
                         </div>
-                      </CardContent>
+                      </div>
                     </Card>
 
                     {/* 魅せ肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
+                    <Card className="relative overflow-hidden border-0 bg-white shadow-none rounded-lg py-0">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="font-bold text-gold text-lg mb-1.5">
+                          魅せ肌
+                        </div>
+                        <div className="text-xs text-silver-dark mb-2 leading-relaxed">
+                          人から見える、人に魅せる個性
+                        </div>
+                        <div className="text-3xl font-bold text-black mb-1 bg-red-500/30 px-1 py-2">
+                          {result.attractive_lb}
+                        </div>
+                      </div>
                       <div className="relative md:h-64 h-32">
                         {/* <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
                           OYA SKIN
@@ -817,28 +964,16 @@ const BirthdayDiagnosis = () => {
                             <div className="md:text-2xl text-lg font-bold mb-1">
                               {result.attractive_lb}
                             </div>
-                            <div className="text-sm font-semibold opacity-95">20%</div>
+                            <div className="text-sm font-semibold opacity-95">
+                              20%
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <CardContent className="p-5">
-                        <div className="font-bold text-gold text-lg mb-1.5">
-                          魅せ肌
-                        </div>
-                        <div className="text-xs text-silver-dark mb-2 leading-relaxed">
-                          人から見える、人に魅せる個性
-                        </div>
-                        <div className="text-xl font-bold text-gold mb-1">
-                          {result.attractive_lb}
-                        </div>
-                        <div className="text-sm font-semibold text-gold">
-                          20%
-                        </div>
-                      </CardContent>
                     </Card>
 
                     {/* 価値肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
+                    <Card className="relative overflow-hidden border-0 bg-white shadow-none rounded-lg py-0">
                       <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white">
                         <div className="relative md:h-64 h-32 flex items-center justify-center">
                           <img
@@ -848,28 +983,22 @@ const BirthdayDiagnosis = () => {
                           />
                         </div>
                       </div>
-                      <CardContent className="p-5">
+                      <div className="p-5 pt-0 flex justify-center items-center flex-col">
                         <div className="font-bold text-gold text-lg mb-1.5">
                           価値肌
                         </div>
                         <div className="text-xs text-silver-dark mb-2 leading-relaxed">
                           生き方の価値パターン
                         </div>
-                        <div className="text-xl font-bold text-gold mb-1">
-                          {result.valuable_lb}
-                        </div>
-                        <div className="text-sm font-semibold text-gold mb-2">
-                          20%
-                        </div>
-                        <div className="text-xs text-silver-dark space-y-0.5">
+                        <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
                           <div>年齢を重ねると</div>
                           <div>より重視される</div>
                         </div>
-                      </CardContent>
+                      </div>
                     </Card>
 
                     {/* トラブル肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white shadow-lg rounded-lg py-0">
+                    <Card className="relative overflow-hidden border-0 bg-white shadow-none rounded-lg py-0">
                       <div className="relative bg-gradient-to-br from-gold-light/20 via-gold-light/10 to-white">
                         <div className="relative md:h-64 h-32 flex items-center justify-center">
                           <img
@@ -879,22 +1008,19 @@ const BirthdayDiagnosis = () => {
                           />
                         </div>
                       </div>
-                      <CardContent className="p-5">
+                      <div className="p-5 pt-0 flex flex-col justify-center items-center">
                         <div className="font-bold text-gold text-lg mb-1.5">
                           トラブル肌
                         </div>
                         <div className="text-xs text-silver-dark mb-2 leading-relaxed">
                           緊急時に発揮する個性
                         </div>
-                        <div className="text-xl font-bold text-gold mb-2">
-                          {result.problem_lb}
-                        </div>
-                        <div className="text-xs text-silver-dark space-y-0.5">
+                        <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
                           <div>普段は10％</div>
                           <div>緊急時には</div>
                           <div className="font-semibold">80％</div>
                         </div>
-                      </CardContent>
+                      </div>
                     </Card>
                   </div>
 
@@ -979,9 +1105,15 @@ const BirthdayDiagnosis = () => {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b border-gold/30">
-                        <th className="text-left py-3 px-4 text-gold font-semibold">名前</th>
-                        <th className="text-left py-3 px-4 text-gold font-semibold">生年月日</th>
-                        <th className="text-left py-3 px-4 text-gold font-semibold">診断日時</th>
+                        <th className="text-left py-3 px-4 text-gold font-semibold">
+                          名前
+                        </th>
+                        <th className="text-left py-3 px-4 text-gold font-semibold">
+                          生年月日
+                        </th>
+                        <th className="text-left py-3 px-4 text-gold font-semibold">
+                          診断日時
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -993,8 +1125,12 @@ const BirthdayDiagnosis = () => {
                           }}
                           className="border-b border-gold/20 hover:bg-gold-light/20 cursor-pointer transition-colors"
                         >
-                          <td className="py-3 px-4 text-silver-dark">{entry.name}</td>
-                          <td className="py-3 px-4 text-silver-dark">{entry.birthDate}</td>
+                          <td className="py-3 px-4 text-silver-dark">
+                            {entry.name}
+                          </td>
+                          <td className="py-3 px-4 text-silver-dark">
+                            {entry.birthDate}
+                          </td>
                           <td className="py-3 px-4 text-silver-dark">
                             {new Date(entry.createdAt).toLocaleString("ja-JP")}
                           </td>
