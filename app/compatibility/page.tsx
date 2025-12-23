@@ -198,12 +198,6 @@ export default function CompatibilityPage() {
                     </div>
                   </div>
                 </div>
-
-                <div className="border-t pt-4">
-                  <p className="text-lg font-semibold text-gray-800 mb-4">
-                    マッチング結果: {result.totalMatches}件の相性データが見つかりました
-                  </p>
-                </div>
               </CardContent>
             </Card>
 
@@ -215,37 +209,16 @@ export default function CompatibilityPage() {
                   <Card key={typeResult.compatibilityType} className="shadow-md">
                     <CardHeader>
                       <CardTitle className="text-xl">
-                        {typeResult.name || `相性タイプ ${typeResult.compatibilityType}`} 
+                        {/* {typeResult.name || `相性タイプ ${typeResult.compatibilityType}`}  */}
                         {/* ({typeResult.sheetName}) */}
                       </CardTitle>
-                      <p className="text-sm text-gray-600">
-                        {typeResult.count}件のマッチ
-                      </p>
                       {typeResult.description && (
                         <p className="text-gray-700 mt-3 leading-relaxed">
                           {typeResult.description}
                         </p>
                       )}
                     </CardHeader>
-                    <CardContent className="p-4">
-                      <div className="space-y-2">
-                        {typeResult.records.map((record, idx) => (
-                          <div
-                            key={idx}
-                            className="bg-gray-50 p-3 rounded border border-gray-200"
-                          >
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="font-semibold">Aさん:</span> ピーチ {record.aPeach || "N/A"}, ハイド {record.aHard || "N/A"}
-                              </div>
-                              <div>
-                                <span className="font-semibold">Bさん:</span> ピーチ {record.bPeach || "N/A"}, ハイド {record.bHard || "N/A"}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
+                    
                   </Card>
                 ))}
               </div>
@@ -262,13 +235,6 @@ export default function CompatibilityPage() {
         )}
       </main>
 
-        {/* フッター */}
-        <footer className="border-t border-gold/30 bg-gradient-silver mt-12">
-          <div className="container mx-auto px-4 py-8 text-center">
-            <p className="text-silver-dark">© 2024 誕生日診断サイト - あなたの運命を知る旅</p>
-            <p className="text-sm text-silver-dark mt-2">※ この診断は娯楽目的です</p>
-          </div>
-        </footer>
       </div>
     </ProtectedRoute>
   )
