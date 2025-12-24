@@ -255,6 +255,13 @@ export default function CompatibilityPage() {
         {/* 結果表示 */}
         {result && (
           <div className="space-y-6">
+            {/* 相性診断ボタン - 全体 */}
+            <div className="flex justify-end mb-4">
+              <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
+                相性診断
+              </Button>
+            </div>
+
             {/* 基本情報 */}
             <Card className="shadow-lg">
               <CardHeader>
@@ -293,7 +300,12 @@ export default function CompatibilityPage() {
             {/* 相性タイプ別結果 */}
             {result.results.length > 0 && (
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-800">相性タイプ別の結果</h2>
+                {/* 相性診断ボタン - 価値観 */}
+                <div className="flex justify-end mb-4">
+                  <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
+                    相性診断
+                  </Button>
+                </div>
                 {result.results.map((typeResult) => (
                   <Card key={typeResult.compatibilityType} className="shadow-md">
                     <CardHeader>
@@ -323,7 +335,14 @@ export default function CompatibilityPage() {
 
             {/* 個性の相性 (Skin Compatibility) */}
             {result.personA.essential_lb && result.personB.essential_lb && skinCompatibility && (
-              <Card className="shadow-lg">
+              <>
+                {/* 相性診断ボタン - 個性 */}
+                <div className="flex justify-end mb-4">
+                  <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
+                    相性診断
+                  </Button>
+                </div>
+                <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold">個性の相性</CardTitle>
                 </CardHeader>
@@ -417,6 +436,7 @@ export default function CompatibilityPage() {
                   })()}
                 </CardContent>
               </Card>
+              </>
             )}
           </div>
         )}
