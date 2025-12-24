@@ -3,14 +3,16 @@ import { db } from "@/lib/db"
 import { compatibilityData, compatibilityTypes } from "@/lib/db/schema"
 import { eq, or, and, sql } from "drizzle-orm"
 
-// Normalize value to handle Unicode variations (T+ = T＋, T- = Tー)
+// Normalize value to handle Unicode variations (T+ = T＋, T- = Tー, T- = T－)
 function normalizeValue(value: string | null): string | null {
   if (!value) return null
   
   // Replace Unicode full-width plus/minus with ASCII
+  // Handle both ー (katakana long vowel, U+30FC) and － (full-width hyphen, U+FF0D)
   let normalized = value
-    .replace(/＋/g, "+")  // Full-width plus to ASCII plus
-    .replace(/ー/g, "-")  // Full-width minus to ASCII minus
+    .replace(/＋/g, "+")  // Full-width plus (U+FF0B) to ASCII plus
+    .replace(/ー/g, "-")  // Katakana long vowel (U+30FC) to ASCII minus
+    .replace(/－/g, "-")  // Full-width hyphen (U+FF0D) to ASCII minus
   
   return normalized
 }
@@ -55,45 +57,47 @@ function getSearchPatterns(value: string | null): string[] {
 }
 
 // Create database match patterns for a user value
-// When user has "F+", we want to match database "F+" OR "F" (base value without +/-)
-// When user has "F-", we want to match database "F-" OR "F" (base value without +/-)
-// When user has "F", we want to match database "F" OR "F+" OR "F-"
+// User values will ALWAYS have + or - sign (never base value like "F")
+// When user has "F+", we want to match database "F+" OR "F" (base) OR "F＋" (Japanese)
+// When user has "F-", we want to match database "F-" OR "F" (base) OR "Fー" (Japanese)
+// Important: F+ should NOT match F- or Fー, and vice versa
 function getDatabaseMatchPatterns(userValue: string | null): string[] {
   if (!userValue) return []
   
-  const normalized = normalizeValue(userValue)
-  const base = getBaseValue(userValue)
+  const normalized = normalizeValue(userValue) // Converts ー to -, ＋ to +
+  const base = getBaseValue(userValue) // Gets base without sign (e.g., "F")
   
   const patterns: string[] = []
   
-  if (normalized) {
-    patterns.push(normalized) // Exact match: F+, F-, F
+  if (!normalized || !base) return patterns
+  
+  // Always add the normalized exact match (e.g., "F+" or "F-")
+  patterns.push(normalized)
+  
+  // Add base value (without sign) - database "F" matches user "F+" or "F-"
+  if (base !== normalized) {
+    patterns.push(base)
   }
   
-  // If user value has +/- (e.g., F+ or F-), also match base value (F) in database
-  // This handles: database "F" matches user "F+" or "F-"
-  if (base && base !== normalized) {
-    patterns.push(base) // Base value: F, M, etc.
+  // Determine if user has "+" or "-" sign
+  const hasPlus = normalized.endsWith("+")
+  const hasMinus = normalized.endsWith("-")
+  
+  // Add Japanese character variations based on sign type
+  // Only add the opposite character encoding, not the opposite sign
+  if (hasPlus) {
+    // User has "+" sign: match "F+" (ASCII, already added), "F" (base, already added), and "F＋" (Japanese)
+    patterns.push(base + "＋") // Full-width plus (U+FF0B)
+  } else if (hasMinus) {
+    // User has "-" sign: match "F-" (ASCII, already added), "F" (base, already added), and Japanese variations
+    patterns.push(base + "ー") // Katakana long vowel (U+30FC)
+    patterns.push(base + "－") // Full-width hyphen (U+FF0D)
   }
   
-  // If user value is base (no +/-), also match +/- versions in database
-  // This handles: database "F+" or "F-" matches user "F"
-  if (normalized === base && base) {
-    patterns.push(base + "+") // F -> F+
-    patterns.push(base + "-") // F -> F-
-    // Also add Unicode variations
-    patterns.push(base + "＋") // F -> F＋
-    patterns.push(base + "ー") // F -> Fー
-  }
-  
-  // Also add Unicode variations for exact matches
-  if (normalized) {
-    if (normalized.includes("+")) {
-      patterns.push(normalized.replace(/\+/g, "＋")) // F+ -> F＋
-    }
-    if (normalized.includes("-")) {
-      patterns.push(normalized.replace(/-/g, "ー")) // F- -> Fー
-    }
+  // Also add the original user value if it's different from normalized
+  // This handles cases where user input has Japanese characters that weren't normalized
+  if (userValue !== normalized) {
+    patterns.push(userValue) // Add original version (e.g., "F＋" or "F－")
   }
   
   return [...new Set(patterns)] // Remove duplicates
