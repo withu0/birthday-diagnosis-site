@@ -46,6 +46,22 @@ const skinColors: Record<string, string> = {
   平和肌: "#00bf63",
 }
 
+// Skin type background colors (10% opacity for backgrounds)
+const skinBgColors: Record<string, string> = {
+  天才肌: "rgba(226, 169, 241, 0.1)", // #e2a9f1
+  オリジナル肌: "rgba(65, 184, 213, 0.1)", // #41b8d5
+  赤ちゃん肌: "rgba(193, 255, 114, 0.1)", // #c1ff72
+  多才肌: "rgba(255, 145, 77, 0.1)", // #ff914d
+  ポジティブ肌: "rgba(255, 117, 31, 0.1)", // #ff751f
+  スマート肌: "rgba(255, 237, 0, 0.1)", // #ffed00
+  親分肌: "rgba(24, 0, 173, 0.1)", // #1800ad
+  姉御肌: "rgba(0, 151, 178, 0.1)", // #0097b2
+  コミュ肌: "rgba(56, 182, 255, 0.1)", // #38b6ff
+  ドリーム肌: "rgba(255, 102, 196, 0.1)", // #ff66c4
+  職人肌: "rgba(255, 49, 49, 0.1)", // #ff3131
+  平和肌: "rgba(0, 191, 99, 0.1)", // #00bf63
+}
+
 // Icon component for compatibility level
 const CompatibilityIcon = ({ iconType }: { iconType: string }) => {
   switch (iconType) {
@@ -375,7 +391,10 @@ export default function CompatibilityPage() {
                         </div>
 
                         {/* Compatibility Info */}
-                        <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                        <div
+                          className="rounded-lg p-6 space-y-4"
+                          style={{ backgroundColor: skinBgColors[skinA] || "rgba(0, 0, 0, 0.05)" }}
+                        >
                           <div className="flex items-center gap-3">
                             <span className="text-lg font-semibold text-gray-800">相性度:</span>
                             <CompatibilityIcon iconType={compatibility.iconType} />
