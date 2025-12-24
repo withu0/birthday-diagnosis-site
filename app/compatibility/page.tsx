@@ -256,7 +256,7 @@ export default function CompatibilityPage() {
         {result && (
           <div className="space-y-6">
             {/* 相性診断ボタン - 全体 */}
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-center mb-4">
               <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
                 相性診断
               </Button>
@@ -265,7 +265,7 @@ export default function CompatibilityPage() {
             {/* 基本情報 */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">診断結果</CardTitle>
+                <CardTitle className="text-2xl font-bold">1.価値観と 2.個性の相性</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -301,7 +301,7 @@ export default function CompatibilityPage() {
             {result.results.length > 0 && (
               <div className="space-y-4">
                 {/* 相性診断ボタン - 価値観 */}
-                <div className="flex justify-end mb-4">
+                <div className="flex justify-center mb-4">
                   <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
                     相性診断
                   </Button>
@@ -311,7 +311,7 @@ export default function CompatibilityPage() {
                     <CardHeader>
                       <CardTitle className="text-xl">
                         {/* {typeResult.name || `相性タイプ ${typeResult.compatibilityType}`}  */}
-                        {/* ({typeResult.sheetName}) */}
+                        1.価値観(生き方・考え方)
                       </CardTitle>
                       {typeResult.description && (
                         <p className="text-gray-700 mt-3 leading-relaxed">
@@ -337,14 +337,14 @@ export default function CompatibilityPage() {
             {result.personA.essential_lb && result.personB.essential_lb && skinCompatibility && (
               <>
                 {/* 相性診断ボタン - 個性 */}
-                <div className="flex justify-end mb-4">
+                <div className="flex justify-center mb-4">
                   <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
                     相性診断
                   </Button>
                 </div>
                 <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold">個性の相性</CardTitle>
+                  <CardTitle className="text-2xl font-bold">2.個性の相性</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   {(() => {
