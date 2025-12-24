@@ -24,6 +24,7 @@ function getBaseValue(value: string | null): string | null {
 }
 
 // Create search patterns for a value (with +/- and without)
+// This generates patterns to match against database values
 function getSearchPatterns(value: string | null): string[] {
   if (!value) return []
   
@@ -47,6 +48,51 @@ function getSearchPatterns(value: string | null): string[] {
     }
     if (normalized.includes("-")) {
       patterns.push(normalized.replace(/-/g, "ー")) // T- -> Tー
+    }
+  }
+  
+  return [...new Set(patterns)] // Remove duplicates
+}
+
+// Create database match patterns for a user value
+// When user has "F+", we want to match database "F+" OR "F" (base value without +/-)
+// When user has "F-", we want to match database "F-" OR "F" (base value without +/-)
+// When user has "F", we want to match database "F" OR "F+" OR "F-"
+function getDatabaseMatchPatterns(userValue: string | null): string[] {
+  if (!userValue) return []
+  
+  const normalized = normalizeValue(userValue)
+  const base = getBaseValue(userValue)
+  
+  const patterns: string[] = []
+  
+  if (normalized) {
+    patterns.push(normalized) // Exact match: F+, F-, F
+  }
+  
+  // If user value has +/- (e.g., F+ or F-), also match base value (F) in database
+  // This handles: database "F" matches user "F+" or "F-"
+  if (base && base !== normalized) {
+    patterns.push(base) // Base value: F, M, etc.
+  }
+  
+  // If user value is base (no +/-), also match +/- versions in database
+  // This handles: database "F+" or "F-" matches user "F"
+  if (normalized === base && base) {
+    patterns.push(base + "+") // F -> F+
+    patterns.push(base + "-") // F -> F-
+    // Also add Unicode variations
+    patterns.push(base + "＋") // F -> F＋
+    patterns.push(base + "ー") // F -> Fー
+  }
+  
+  // Also add Unicode variations for exact matches
+  if (normalized) {
+    if (normalized.includes("+")) {
+      patterns.push(normalized.replace(/\+/g, "＋")) // F+ -> F＋
+    }
+    if (normalized.includes("-")) {
+      patterns.push(normalized.replace(/-/g, "ー")) // F- -> Fー
     }
   }
   
@@ -128,11 +174,15 @@ export async function POST(request: NextRequest) {
     console.log("[compatibility] A valuable:", aValuable, "A problem:", aProblem)
     console.log("[compatibility] B valuable:", bValuable, "B problem:", bProblem)
 
-    // Get search patterns for each value
-    const aValuablePatterns = getSearchPatterns(aValuable)
-    const aProblemPatterns = getSearchPatterns(aProblem)
-    const bValuablePatterns = getSearchPatterns(bValuable)
-    const bProblemPatterns = getSearchPatterns(bProblem)
+    // Get database match patterns for each value
+    // This handles the case where:
+    // - User has "F+" → matches database "F+" OR "F" (base value without +/-)
+    // - User has "F-" → matches database "F-" OR "F" (base value without +/-)
+    // - User has "F" → matches database "F" OR "F+" OR "F-"
+    const aValuablePatterns = getDatabaseMatchPatterns(aValuable)
+    const aProblemPatterns = getDatabaseMatchPatterns(aProblem)
+    const bValuablePatterns = getDatabaseMatchPatterns(bValuable)
+    const bProblemPatterns = getDatabaseMatchPatterns(bProblem)
 
     console.log("[compatibility] A valuable patterns:", aValuablePatterns)
     console.log("[compatibility] A problem patterns:", aProblemPatterns)
@@ -146,29 +196,11 @@ export async function POST(request: NextRequest) {
     // - B's peach (valuable) with bPeach
     // - B's hard (problem) with bHard
     
-    // Combine all patterns including base values (without +/-)
-    const allAPeachPatterns = [
-      ...aValuablePatterns,
-      ...aValuablePatterns.map((p) => getBaseValue(p)).filter((p): p is string => !!p),
-    ]
-    const allAHardPatterns = [
-      ...aProblemPatterns,
-      ...aProblemPatterns.map((p) => getBaseValue(p)).filter((p): p is string => !!p),
-    ]
-    const allBPeachPatterns = [
-      ...bValuablePatterns,
-      ...bValuablePatterns.map((p) => getBaseValue(p)).filter((p): p is string => !!p),
-    ]
-    const allBHardPatterns = [
-      ...bProblemPatterns,
-      ...bProblemPatterns.map((p) => getBaseValue(p)).filter((p): p is string => !!p),
-    ]
-
     // Remove duplicates and null values
-    const uniqueAPeach = [...new Set(allAPeachPatterns.filter((p): p is string => !!p))]
-    const uniqueAHard = [...new Set(allAHardPatterns.filter((p): p is string => !!p))]
-    const uniqueBPeach = [...new Set(allBPeachPatterns.filter((p): p is string => !!p))]
-    const uniqueBHard = [...new Set(allBHardPatterns.filter((p): p is string => !!p))]
+    const uniqueAPeach = [...new Set(aValuablePatterns.filter((p): p is string => !!p))]
+    const uniqueAHard = [...new Set(aProblemPatterns.filter((p): p is string => !!p))]
+    const uniqueBPeach = [...new Set(bValuablePatterns.filter((p): p is string => !!p))]
+    const uniqueBHard = [...new Set(bProblemPatterns.filter((p): p is string => !!p))]
 
     // Build OR conditions for each field
     const aPeachConditions = uniqueAPeach.length > 0
