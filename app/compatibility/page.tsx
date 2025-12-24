@@ -154,8 +154,8 @@ export default function CompatibilityPage() {
       {/* メインコンテンツ */}
       <main className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">相性診断</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-6xl font-bold text-gray-800 mb-4">相性診断</h1>
+          <p className="text-xl text-gray-600">
             2人の生年月日から相性を診断します
           </p>
         </div>
@@ -257,7 +257,7 @@ export default function CompatibilityPage() {
           <div className="space-y-6">
             {/* 相性診断ボタン - 全体 */}
             <div className="flex justify-center mb-4">
-              <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
+              <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md text-2xl">
                 相性診断
               </Button>
             </div>
@@ -302,7 +302,7 @@ export default function CompatibilityPage() {
               <div className="space-y-4">
                 {/* 相性診断ボタン - 価値観 */}
                 <div className="flex justify-center mb-4">
-                  <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
+                  <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md text-2xl">
                     相性診断
                   </Button>
                 </div>
@@ -338,7 +338,7 @@ export default function CompatibilityPage() {
               <>
                 {/* 相性診断ボタン - 個性 */}
                 <div className="flex justify-center mb-4">
-                  <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md">
+                  <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md text-2xl">
                     相性診断
                   </Button>
                 </div>
