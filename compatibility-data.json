@@ -6670,620 +6670,6 @@
     ]
   },
   {
-    "compatibilityType": 9,
-    "sheetName": "相性⑨⑭完成",
-    "range": "A3:S17",
-    "data": [
-      {
-        "A": {
-          "peach": "T",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "T"
-        },
-        "rowIndex": 2,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "E"
-        },
-        "rowIndex": 2,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "W"
-        },
-        "rowIndex": 2,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "F"
-        },
-        "rowIndex": 2,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "M"
-        },
-        "rowIndex": 2,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "T"
-        },
-        "rowIndex": 5,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "E"
-        },
-        "rowIndex": 5,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "W"
-        },
-        "rowIndex": 5,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "F"
-        },
-        "rowIndex": 5,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "M"
-        },
-        "rowIndex": 5,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "T"
-        },
-        "rowIndex": 8,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "E"
-        },
-        "rowIndex": 8,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "W"
-        },
-        "rowIndex": 8,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "F"
-        },
-        "rowIndex": 8,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "M"
-        },
-        "rowIndex": 8,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "T"
-        },
-        "rowIndex": 11,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "E"
-        },
-        "rowIndex": 11,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "W"
-        },
-        "rowIndex": 11,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "F"
-        },
-        "rowIndex": 11,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "T"
-        },
-        "rowIndex": 11,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "T"
-        },
-        "rowIndex": 14,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "E"
-        },
-        "rowIndex": 14,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "W"
-        },
-        "rowIndex": 14,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "F"
-        },
-        "rowIndex": 14,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "T"
-        },
-        "rowIndex": 14,
-        "colIndex": 16
-      }
-    ]
-  },
-  {
-    "compatibilityType": 14,
-    "sheetName": "相性⑨⑭完成",
-    "range": "A19:S33",
-    "data": [
-      {
-        "A": {
-          "peach": "E",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "E"
-        },
-        "rowIndex": 18,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "W"
-        },
-        "rowIndex": 18,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "F"
-        },
-        "rowIndex": 18,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "M"
-        },
-        "rowIndex": 18,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "E",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "T",
-          "hard": "T"
-        },
-        "rowIndex": 18,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "E"
-        },
-        "rowIndex": 21,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "W"
-        },
-        "rowIndex": 21,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "F"
-        },
-        "rowIndex": 21,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "M"
-        },
-        "rowIndex": 21,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "W",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "E",
-          "hard": "T"
-        },
-        "rowIndex": 21,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "E"
-        },
-        "rowIndex": 24,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "W"
-        },
-        "rowIndex": 24,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "F"
-        },
-        "rowIndex": 24,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "M"
-        },
-        "rowIndex": 24,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "F",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "W",
-          "hard": "T"
-        },
-        "rowIndex": 24,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "E"
-        },
-        "rowIndex": 27,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "W"
-        },
-        "rowIndex": 27,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "F"
-        },
-        "rowIndex": 27,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "M"
-        },
-        "rowIndex": 27,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "M",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "F",
-          "hard": "T"
-        },
-        "rowIndex": 27,
-        "colIndex": 16
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "T"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "E"
-        },
-        "rowIndex": 30,
-        "colIndex": 0
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "E"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "W"
-        },
-        "rowIndex": 30,
-        "colIndex": 4
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "W"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "F"
-        },
-        "rowIndex": 30,
-        "colIndex": 8
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "F"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "M"
-        },
-        "rowIndex": 30,
-        "colIndex": 12
-      },
-      {
-        "A": {
-          "peach": "T",
-          "hard": "M"
-        },
-        "B": {
-          "peach": "M",
-          "hard": "T"
-        },
-        "rowIndex": 30,
-        "colIndex": 16
-      }
-    ]
-  },
-  {
     "compatibilityType": 10,
     "sheetName": "相性⑩⑰完成",
     "range": "A3:S17",
@@ -12793,7 +12179,7 @@
         },
         "B": {
           "peach": "F",
-          "hard": "F"
+          "hard": "W"
         },
         "rowIndex": 2,
         "colIndex": 0
@@ -12801,11 +12187,11 @@
       {
         "A": {
           "peach": "T",
-          "hard": "F"
+          "hard": "W"
         },
         "B": {
           "peach": "F",
-          "hard": "E"
+          "hard": "M"
         },
         "rowIndex": 2,
         "colIndex": 4
@@ -12813,11 +12199,11 @@
       {
         "A": {
           "peach": "T",
-          "hard": "E"
+          "hard": "M"
         },
         "B": {
           "peach": "F",
-          "hard": "M"
+          "hard": "E"
         },
         "rowIndex": 2,
         "colIndex": 8
@@ -12825,11 +12211,11 @@
       {
         "A": {
           "peach": "T",
-          "hard": "M"
+          "hard": "E"
         },
         "B": {
           "peach": "F",
-          "hard": "W"
+          "hard": "F"
         },
         "rowIndex": 2,
         "colIndex": 12
@@ -12837,7 +12223,7 @@
       {
         "A": {
           "peach": "T",
-          "hard": "W"
+          "hard": "F"
         },
         "B": {
           "peach": "F",
@@ -12853,7 +12239,7 @@
         },
         "B": {
           "peach": "E",
-          "hard": "F"
+          "hard": "W"
         },
         "rowIndex": 5,
         "colIndex": 0
@@ -12861,11 +12247,11 @@
       {
         "A": {
           "peach": "F",
-          "hard": "F"
+          "hard": "W"
         },
         "B": {
           "peach": "E",
-          "hard": "E"
+          "hard": "M"
         },
         "rowIndex": 5,
         "colIndex": 4
@@ -12873,11 +12259,11 @@
       {
         "A": {
           "peach": "F",
-          "hard": "E"
+          "hard": "M"
         },
         "B": {
           "peach": "E",
-          "hard": "M"
+          "hard": "E"
         },
         "rowIndex": 5,
         "colIndex": 8
@@ -12885,11 +12271,11 @@
       {
         "A": {
           "peach": "F",
-          "hard": "M"
+          "hard": "E"
         },
         "B": {
           "peach": "E",
-          "hard": "W"
+          "hard": "F"
         },
         "rowIndex": 5,
         "colIndex": 12
@@ -12897,7 +12283,7 @@
       {
         "A": {
           "peach": "F",
-          "hard": "W"
+          "hard": "F"
         },
         "B": {
           "peach": "E",
@@ -12913,7 +12299,7 @@
         },
         "B": {
           "peach": "M",
-          "hard": "F"
+          "hard": "W"
         },
         "rowIndex": 8,
         "colIndex": 0
@@ -12921,11 +12307,11 @@
       {
         "A": {
           "peach": "E",
-          "hard": "F"
+          "hard": "W"
         },
         "B": {
           "peach": "M",
-          "hard": "E"
+          "hard": "M"
         },
         "rowIndex": 8,
         "colIndex": 4
@@ -12933,11 +12319,11 @@
       {
         "A": {
           "peach": "E",
-          "hard": "E"
+          "hard": "M"
         },
         "B": {
           "peach": "M",
-          "hard": "M"
+          "hard": "E"
         },
         "rowIndex": 8,
         "colIndex": 8
@@ -12945,11 +12331,11 @@
       {
         "A": {
           "peach": "E",
-          "hard": "M"
+          "hard": "E"
         },
         "B": {
           "peach": "M",
-          "hard": "W"
+          "hard": "F"
         },
         "rowIndex": 8,
         "colIndex": 12
@@ -12957,7 +12343,7 @@
       {
         "A": {
           "peach": "E",
-          "hard": "W"
+          "hard": "F"
         },
         "B": {
           "peach": "M",
@@ -12973,7 +12359,7 @@
         },
         "B": {
           "peach": "W",
-          "hard": "F"
+          "hard": "W"
         },
         "rowIndex": 11,
         "colIndex": 0
@@ -12981,11 +12367,11 @@
       {
         "A": {
           "peach": "M",
-          "hard": "F"
+          "hard": "W"
         },
         "B": {
           "peach": "W",
-          "hard": "E"
+          "hard": "M"
         },
         "rowIndex": 11,
         "colIndex": 4
@@ -12993,11 +12379,11 @@
       {
         "A": {
           "peach": "M",
-          "hard": "E"
+          "hard": "M"
         },
         "B": {
           "peach": "W",
-          "hard": "M"
+          "hard": "E"
         },
         "rowIndex": 11,
         "colIndex": 8
@@ -13005,11 +12391,11 @@
       {
         "A": {
           "peach": "M",
-          "hard": "M"
+          "hard": "E"
         },
         "B": {
           "peach": "W",
-          "hard": "W"
+          "hard": "F"
         },
         "rowIndex": 11,
         "colIndex": 12
@@ -13017,7 +12403,7 @@
       {
         "A": {
           "peach": "M",
-          "hard": "W"
+          "hard": "F"
         },
         "B": {
           "peach": "W",
@@ -13033,7 +12419,7 @@
         },
         "B": {
           "peach": "T",
-          "hard": "F"
+          "hard": "W"
         },
         "rowIndex": 14,
         "colIndex": 0
@@ -13041,11 +12427,11 @@
       {
         "A": {
           "peach": "W",
-          "hard": "F"
+          "hard": "W"
         },
         "B": {
           "peach": "T",
-          "hard": "E"
+          "hard": "M"
         },
         "rowIndex": 14,
         "colIndex": 4
@@ -13053,11 +12439,11 @@
       {
         "A": {
           "peach": "W",
-          "hard": "E"
+          "hard": "M"
         },
         "B": {
           "peach": "T",
-          "hard": "M"
+          "hard": "E"
         },
         "rowIndex": 14,
         "colIndex": 8
@@ -13065,11 +12451,11 @@
       {
         "A": {
           "peach": "W",
-          "hard": "M"
+          "hard": "E"
         },
         "B": {
           "peach": "T",
-          "hard": "W"
+          "hard": "F"
         },
         "rowIndex": 14,
         "colIndex": 12
@@ -13077,7 +12463,7 @@
       {
         "A": {
           "peach": "W",
-          "hard": "W"
+          "hard": "F"
         },
         "B": {
           "peach": "T",

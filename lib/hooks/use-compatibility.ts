@@ -8,6 +8,8 @@ export interface CompatibilityResult {
     problem: string
     valuable_lb: string
     problem_lb: string
+    essential_lb?: string
+    attractive_lb?: string
   }
   personB: {
     name: string
@@ -16,6 +18,8 @@ export interface CompatibilityResult {
     problem: string
     valuable_lb: string
     problem_lb: string
+    essential_lb?: string
+    attractive_lb?: string
   }
   results: Array<{
     compatibilityType: number

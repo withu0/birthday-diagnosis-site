@@ -14,6 +14,7 @@
     "compatibility:extract": "tsx scripts/extract-compatibility-data.ts",
     "compatibility:import": "tsx scripts/import-compatibility-data.ts",
     "compatibility-types:import": "tsx scripts/import-compatibility-types.ts",
+    "skin-compatibility:import": "tsx scripts/import-skin-compatibility.ts",
     "db:dump": "tsx scripts/dump-database.ts",
     "db:restore": "tsx scripts/restore-database.ts"
   },

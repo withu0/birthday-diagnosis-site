@@ -80,6 +80,17 @@ export const compatibilityTypes = pgTable("compatibility_types", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 })
 
+export const skinCompatibility = pgTable("skin_compatibility", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  skinTypeA: text("skin_type_a").notNull(), // e.g., "天才肌"
+  skinTypeB: text("skin_type_b").notNull(), // e.g., "オリジナル肌"
+  compatibilityLevel: text("compatibility_level").notNull(), // "良い", "とても良い", "普通", "注意"
+  iconType: text("icon_type").notNull(), // "single-circle", "double-circle", "text-only", "triangle"
+  relationshipImage: text("relationship_image").notNull(), // Detailed relationship description
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+})
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   membership: one(memberships, {
     fields: [users.id],
@@ -126,3 +137,5 @@ export type CompatibilityData = typeof compatibilityData.$inferSelect
 export type NewCompatibilityData = typeof compatibilityData.$inferInsert
 export type CompatibilityType = typeof compatibilityTypes.$inferSelect
 export type NewCompatibilityType = typeof compatibilityTypes.$inferInsert
+export type SkinCompatibility = typeof skinCompatibility.$inferSelect
+export type NewSkinCompatibility = typeof skinCompatibility.$inferInsert

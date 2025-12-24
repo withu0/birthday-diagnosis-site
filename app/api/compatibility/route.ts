@@ -232,6 +232,8 @@ export async function POST(request: NextRequest) {
         problem: aProblem,
         valuable_lb: basicDataA.valuable_lb,
         problem_lb: basicDataA.problem_lb,
+        essential_lb: basicDataA.essential_lb,
+        attractive_lb: basicDataA.attractive_lb,
       },
       personB: {
         name: personB.name,
@@ -240,6 +242,8 @@ export async function POST(request: NextRequest) {
         problem: bProblem,
         valuable_lb: basicDataB.valuable_lb,
         problem_lb: basicDataB.problem_lb,
+        essential_lb: basicDataB.essential_lb,
+        attractive_lb: basicDataB.attractive_lb,
       },
       results: Array.from(resultsByType.entries()).map(([type, records]) => {
         const typeInfo = descriptionsMap.get(type)

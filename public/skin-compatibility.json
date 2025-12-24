@@ -1,0 +1,747 @@
+{
+  "天才肌": {
+    "天才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "感性が共鳴し合い、話していて刺激が多い組み合わせ。ただお互いマイペースなので、現実面が抜けやすい点に注意。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "精神的に通じ合える「唯一無二の同志」。お互い干渉せずに尊重できる。世界観が深く、語るほど共鳴が生まれる。論理と感性のバランスが完璧。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "純粋で信頼ベースのつながり。天才肌は癒され、赤ちゃん肌は刺激される。守り・守られの関係が自然に成り立つ。無理せず愛でつながる相性"
+    },
+    "多才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "楽しさ・勢い・センスが噛み合う。笑いと行動の波長が同じで、一緒にいると場が明るくなる。刺激的で創造的な関係。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "スピード・ノリ・行動が似ていてテンションが合う。ただしペースが速すぎて空回りしやすい。共通目標を決めると大成功。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "美意識・価値観が近く、互いに輝きを引き出す。社会的にも華やかで注目されるペア。唯一の注意点はプライドのぶつかり。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "支配・自由の関係性になりやすい。親分肌は守りたい、天才肌は発想のままに動きたがる。尊敬と信頼を軸にすれば、天才肌の最強の守護者に。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "現実的な計画力のある姉御肌と、発想力豊かな天才肌は、お互いをしっかり支え合える関係。姉御肌が基盤をつくり、天才肌が新しいアイデアを加えることで、良い成果につながりやすい。ただし、進む方向を共有しておくことが大切。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "違う価値観を持ちながらも補い合える関係。天才肌は刺激を与え、コミュ肌は安心を与える。信頼を育てると深い絆に。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "ドリーム肌の安定・計画性と天才肌の変化・直感が真逆。お互いを否定せず「役割が違う」と理解することで長期的に良好。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "忍耐×ひらめきで世界観が真逆。ただし、尊重し合うと人生レベルで支え合える。地に足をつける学びをくれる相手。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "優しく調和的。天才肌の浮遊感を受け止め、心の安定をくれる癒しと穏やかさでつながる。静かな理解者タイプ。"
+    }
+  },
+  "オリジナル肌": {
+    "天才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "天才肌の自由な発想が心地よい刺激となり、オリジナル肌はその意図を深く理解しようとする。干渉しない距離感がちょうどよく、静かに共鳴し合う組み合わせ。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "干渉しない距離感が心地よく、深い部分で分かり合える。ただし、どちらも歩み寄りが少ないと距離が固定されやすい。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の軽さオリジナル肌の思考をほぐし、オリジナル肌の深さが多才肌の魅力を引き立てる。笑いと洞察が自然に生まれる、心地よいバランスの相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の軽さオリジナル肌の思考をほぐし、オリジナル肌の深さが多才肌の魅力を引き立てる。笑いと洞察が自然に生まれる、心地よいバランスの相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "ポジティブ肌の決断力が新しい風を運び、オリジナル肌の洞察が挑戦に根拠を与える。方向が重なると大きな成果を出せるが、歩幅調整が鍵。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "美意識や感性が共鳴し合い、互いの世界観が高まる関係。オリジナル肌の深く考える（静）とスマート肌の行動力（動）のバランスが美しく、互いの不足している部分を自然に補い合える相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "導きたい親分肌と、自分のペースを守りたいオリジナル肌で主導権の衝突が起きやすい。尊重が土台になれば強い信頼関係へ変わる。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "姉御肌の安定感にオリジナル肌が安心し、オリジナル肌の本質を見る力が姉御肌の意思決定を支える。静かに長期的な成果を出せる相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "コミュ肌のやさしい気配りが、オリジナル肌の一人になりがちなところをほっと和らげてくれる。考え方は違うけれど、ゆっくり時間をかければ強い信頼関係に育つタイプ。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "お互い慎重なタイプなので、仲良くなるまで少し時間がかかる。でも一度心を開くと、長く続く安定した関係になる。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "ペースが真逆で最初は噛み合いにくいが、歩幅が合えば強固な信頼関係に発展。人生の土台を支え合える相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "平和肌の穏やかさがオリジナル肌をほっとさせる。争いが少なく、じわじわ温まる「癒しの関係」。"
+    }
+  },
+  "赤ちゃん肌": {
+    "天才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "天才肌の自由な発想は、赤ちゃん肌にとって刺激的でワクワクさせてくれる存在。赤ちゃん肌の柔らかさは天才肌の心を優しく受け止め、ほどよい安心感を与える。刺激と癒しが自然に混じり合う、心地よい相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "赤ちゃん肌の素直さがオリジナル肌の警戒心をゆるめ、静かに安心を作り出す関係。オリジナル肌の深い視点は赤ちゃん肌を包み込み、赤ちゃん肌の優しさはオリジナル肌に癒しを与える。守り・守られが自然に成立する温かい相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "優しさと繊細さを自然に理解し合い、安心できる関係。争いは少なく癒し合えるが、遠慮し合うぶん決めごとが進みにくいことも。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の明るさと柔軟さが、赤ちゃん肌に楽しさと安心を与えてくれる。赤ちゃん肌の優しさは多才肌の自由さをうまく受け止め、衝突が少ない。一緒にいると笑顔が増える、軽やかで心地よいペア。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "ポジティブ肌の行動の速さは、赤ちゃん肌には刺激になる一方で少し疲れることも。でも、ポジティブ肌の勢いは赤ちゃん肌に新しい世界を見せてくれる存在。ペースを合わせられる工夫があれば、良い方向に成長する相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "スマート肌の華やかさや存在感に、赤ちゃん肌は自然と惹かれる。赤ちゃん肌の柔らかい優しさが、スマート肌の緊張をほどき、心の支えになる。外見も心もバランスが良く、上品にまとまる相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "親分肌の「守りたい」気持ちと、赤ちゃん肌の「安心してついていきたい」感覚が調和。赤ちゃん肌は親分肌の大きな器に安心し、親分肌は赤ちゃん肌の素直さに癒される。家族のような温かさを感じる安定した関係。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "姉御肌の頼もしさと責任感が、赤ちゃん肌に安心と信頼を与える。赤ちゃん肌の柔らかさは姉御肌の緊張をゆるめ、良い意味でお肩の力を抜かせてくれる。強さと優しさが自然にかみ合う、バランスの良い相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "どちらも「人の温度」を大切にするタイプで、分かり合うスピードが早い。コミュ肌の気配りが赤ちゃん肌を安心させ、赤ちゃん肌の純粋さがコミュ肌に癒しを与える。家庭的・協力的で、ずっと仲良くいられる相性。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "落ち着いたドリーム肌の雰囲気は、赤ちゃん肌にとってとても安心できる。慎重な二人だから距離はゆっくり縮まるが、そのぶん信頼は深い。穏やかで長続きしやすい関係。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "職人肌のどっしりとした安心感は、赤ちゃん肌にとって「守られている」感覚を与える。赤ちゃん肌の柔らかさは職人肌の真面目さをやさしく包み込み、お互いを補い合える。穏やかで信頼の厚い相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "優しさや調和を重視する点が同じで、争いとは無縁の組み合わせ。一緒にいると心が落ち着き、お互いの存在が癒しになる。温かく穏やかな関係が長く続く相性。"
+    }
+  },
+  "多才肌": {
+    "天才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の柔軟さが天才肌のひらめきを引き出し、会話から発想が広がる。自由度が高く楽しい一方で、現実面を意識すると安定感が増す。創造性と遊び心が心地よく噛み合う相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の軽やかさがオリジナル肌の思考をほぐし、新しい視点を生む。オリジナル肌の深さが、多才肌に落ち着きと学びを与える。笑いと洞察が自然に共存する相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の明るさに赤ちゃん肌は安心し、自然と心を開きやすい。赤ちゃん肌の優しさが、多才肌の疲れをそっと癒す。無理のない距離感で長く続きやすい相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌同士は、発想力と柔軟性が共鳴し合い、自然と刺激と楽しさが生まれる。ノリよく動ける反面、勢いが強くなりすぎると散らかりやすい。軽やかさと知恵が調和した、明るく発展性のある相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "行動力とテンポが合い、一緒にいると物事がスピーディーに進む。盛り上がりすぎると方向性が散りやすいため、目的の共有が大切。勢いと柔軟性が活きる相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "親しみやすさと華やかさが調和し、自然と人を惹きつける組み合わせ。多才肌が空気を和らげ、輝き肌が全体を引き上げる。魅力が美しく循環する相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "多才肌の機転や愛嬌が、親分肌にとって頼もしく映る。親分肌の包容力が、多才肌に安心感を与える。敬意を保つことで安定する相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の柔軟性と、リーダー肌の堅実さがうまく噛み合う。行動と安定のバランスが取れ、成果につながりやすい。互いを成長させ合える相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "社交性同士で距離が縮まりやすく、場の空気が自然と明るくなる。無理なく協力でき、ストレスを感じにくい。人間関係が広がりやすい相性。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "多才肌のスピード感に、ドリーム肌が戸惑う場面もある。ペースを合わせることで、安心と刺激を補い合える。時間をかけて育つ相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "多才肌の軽やかさが、職人肌には落ち着かなく映りやすい。価値観の違いを理解しないと、疲れが溜まりやすい。役割分担ができ理解が深まれば改善し安定する相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "多才肌の明るさを、平和肌の穏やかさがやさしく包む。衝突が少なく、安心できる空気が生まれやすい。居心地の良さが続く相性。"
+    }
+  },
+  "ポジティブ肌": {
+    "天才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "天才肌のひらめきを、ポジティブ肌が即行動に移せる組み合わせ。スピード感は抜群だが、先を急ぎすぎると空回りしやすい。役割を分けることで成果につながる相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "ポジティブ肌の突破力が、オリジナル肌の世界観に風を入れる。オリジナル肌の深さが、行動に意味を与えてくれる。歩幅を合わせられると大きな力になる相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "ポジティブ肌の勢いが、赤ちゃん肌には少し強く感じられることも。赤ちゃん肌の優しさは癒しになるが、急かすと距離が出やすい。スピード調整ができれば安定する相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "ノリと行動力が合い、一緒にいると物事が一気に進みやすい。ただし盛り上がりすぎると方向性が散りやすい。目的を共有すると強い相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "行動力と前向きさが重なり、勢いよく物事が進みやすい関係。ただし互いに止まらないため、方向がずれると疲れやすい。目標を共有できると強さが倍増する相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "ポジティブ肌の行動力と、スマート肌の美意識が美しく噛み合う。華やかでスピード感があり、周囲からも注目されやすい。成功イメージを形にしやすい相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "親分肌が方向を示し、ポジティブ肌が前線で動く理想的な関係。決断力と行動力が重なり、結果が出やすい。信頼関係ができると非常に強い相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "姉御肌の堅実さが、ポジティブ肌の勢いを安定させる。役割が明確だと、無駄なく前進できる。実務面で力を発揮しやすい相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "コミュ肌の慎重さに、ポジティブ肌がもどかしさを感じることも。コミュ肌はポジティブ肌の勢いに助けられる場面が多い。ペースを調整できれば良い相性に。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "ポジティブ肌の即断即行が、ドリーム肌には不安に映りやすい。慎重さとスピードの違いで、すれ違いが起きやすい。丁寧な説明が関係維持の鍵。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "ポジティブ肌の速さと、職人肌の積み上げ型は真逆。噛み合わないとストレスになるが、それぞれの役目を決めると、うまく支え合える。長期視点を持つと安定する相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "平和肌の穏やかさが、ポジティブ肌の勢いを和らげる。ポジティブ肌は平和肌を前へ進め、良い刺激になる。優しさと行動力が調和する相性。"
+    }
+  },
+  "スマート肌": {
+    "天才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "天才肌のひらめきを、スマート肌が上品に仕上げてくれる関係。感性と知性が噛み合い、自然と世界観が広がる。創造性が美しく循環する相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "独自性と洗練が共鳴し、互いの世界観を高め合える。多くを語らなくても理解が深まりやすい。静かで質の高い信頼関係が築ける相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "スマート肌の華やかさに、赤ちゃん肌は自然と惹かれる。赤ちゃん肌の柔らかい優しさが、スマート肌の緊張をほどく。外見も心もバランスが良く、上品にまとまる相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の親しみやすさが、スマート肌の魅力を引き立てる。スマート肌は全体を整え、多才肌は空気を和ませる。人を惹きつける力が倍増する相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "ポジティブ肌の行動力と、スマート肌の方向性が美しく噛み合う。スピード感がありながらも品を失わない。成果につながりやすい強い相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "美意識や価値観が近く、言葉にしなくても通じ合いやすい関係。互いに自立しているため、程よい距離感が心地よい。洗練された空気を共有できる相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "親分肌の包容力が、スマート肌に安心感を与える。スマート肌の冷静さが、親分肌の判断を支える。敬意を持てば安定する相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "姉御肌の現場力と、スマート肌は全体を見渡して、足りない部分を自然に補える。姉御肌は動き、スマート肌は整える役割に向く。実務と美意識が両立する相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "人付き合いが得意なコミュ肌が、スマート肌の橋渡し役になる。価値観は違うが、役割を分けると噛み合う。距離感次第で安定する相性。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "慎重で安定志向なドリーム肌に、スマート肌は少し物足りなさを感じることも。ただ、ドリーム肌の誠実さは長期的な安心につながる。時間をかけて育つ相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "職人肌の堅実さを、スマート肌が重く感じることがある。価値観の違いを理解しないと、互いに疲れやすい。役割分担ができれば改善する相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "平和肌の穏やかさが、スマート肌の緊張をやさしく和らげる。スマート肌が進む方向を示し、平和肌は安心してついていける。落ち着きのある心地よい相性。"
+    }
+  },
+  "親分肌": {
+    "天才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "天才肌の自由な発想を、親分肌が現実に守り支える。天才肌は安心して力を発揮できる。尊敬と信頼が軸になる相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "導きたい親分肌と、自分の世界を大切にしたいオリジナル肌。距離感を誤ると窮屈さが生まれやすい。干渉しすぎないことで安定する相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "親分肌の守る力と、赤ちゃん肌の素直さが自然に噛み合う。安心感が強く、信頼が育ちやすい。家族的で温かい相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "多才肌の機転と明るさを、親分肌が大きく受け止める。ただし自由さを縛りすぎない配慮が必要。敬意があれば長く続く相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "親分肌が方向を示し、ポジティブ肌が前線で動く理想的な関係。決断力と行動力が合わさり、結果が出やすい。信頼が深まるほど強くなる相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "親分肌の包容力を、スマート肌が冷静に支える。スマート肌が冷静に整理してくれるので、迷いが減る。尊重し合えれば、安心して続く相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "お互いに責任感が強く、頼れる存在同士。ただし主導権を譲らないと衝突しやすい。役割を分けると安定する相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "どちらも面倒見が良く、現場力が高い。主張が強くなりすぎると衝突しやすい。役割分担で最強の相性に。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "社交肌の柔らかさが、親分肌の強さを和らげる。人の輪が自然と広がりやすい。対人面で力を発揮する相性。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "どちらも慎重で安定志向なため、動き出しはゆっくり。ただし信頼ができると非常に長く続く。安心感重視の相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "努力肌の継続力を、親分肌がどっしり支える。現実的で信頼の厚い関係になりやすい。長期的に成果を積み上げる相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "平和肌がそばにいると、親分肌は肩の力が抜ける。親分肌は平和肌を守りながら、進む方向を決めてくれる。落ち着いた安定感のある相性。"
+    }
+  },
+  "姉御肌": {
+    "天才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "天才肌のひらめきを、姉御肌が現場で形にしていく。アイデアを出す天才肌と、動いて結果を出す姉御肌。一緒になると物事が進みやすい。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "姉御肌は引っ張りたいが、オリジナル肌は自分の世界を大切にしたい。踏み込みすぎると、オリジナル肌は心を閉じやすい。任せる距離感を意識すると関係は改善する。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "姉御肌の頼もしさが、赤ちゃん肌に安心感を与える。赤ちゃん肌の素直さが、姉御肌の心を和らげる。守り・守られが自然に生まれる相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "多才肌の柔軟さが、姉御肌の動きを軽くする。やる方向を決める姉御肌と、器用に動く多才肌。テンポよく前に進める相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "姉御肌が進む道を示し、ポジティブ肌が勢いよく動く。スピード感があり、結果が出やすい。実行力の高い相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "スマート肌の広い視点が、姉御肌の判断を安定させる。姉御肌は現場を動かし、スマート肌は全体を支える。実務と知性が噛み合う相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "どちらも面倒見がよく、頼れる存在同士。強さが前に出すぎると衝突しやすい。役割分担ができれば最強の相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "行動力と責任感が似ており、頼れる関係になりやすい。ただしどちらも主導権を握りがちで、ぶつかることも。役割を分けるとスムーズに回る相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "コミュ肌の柔らかさが、姉御肌の強さを和らげる一方、温度差が出やすい。姉御肌は「進みたい」、コミュ肌は「空気を整えたい」。歩調を合わせる意識があれば、安定する関係。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "姉御肌の速さに、ドリーム肌が戸惑うことがある。信頼肌の慎重さは、長期的な安心につながる。ペース調整で安定する相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "職人肌の積み上げを、姉御肌が力強く後押しする。現実的で信頼の厚い関係になりやすい。長期戦に強い相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "平和肌の穏やかさが、姉御肌の勢いをやさしく整える。姉御肌は平和肌に安心して進める方向を示す。バランスの取れた相性。"
+    }
+  },
+  "コミュ肌": {
+    "天才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "天才肌の自由な発想を、コミュ肌がやさしく受け止める。天才肌は安心して話せ、コミュ肌は刺激をもらえる。ほどよい距離感で心地よい相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "関係を和らげたいコミュ肌と、距離を大切にしたいオリジナル肌。善意の気配りが重くならないよう見守る姿勢が大切。時間をかけるほど理解が深まる相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "優しさと共感が自然に噛み合い、安心感が生まれやすい。互いに無理をさせず、穏やかな関係が続く。癒し合える相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "多才肌の明るさを、コミュ肌が場になじませる。楽しい空気が広がりやすいが、気疲れには注意。協力しやすい相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "早く進みたいポジティブ肌と、空気を整えたいコミュ肌。スピード差で、コミュ肌が無理をしやすい。合わせすぎない距離感が必要な相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "コミュ肌が人の輪へつなぎ、スマート肌が全体を整える。考え方は違うけれど、やることを分けるとうまくいく。距離感次第で安定する相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "親分肌の強さを、コミュ肌がやさしく和らげる。人の輪が広がり、場が安定しやすい。対人面で力を発揮する相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "姉御肌は即断即行、コミュ肌は空気重視。急かされると、コミュ肌が萎縮しやすい。話すテンポを合わせることが鍵。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "お互いに空気を読み合い、自然と居心地の良い関係をつくれる。気を使いすぎて本音を後回しにしやすい点だけ注意。思いやりで長く続く相性。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "どちらも安心感を大切にし、穏やかな関係を築ける。慎重すぎて進みが遅くなることも。長く続きやすい相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "職人肌の堅実さに、コミュ肌が気配りで寄り添う。価値観は違うが、支え役としては相性は悪くない。役割意識で安定する相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "どちらも調和を大切にし、争いがほとんど起きない。一緒にいるだけで空気がやわらぐ。安心と癒しに満ちた相性。"
+    }
+  },
+  "ドリーム肌": {
+    "天才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "天才肌のひらめきが、ドリーム肌の理想に形を与える。ドリーム肌は「意味・未来」を示し、天才肌は「発想・突破口」を出す。一緒にいると視野が広がり、可能性を現実に変えやすい相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "ドリーム肌の理想が、オリジナル肌の世界観を刺激する。オリジナル肌の深い思考が、夢に一本の軸を通す。互いの価値観を尊重できると、静かに強く噛み合う相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "ドリーム肌の前向きな未来像が、赤ちゃん肌に安心感を与える。赤ちゃん肌の無条件の優しさが、夢を信じ続ける力を支える。感情の循環が心地よい、温かく守り合える相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "多才肌の柔軟な行動力が、ドリーム肌の夢を現実へ動かす。ドリーム肌は方向性を示し、多才肌は試しながら形にする。楽しく変化しながら前進できる相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "ドリーム肌が描く未来に、ポジティブ肌が勢いとスピードを与える。動きは早いが、方向がズレやすいので途中確認が重要。前進力が強く、チャレンジしやすい相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "スマート肌が夢を整理し、現実的な形に落とし込む。ドリーム肌は「考えなくていい安心感」の中で理想を描ける。理想と現実のバランスが取れる相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "親分肌が、ドリーム肌の理想や想いを現実から守る。ドリーム肌は親分肌に「なぜそれをやるのか」という希望を与える。信頼関係が育つと、長期的に強い相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "姉御肌は「今どう動くか」、ドリーム肌は「未来どうなりたいか」を重視。時間軸の違いですれ違いやすい。役割（決断役・ビジョン役）を分けると噛み合う相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "コミュ肌が空気や人間関係を整え、ドリーム肌の想いを言葉にしやすくする。ドリーム肌の理想が、人に伝わりやすくなる。やさしく周囲に広がる相性。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "理想や未来を語り合うことで、気持ちが一気に高まる関係。共感力は高いが、現実面が後回しになりやすい。同じ未来像を共有できると非常に強い相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "ドリーム肌は未来・意味重視、職人肌は積み上げ・再現性重視。夢だけが先行すると、職人肌が不安になりやすい。具体的な手順や期限を共有すると安定する相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "平和肌の穏やかさが、ドリーム肌の理想を安心して育てさせる。急かされない環境で、夢が自然に広がる。心が満たされ、長く続きやすい相性。"
+    }
+  },
+  "職人肌": {
+    "天才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "同じペースで積み上げられる安心感がある。慎重すぎて変化が遅くなることも。目標共有で強くなる相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "オリジナル肌の発想を、職人肌が現実に落とし込む。スピード差に注意。役割分担で力を発揮。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "深さ重視と積み上げ重視で視点が違う。干渉しなければ安定。時間をかける相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "スピード感の違いが出やすい。整理役に回ると噛み合う。役割明確で安定。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "職人肌は積み上げを大切にし、ポジティブ肌はスピード重視。進め方の違いで、職人肌が急かされて疲れやすい。ペースを尊重し合えないと、ストレスが溜まりやすい相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "職人肌が土台を作り、スマート肌が整える。無駄が少ない関係。長期向き。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "親分肌が守り、職人肌が支える。信頼が深まりやすい。組織的に強い相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "姉御肌が前に出て、職人肌が後ろを固める。実務に強い。現実的な相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "普通",
+      "iconType": "text-only",
+      "relationshipImage": "気配りと堅実さで役割が違う。支え合えば安定。無理しない距離感が大切。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "誠実さ同士で安心感が強い。ゆっくりでも確実。長く続く相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "同じペースで積み上げられる安心感がある。慎重すぎて変化が遅くなることも。目標共有で強くなる相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "平和肌の穏やかさが心を和らげる。安心できる関係。安定重視の相性。"
+    }
+  },
+  "平和肌": {
+    "天才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "天才肌の自由な発想を、平和肌がやさしく受け止める。振り回されすぎない距離感が大切。柔らかく支え合える相性。"
+    },
+    "オリジナル肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "干渉しない距離感が心地よく、静かな安心感が生まれる。平和肌は無理に踏み込まないのがコツ。落ち着いた関係が続く相性。"
+    },
+    "赤ちゃん肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "優しさ同士で、自然と守り合える関係。不安や緊張が少なく、心が安らぐ。癒しの相性。"
+    },
+    "多才肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "多才肌の明るさを、平和肌がやさしく受け止める。疲れたときは距離調整を。穏やかに続きやすい相性。"
+    },
+    "ポジティブ肌": {
+      "compatibilityLevel": "注意",
+      "iconType": "triangle",
+      "relationshipImage": "ポジティブ肌の勢いが、平和肌には強く感じられることがある。無理に合わせると疲れやすい。ペースを守ることが大切な相性。"
+    },
+    "スマート肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "スマート肌が方向を示し、平和肌は安心してついていける。落ち着きと知性が調和する。安定感のある相性。"
+    },
+    "親分肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "親分肌の守る力に、平和肌は安心しやすい。依存しすぎない意識が必要。支え合える相性。"
+    },
+    "姉御肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "姉御肌が前に出て、平和肌が場を和らげる。役割が自然に分かれる。補完関係の相性。"
+    },
+    "コミュ肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "空気を大切にする価値観が共鳴。一緒にいるだけで場が整う。人間関係が安定する相性。"
+    },
+    "ドリーム肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "安心感と誠実さが重なり、信頼が深まりやすい。焦らず自然体でいられる。長く続く相性。"
+    },
+    "職人肌": {
+      "compatibilityLevel": "良い",
+      "iconType": "single-circle",
+      "relationshipImage": "職人肌の安定感が、平和肌に安心を与える。ゆっくりでも確実に進める。穏やかな相性。"
+    },
+    "平和肌": {
+      "compatibilityLevel": "とても良い",
+      "iconType": "double-circle",
+      "relationshipImage": "穏やかさと優しさが自然に重なり、安心感がとても強い関係。争いがほとんどなく、心が落ち着く。癒し合いながら長く続く相性。"
+    }
+  }
+}
+
