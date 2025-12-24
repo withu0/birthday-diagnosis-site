@@ -30,20 +30,20 @@ const getSkinImagePath = (skinType: string): string => {
   return imageMap[skinType] || "/basic/オリジナル肌.webp"
 }
 
-// Skin type colors (10% opacity)
+// Skin type colors (full opacity for text)
 const skinColors: Record<string, string> = {
-  天才肌: "rgba(226, 169, 241, 0.1)", // #e2a9f1
-  オリジナル肌: "rgba(65, 184, 213, 0.1)", // #41b8d5
-  赤ちゃん肌: "rgba(193, 255, 114, 0.1)", // #c1ff72
-  多才肌: "rgba(255, 145, 77, 0.1)", // #ff914d
-  ポジティブ肌: "rgba(255, 117, 31, 0.1)", // #ff751f
-  スマート肌: "rgba(255, 237, 0, 0.1)", // #ffed00
-  親分肌: "rgba(24, 0, 173, 0.1)", // #1800ad
-  姉御肌: "rgba(0, 151, 178, 0.1)", // #0097b2
-  コミュ肌: "rgba(56, 182, 255, 0.1)", // #38b6ff
-  ドリーム肌: "rgba(255, 102, 196, 0.1)", // #ff66c4
-  職人肌: "rgba(255, 49, 49, 0.1)", // #ff3131
-  平和肌: "rgba(0, 191, 99, 0.1)", // #00bf63
+  天才肌: "#e2a9f1",
+  オリジナル肌: "#41b8d5",
+  赤ちゃん肌: "#c1ff72",
+  多才肌: "#ff914d",
+  ポジティブ肌: "#ff751f",
+  スマート肌: "#ffed00",
+  親分肌: "#1800ad",
+  姉御肌: "#0097b2",
+  コミュ肌: "#38b6ff",
+  ドリーム肌: "#ff66c4",
+  職人肌: "#ff3131",
+  平和肌: "#00bf63",
 }
 
 // Icon component for compatibility level
@@ -330,16 +330,18 @@ export default function CompatibilityPage() {
                         {/* Skin Type Display */}
                         <div className="grid md:grid-cols-2 gap-6">
                           {/* Person A Skin */}
-                          <div
-                            className="rounded-lg p-6 border-2"
-                            style={{ backgroundColor: skinColors[skinA] || "rgba(0, 0, 0, 0.05)" }}
-                          >
+                          <div className="rounded-lg p-6 border-2 bg-white">
                             <div className="flex flex-col items-center">
                               <div className="text-lg font-semibold text-gray-700 mb-2">
                                 {result.personA.name}さん
                               </div>
-                              <div className="text-2xl font-bold text-gray-800 mb-4">{skinA}</div>
-                              <div className="relative w-32 h-32 md:w-48 md:h-48">
+                              <div
+                                className="text-2xl font-bold mb-4"
+                                style={{ color: skinColors[skinA] || "#000000" }}
+                              >
+                                {skinA}
+                              </div>
+                              <div className="relative w-48 h-48 md:w-64 md:h-64">
                                 <img
                                   src={getSkinImagePath(skinA)}
                                   alt={skinA}
@@ -350,16 +352,18 @@ export default function CompatibilityPage() {
                           </div>
 
                           {/* Person B Skin */}
-                          <div
-                            className="rounded-lg p-6 border-2"
-                            style={{ backgroundColor: skinColors[skinB] || "rgba(0, 0, 0, 0.05)" }}
-                          >
+                          <div className="rounded-lg p-6 border-2 bg-white">
                             <div className="flex flex-col items-center">
                               <div className="text-lg font-semibold text-gray-700 mb-2">
                                 {result.personB.name}さん
                               </div>
-                              <div className="text-2xl font-bold text-gray-800 mb-4">{skinB}</div>
-                              <div className="relative w-32 h-32 md:w-48 md:h-48">
+                              <div
+                                className="text-2xl font-bold mb-4"
+                                style={{ color: skinColors[skinB] || "#000000" }}
+                              >
+                                {skinB}
+                              </div>
+                              <div className="relative w-48 h-48 md:w-64 md:h-64">
                                 <img
                                   src={getSkinImagePath(skinB)}
                                   alt={skinB}

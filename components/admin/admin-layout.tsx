@@ -52,6 +52,11 @@ const menuItems = [
     href: "/admin/compatibility-data",
     icon: FileText,
   },
+  {
+    title: "個性の相性",
+    href: "/admin/skin-compatibility",
+    icon: Heart,
+  },
 ]
 
 export function AdminLayout({ children }: AdminLayoutProps) {
