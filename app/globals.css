@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 @theme {
   --color-gold: #BE943F;
   --color-gold-light: #ECDC88;
@@ -46,6 +47,10 @@
   
   .gradient-bg-silver {
     background: linear-gradient(to right, #9B9B9B, #FFFFFF, #9B9B9B);
+  }
+  
+  .font-belanosima {
+    font-family: var(--font-belanosima), sans-serif;
   }
 }
 

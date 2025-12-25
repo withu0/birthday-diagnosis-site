@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        belanosima: ['var(--font-belanosima)', 'sans-serif'],
+      },
       colors: {
         gold: {
           DEFAULT: '#BE943F',
