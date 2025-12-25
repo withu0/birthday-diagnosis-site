@@ -930,108 +930,132 @@ const BirthdayDiagnosis = () => {
                   </div>
 
                   {/* 基本診断結果 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* 本質肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
-                      <div className="flex flex-col items-center justify-center">
-                        <div className="font-bold text-silver-dark text-lg">
-                          本質肌
-                        </div>
-                        <div className="text-xs text-silver-dark text-center leading-relaxed">
-                          本質的な性格 持つ才能・可能性
-                        </div>
-                        <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
-                          {result.essential_lb}
-                        </div>
+                  <div className="space-y-6">
+                    {/* Outer Section */}
+                    <div>
+                      <div className="mb-4">
+                        <h3 className="text-3xl font-bold text-silver-dark text-center">outer</h3>
                       </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* 本質肌 - main-outer */}
+                        <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
+                          <div className="text-lg text-center font-bold text-silver-dark mb-1">main-outer</div>
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="relative flex flex-col w-full items-center justify-center">
+                              <div className="text-lg text-silver-dark font-bold">本質肌</div>
+                              <div className="text-lg font-bold bg-gold text-white px-1 rounded-md absolute bottom-0 left-4">50%</div>
+                            </div>
 
-                      <div className="relative md:h-64 h-32 ">
-                        {/* <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
-                          OYA SKIN
-                        </div> */}
-                        <img
-                          src={getSkinImagePath(result.essential_lb)}
-                          alt={result.essential_lb}
-                          className="w-full h-full object-contain rounded-lg"
-                        />
-                      </div>
-                    </Card>
+                            <div className="text-xs text-silver-dark my-1">
+                              本質的な性格持つ才能・可能性
+                            </div>
+                            <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
+                              {result.essential_lb}
+                            </div>
+                          </div>
 
-                    {/* 魅せ肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
-                      <div className="flex flex-col items-center justify-center">
-                        <div className="font-bold text-silver-dark text-lg">
-                          魅せ肌
-                        </div>
-                        <div className="text-xs text-silver-dark text-center leading-relaxed">
-                          人から見える、人に魅せる個性
-                        </div>
-                        <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
-                          {result.attractive_lb}
-                        </div>
-                      </div>
-                      <div className="relative md:h-64 h-32">
-                        {/* <div className="absolute top-3 left-3 z-20 bg-gold text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-lg">
-                          OYA SKIN
-                        </div> */}
-                        <img
-                          src={getSkinImagePath(result.attractive_lb)}
-                          alt={result.attractive_lb}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    </Card>
+                          <div className="relative md:h-64 h-32 ">
+                            <img
+                              src={getSkinImagePath(result.essential_lb)}
+                              alt={result.essential_lb}
+                              className="w-full h-full object-contain rounded-lg"
+                            />
+                          </div>
+                        </Card>
 
-                    {/* 価値肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
-                      <div className="relative ">
-                        <div className="relative md:h-64 h-32 flex items-center justify-center">
-                          <img
-                            src={getElementImagePath(result.valuable_lb)}
-                            alt={result.valuable_lb}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+                        {/* 魅せ肌 - surface-outer */}
+                        <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
+                          <div className="text-lg text-center font-bold text-silver-dark mb-1">surface-outer</div>
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="text-lg text-silver-dark font-bold">魅せ肌</div>
+                            <div className="text-xs text-silver-dark my-1">
+                              人から見える、人に魅せる個性
+                            </div>
+                            <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
+                              {result.attractive_lb}
+                            </div>
+                          </div>
+                          <div className="relative md:h-64 h-32 flex items-center justify-center mt-3">
+                            <img
+                              src={getSkinImagePath(result.attractive_lb)}
+                              alt={result.attractive_lb}
+                              className="w-full h-full object-contain rounded-lg"
+                            />
+                          </div>
+                        </Card>
                       </div>
-                      <div className="p-5 pt-0 flex justify-center items-center flex-col">
-                        <div className="font-bold text-silver-dark text-lg">
-                          価値肌
-                        </div>
-                        <div className="text-lg text-silver-dark mb-1 text-center leading-relaxed">
-                          生き方の価値パターン
-                        </div>
-                        <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
-                          <div>年齢を重ねると</div>
-                          <div>より重視される</div>
-                        </div>
-                      </div>
-                    </Card>
+                    </div>
 
-                    {/* トラブル肌 */}
-                    <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
-                      <div className="relative">
-                        <div className="relative md:h-64 h-32 flex items-center justify-center">
-                          <img
-                            src={getElementImagePath(result.problem_lb)}
-                            alt={result.problem_lb}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+                    {/* Divider */}
+                    <div className="relative my-6">
+                      <div className="h-2 bg-gold"></div>
+                      <div className="text-center mt-4">
+                        <h3 className="text-3xl font-bold text-silver-dark">inner</h3>
                       </div>
-                      <div className="p-5 pt-0 flex flex-col justify-center items-center">
-                        <div className="font-bold text-silver-dark text-lg">
-                          トラブル肌
-                        </div>
-                        <div className="text-lg text-silver-dark mb-1 text-center leading-relaxed">
-                          緊急時に発揮する個性
-                        </div>
-                        <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
-                          <div>普段は10％</div>
-                          <div>緊急時には</div>
-                          <div className="font-semibold">80％</div>
-                        </div>
+                    </div>
+
+                    {/* Inner Section */}
+                    <div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* 価値肌 - open inner */}
+                        <Card className="relative border-0 bg-white rounded-lg py-0 gap-2">
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="text-lg text-center font-bold text-silver-dark mb-1">オープン　inner</div>
+                          </div>
+                          <div className="relative">
+                            <div className="text-lg font-bold bg-gold text-white px-1 rounded-md absolute top-0 -left-0 z-10">20%</div>
+                            <div className="relative md:h-64 h-32 flex items-center justify-center mt-3">
+                              <img
+                                src={getElementImagePath(result.valuable_lb)}
+                                alt={result.valuable_lb}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
+                          <div className="p-5 pt-0 flex flex-col justify-center items-center">
+                            <div className="text-lg text-silver-dark font-bold">価値肌</div>
+                            <div className="text-xs text-silver-dark mb-1 text-center leading-relaxed">
+                              生き方の価値パターン
+                            </div>
+                            <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
+                              <div>年齢を重ねると</div>
+                              <div>より重視される</div>
+                            </div>
+                          </div>
+                        </Card>
+
+                        {/* トラブル肌 - hide inner */}
+                        <Card className="relative border-0 bg-white rounded-lg py-0 gap-2">
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="text-lg text-center font-bold text-silver-dark mb-1">ハイド inner</div>
+                          </div>
+                          <div className="relative">
+                            <div className="text-lg font-bold bg-gold text-white px-1 rounded-md absolute top-0 -left-0 z-10">10%</div>
+                            <div className="relative md:h-64 h-32 flex items-center justify-center mt-3">
+                              <img
+                                src={getElementImagePath(result.problem_lb)}
+                                alt={result.problem_lb}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
+                          <div className="p-5 pt-0 flex flex-col justify-center items-center">
+                            <div className="text-lg text-silver-dark font-bold">深層肌</div>
+                            <div className="text-xs text-silver-dark mb-1 text-center leading-relaxed">
+                              生き方・考え方の価値観
+                            </div>
+                            <div className="text-xs text-silver-dark mb-1 text-center leading-relaxed">
+                              緊急時に発揮する個性
+                            </div>
+                            <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
+                              <div>普段は10％</div>
+                              <div>緊急時には</div>
+                              <div className="font-semibold">80％</div>
+                            </div>
+                          </div>
+                        </Card>
                       </div>
-                    </Card>
+                    </div>
                   </div>
 
                   {/* Render sections in order */}
