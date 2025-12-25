@@ -244,9 +244,18 @@ export default function CompatibilityPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-white text-gold hover:bg-gray-100 font-bold py-6 text-lg"
+                className="w-full bg-white text-gold hover:bg-gray-100 font-bold py-6 text-lg relative overflow-visible"
               >
-                {loading ? "診断中..." : "相性を診断する"}
+                <span className="relative z-10">{loading ? "診断中..." : "相性を診断する"}</span>
+                {!loading && (
+                  <Image
+                    src="/hand-click.png"
+                    alt="Click"
+                    width={40}
+                    height={40}
+                    className="absolute right-6 top-2 pointer-events-none z-20"
+                  />
+                )}
               </Button>
             </form>
           </CardContent>
