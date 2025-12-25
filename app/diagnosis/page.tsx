@@ -943,7 +943,8 @@ const BirthdayDiagnosis = () => {
                           <div className="flex flex-col items-center justify-center">
                             <div className="relative flex flex-col w-full items-center justify-center">
                               <div className="text-lg text-silver-dark font-bold">本質肌</div>
-                              <div className="text-lg font-black font-belanosima bg-gold text-white px-1 rounded-md absolute bottom-0 left-0">50%</div>                            </div>
+                              <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute bottom-0 left-0">50%</div>                            
+                            </div>
 
                             <div className="text-xs text-silver-dark my-1">
                               本質的な性格持つ才能・可能性
@@ -968,7 +969,7 @@ const BirthdayDiagnosis = () => {
                           <div className="flex flex-col items-center justify-center">
                             <div className="relative flex flex-col w-full items-center justify-center">
                               <div className="text-lg text-silver-dark font-bold">魅せ肌</div>
-                              <div className="text-lg font-black font-belanosima bg-gold text-white px-1 rounded-md absolute bottom-0 left-0">20%</div>
+                              <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute bottom-0 left-0">20%</div>
                             </div>
                             <div className="text-xs text-silver-dark my-1">
                               人から見える、人に魅せる個性
@@ -1005,7 +1006,7 @@ const BirthdayDiagnosis = () => {
                             <div className="text-lg text-center font-bold text-silver-dark mb-1">オープン　inner</div>
                           </div>
                           <div className="relative">
-                            <div className="text-lg font-black font-belanosima bg-gold text-white px-1 rounded-md absolute top-0 -left-0 z-10">20%</div>
+                            <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute top-0 -left-0 z-10">20%</div>
                             <div className="relative md:h-64 h-32 flex items-center justify-center mt-3">
                               <img
                                 src={getElementImagePath(result.valuable_lb)}
@@ -1032,7 +1033,7 @@ const BirthdayDiagnosis = () => {
                             <div className="text-lg text-center font-bold text-silver-dark mb-1">ハイド inner</div>
                           </div>
                           <div className="relative">
-                            <div className="text-lg font-black font-belanosima bg-gold text-white px-1 rounded-md absolute top-0 -left-0 z-10">10%</div>
+                            <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute top-0 -left-0 z-10">10%</div>
                             <div className="relative md:h-64 h-32 flex items-center justify-center mt-3">
                               <img
                                 src={getElementImagePath(result.problem_lb)}
