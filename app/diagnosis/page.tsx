@@ -1007,7 +1007,7 @@ const BirthdayDiagnosis = () => {
                           </div>
                           <div className="relative">
                             <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute top-0 -left-0 z-10">20%</div>
-                            <div className="relative md:h-64 h-32 flex items-center justify-center mt-3">
+                            <div className="relative md:h-64 h-32 flex items-center justify-center mt-6">
                               <img
                                 src={getElementImagePath(result.valuable_lb)}
                                 alt={result.valuable_lb}
@@ -1034,7 +1034,7 @@ const BirthdayDiagnosis = () => {
                           </div>
                           <div className="relative">
                             <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute top-0 -left-0 z-10">10%</div>
-                            <div className="relative md:h-64 h-32 flex items-center justify-center mt-3">
+                            <div className="relative md:h-64 h-32 flex items-center justify-center mt-6">
                               <img
                                 src={getElementImagePath(result.problem_lb)}
                                 alt={result.problem_lb}
