@@ -367,7 +367,7 @@ export default function PaymentPage() {
           </CardContent>
         </Card>
 
-        {!validPlan && (
+        {/* {!validPlan && (
           <Card className="mb-6 border-yellow-200 bg-yellow-50">
             <CardContent className="p-4 text-center">
               <p className="text-yellow-800">
@@ -375,7 +375,7 @@ export default function PaymentPage() {
               </p>
             </CardContent>
           </Card>
-        )}
+        )} */}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Form */}
