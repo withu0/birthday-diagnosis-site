@@ -4,12 +4,16 @@ import { compatibilityData, compatibilityTypes } from "@/lib/db/schema"
 import { eq, or, and, sql } from "drizzle-orm"
 
 // Normalize value to handle Unicode variations (T+ = T＋, T- = Tー, T- = T－, T- = T−)
+// Also handles spaces between character and sign (e.g., "E +" -> "E+")
 function normalizeValue(value: string | null): string | null {
   if (!value) return null
   
+  // First, remove all spaces to handle cases like "E +" or "E -"
+  let normalized = value.replace(/\s+/g, "")
+  
   // Replace Unicode full-width plus/minus with ASCII
   // Handle ー (katakana long vowel, U+30FC), － (full-width hyphen, U+FF0D), and − (minus sign, U+2212)
-  let normalized = value
+  normalized = normalized
     .replace(/＋/g, "+")  // Full-width plus (U+FF0B) to ASCII plus
     .replace(/ー/g, "-")  // Katakana long vowel (U+30FC) to ASCII minus
     .replace(/－/g, "-")  // Full-width hyphen (U+FF0D) to ASCII minus
@@ -75,6 +79,13 @@ function getDatabaseMatchPatterns(userValue: string | null): string[] {
   // Always add the normalized exact match (e.g., "F+" or "F-")
   patterns.push(normalized)
   
+  // Also add normalized value with space variations (database might have "F +" or "F -")
+  if (normalized.length >= 2) {
+    const sign = normalized.slice(-1) // Get the last character (+ or -)
+    const baseFromNormalized = normalized.slice(0, -1) // Get base without sign
+    patterns.push(baseFromNormalized + " " + sign) // Add "F +" or "F -"
+  }
+  
   // Add base value (without sign) - database "F" matches user "F+" or "F-"
   if (base !== normalized) {
     patterns.push(base)
@@ -89,11 +100,17 @@ function getDatabaseMatchPatterns(userValue: string | null): string[] {
   if (hasPlus) {
     // User has "+" sign: match "F+" (ASCII, already added), "F" (base, already added), and "F＋" (Japanese)
     patterns.push(base + "＋") // Full-width plus (U+FF0B)
+    // Also add variations with spaces for database matching
+    patterns.push(base + " ＋") // With space before full-width plus
   } else if (hasMinus) {
     // User has "-" sign: match "F-" (ASCII, already added), "F" (base, already added), and Japanese variations
     patterns.push(base + "ー") // Katakana long vowel (U+30FC)
     patterns.push(base + "－") // Full-width hyphen (U+FF0D)
     patterns.push(base + "−")  // Minus sign (U+2212)
+    // Also add variations with spaces for database matching
+    patterns.push(base + " ー") // With space before katakana
+    patterns.push(base + " －") // With space before full-width hyphen
+    patterns.push(base + " −")  // With space before minus sign
   }
   
   // Also add the original user value if it's different from normalized
