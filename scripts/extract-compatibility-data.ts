@@ -16,14 +16,36 @@ interface CompatibilityDataSet {
 // Define all the ranges to extract
 const COMPATIBILITY_RANGES: CompatibilityRange[] = [
   { compatibilityType: 1, sheetName: "相性①完成", range: "A2:AM31" },
-  { compatibilityType: 2, sheetName: "相性②③完成", range: "A3:AM17" },
-  { compatibilityType: 3, sheetName: "相性②③完成", range: "A19:AM33" },
-  { compatibilityType: 4, sheetName: "相性④⑤完成", range: "A3:AM17" },
-  { compatibilityType: 5, sheetName: "相性④⑤完成", range: "A19:AM33" },
+  // Type 2: Four separate tabs
+  { compatibilityType: 2, sheetName: "相性②③ハイドコア++", range: "A3:AM17" },
+  { compatibilityType: 2, sheetName: "相性②③ハイドコア+－", range: "A3:AM17" },
+  { compatibilityType: 2, sheetName: "相性②③ハイドコア－＋", range: "A3:AM17" },
+  { compatibilityType: 2, sheetName: "相性②③ハイドコア－－", range: "A3:AM17" },
+  // Type 3: Four separate tabs
+  { compatibilityType: 3, sheetName: "相性②③ハイドコア++", range: "A19:AM33" },
+  { compatibilityType: 3, sheetName: "相性②③ハイドコア+－", range: "A19:AM33" },
+  { compatibilityType: 3, sheetName: "相性②③ハイドコア－＋", range: "A19:AM33" },
+  { compatibilityType: 3, sheetName: "相性②③ハイドコア－－", range: "A19:AM33" },
+  // Type 4: Four separate tabs
+  { compatibilityType: 4, sheetName: "相性④⑤＋＋", range: "A3:AM17" },
+  { compatibilityType: 4, sheetName: "相性④⑤＋－", range: "A3:AM17" },
+  { compatibilityType: 4, sheetName: "相性④⑤－－", range: "A3:AM17" },
+  { compatibilityType: 4, sheetName: "相性④⑤－＋", range: "A3:AM17" },
+  // Type 5: Four separate tabs
+  { compatibilityType: 5, sheetName: "相性④⑤＋＋", range: "A19:AM33" },
+  { compatibilityType: 5, sheetName: "相性④⑤＋－", range: "A19:AM33" },
+  { compatibilityType: 5, sheetName: "相性④⑤－－", range: "A19:AM33" },
+  { compatibilityType: 5, sheetName: "相性④⑤－＋", range: "A19:AM33" },
   { compatibilityType: 6, sheetName: "相性⑥完成", range: "A3:AM17" },
   { compatibilityType: 6, sheetName: "相性⑥完成", range: "A19:AM33" }, // Combined with above
-  { compatibilityType: 7, sheetName: "相性⑦⑬完成", range: "A3:AM17" },
-  { compatibilityType: 13, sheetName: "相性⑦⑬完成", range: "A19:AM33" },
+  // Type 7: Three separate tabs
+  { compatibilityType: 7, sheetName: "相性⑦⑬ピーチコア＋＋", range: "A3:AM17" },
+  { compatibilityType: 7, sheetName: "相性⑦⑬ピーチコア＋－", range: "A3:AM17" },
+  { compatibilityType: 7, sheetName: "相性⑦⑬ピーチコア－－", range: "A3:AM17" },
+  // Type 13: Three separate tabs
+  { compatibilityType: 13, sheetName: "相性⑦⑬ピーチコア＋＋", range: "A19:AM33" },
+  { compatibilityType: 13, sheetName: "相性⑦⑬ピーチコア＋－", range: "A19:AM33" },
+  { compatibilityType: 13, sheetName: "相性⑦⑬ピーチコア－－", range: "A19:AM33" },
   { compatibilityType: 8, sheetName: "相性⑧⑮完成", range: "A3:S17" },
   { compatibilityType: 15, sheetName: "相性⑧⑮完成", range: "A19:S33" },
   { compatibilityType: 9, sheetName: "相性⑨⑭完成", range: "A3:S17" },
@@ -81,14 +103,9 @@ async function main() {
       } else {
         console.log(`  ✓ Extracted ${data.length} compatibility pairs`)
 
-        // For type 6, combine the two ranges
-        if (range.compatibilityType === 6) {
-          const existing = dataByType.get(6) || []
-          dataByType.set(6, [...existing, ...data])
-        } else {
-          const existing = dataByType.get(range.compatibilityType) || []
-          dataByType.set(range.compatibilityType, [...existing, ...data])
-        }
+        // Combine data for types that have multiple ranges (2, 3, 4, 5, 6, 7, 13)
+        const existing = dataByType.get(range.compatibilityType) || []
+        dataByType.set(range.compatibilityType, [...existing, ...data])
       }
     } catch (error) {
       console.error(`  ✗ Error processing ${range.sheetName}!${range.range}:`, error)
@@ -101,10 +118,10 @@ async function main() {
     const rangesForType = COMPATIBILITY_RANGES.filter((r) => r.compatibilityType === compatibilityType)
     if (rangesForType.length > 0) {
       const firstRange = rangesForType[0]
-      // For combined types (like type 6), combine the ranges in the description
+      // For types with multiple ranges (2, 3, 4, 5, 6, 7, 13, etc.), combine the ranges in the description
       const rangeDescription =
         rangesForType.length > 1
-          ? rangesForType.map((r) => r.range).join(" + ")
+          ? rangesForType.map((r) => `${r.sheetName}!${r.range}`).join(" + ")
           : firstRange.range
 
       allData.push({
