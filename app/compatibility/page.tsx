@@ -318,9 +318,17 @@ export default function CompatibilityPage() {
                 {result.results.map((typeResult) => (
                   <Card key={typeResult.compatibilityType} className="shadow-md">
                     <CardHeader>
-                      <CardTitle className="text-xl">
-                        {/* {typeResult.name || `相性タイプ ${typeResult.compatibilityType}`}  */}
-                        1.価値観(生き方・考え方)
+                      <CardTitle className="text-2xl font-bold flex items-center gap-2 justify-between">
+                        <span className="text-gold">1.価値観(生き方・考え方)</span>
+                        <Image
+                          src="/texticon/affair_text.png"
+                          alt="価値観の相性"
+                          onClick={() => {
+                            window.open("/pdfs/価値観の相性.pdf", "_blank")
+                          }}
+                          width={50}
+                          height={50}
+                        />
                       </CardTitle>
                       {typeResult.description && (
                         <p className="text-gray-700 mt-3 leading-relaxed">
@@ -353,7 +361,18 @@ export default function CompatibilityPage() {
                 </div>
                 <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold">2.個性の相性</CardTitle>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-2 justify-between">
+                    <span className="text-gold">2.個性の相性</span>
+                    <Image
+                      src="/texticon/affair_text.png"
+                      alt="個性の相性"
+                      onClick={() => {
+                        window.open("/pdfs/個性の相性.pdf", "_blank")
+                      }}
+                      width={50}
+                      height={50}
+                    />
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   {(() => {
