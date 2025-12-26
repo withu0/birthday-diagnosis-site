@@ -58,6 +58,12 @@ export default function AdminCompatibilityDataPage() {
   const [selectedType, setSelectedType] = useState<string>("all")
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchFilters, setSearchFilters] = useState({
+    aPeach: "",
+    aHard: "",
+    bPeach: "",
+    bHard: "",
+  })
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<CompatibilityDataItem | null>(null)
   const [formData, setFormData] = useState({
@@ -214,7 +220,37 @@ export default function AdminCompatibilityDataPage() {
     return type ? type.name : `タイプ${typeId}`
   }
 
-  const displayData = selectedType === "all" ? groupedData : { [parseInt(selectedType, 10)]: data }
+  const filterData = (items: CompatibilityDataItem[]) => {
+    return items.filter((item) => {
+      // All filters are AND relation
+      const matchesAPeach = !searchFilters.aPeach || 
+        (item.aPeach && item.aPeach.toLowerCase().includes(searchFilters.aPeach.toLowerCase()))
+      const matchesAHard = !searchFilters.aHard || 
+        (item.aHard && item.aHard.toLowerCase().includes(searchFilters.aHard.toLowerCase()))
+      const matchesBPeach = !searchFilters.bPeach || 
+        (item.bPeach && item.bPeach.toLowerCase().includes(searchFilters.bPeach.toLowerCase()))
+      const matchesBHard = !searchFilters.bHard || 
+        (item.bHard && item.bHard.toLowerCase().includes(searchFilters.bHard.toLowerCase()))
+      
+      return matchesAPeach && matchesAHard && matchesBPeach && matchesBHard
+    })
+  }
+
+  const getFilteredGroupedData = () => {
+    const baseData = selectedType === "all" ? groupedData : { [parseInt(selectedType, 10)]: data }
+    const filtered: Record<number, CompatibilityDataItem[]> = {}
+    
+    Object.entries(baseData).forEach(([typeId, items]) => {
+      const filteredItems = filterData(items)
+      if (filteredItems.length > 0) {
+        filtered[parseInt(typeId, 10)] = filteredItems
+      }
+    })
+    
+    return filtered
+  }
+
+  const displayData = getFilteredGroupedData()
 
   return (
     <AdminRoute>
@@ -236,21 +272,85 @@ export default function AdminCompatibilityDataPage() {
               <CardTitle>フィルター</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4">
-                <Label htmlFor="type-filter">相性タイプ</Label>
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue placeholder="すべて" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
-                    {types.map((type) => (
-                      <SelectItem key={type.id} value={type.id.toString()}>
-                        {type.name} (タイプ{type.id})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Label htmlFor="type-filter">相性タイプ</Label>
+                  <Select value={selectedType} onValueChange={setSelectedType}>
+                    <SelectTrigger className="w-64">
+                      <SelectValue placeholder="すべて" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">すべて</SelectItem>
+                      {types.map((type) => (
+                        <SelectItem key={type.id} value={type.id.toString()}>
+                          {type.name} (タイプ{type.id})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">A 検索</Label>
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="search-aPeach" className="text-xs text-gray-600">A Peach</Label>
+                        <Input
+                          id="search-aPeach"
+                          value={searchFilters.aPeach}
+                          onChange={(e) =>
+                            setSearchFilters({ ...searchFilters, aPeach: e.target.value })
+                          }
+                          placeholder="A Peachで検索"
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="search-aHard" className="text-xs text-gray-600">A Hard</Label>
+                        <Input
+                          id="search-aHard"
+                          value={searchFilters.aHard}
+                          onChange={(e) =>
+                            setSearchFilters({ ...searchFilters, aHard: e.target.value })
+                          }
+                          placeholder="A Hardで検索"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">B 検索</Label>
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="search-bPeach" className="text-xs text-gray-600">B Peach</Label>
+                        <Input
+                          id="search-bPeach"
+                          value={searchFilters.bPeach}
+                          onChange={(e) =>
+                            setSearchFilters({ ...searchFilters, bPeach: e.target.value })
+                          }
+                          placeholder="B Peachで検索"
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="search-bHard" className="text-xs text-gray-600">B Hard</Label>
+                        <Input
+                          id="search-bHard"
+                          value={searchFilters.bHard}
+                          onChange={(e) =>
+                            setSearchFilters({ ...searchFilters, bHard: e.target.value })
+                          }
+                          placeholder="B Hardで検索"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
