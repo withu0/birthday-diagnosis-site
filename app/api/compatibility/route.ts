@@ -3,16 +3,17 @@ import { db } from "@/lib/db"
 import { compatibilityData, compatibilityTypes } from "@/lib/db/schema"
 import { eq, or, and, sql } from "drizzle-orm"
 
-// Normalize value to handle Unicode variations (T+ = T＋, T- = Tー, T- = T－)
+// Normalize value to handle Unicode variations (T+ = T＋, T- = Tー, T- = T－, T- = T−)
 function normalizeValue(value: string | null): string | null {
   if (!value) return null
   
   // Replace Unicode full-width plus/minus with ASCII
-  // Handle both ー (katakana long vowel, U+30FC) and － (full-width hyphen, U+FF0D)
+  // Handle ー (katakana long vowel, U+30FC), － (full-width hyphen, U+FF0D), and − (minus sign, U+2212)
   let normalized = value
     .replace(/＋/g, "+")  // Full-width plus (U+FF0B) to ASCII plus
     .replace(/ー/g, "-")  // Katakana long vowel (U+30FC) to ASCII minus
     .replace(/－/g, "-")  // Full-width hyphen (U+FF0D) to ASCII minus
+    .replace(/−/g, "-")   // Minus sign (U+2212) to ASCII minus
   
   return normalized
 }
@@ -92,6 +93,7 @@ function getDatabaseMatchPatterns(userValue: string | null): string[] {
     // User has "-" sign: match "F-" (ASCII, already added), "F" (base, already added), and Japanese variations
     patterns.push(base + "ー") // Katakana long vowel (U+30FC)
     patterns.push(base + "－") // Full-width hyphen (U+FF0D)
+    patterns.push(base + "−")  // Minus sign (U+2212)
   }
   
   // Also add the original user value if it's different from normalized
