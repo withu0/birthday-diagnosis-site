@@ -243,6 +243,19 @@ export default function AdminUsersPage() {
     setCreatePassword(password);
   };
 
+  const getDefaultExpirationDate = () => {
+    // Calculate 6 months from now
+    const date = new Date();
+    date.setMonth(date.getMonth() + 6);
+    // Format for datetime-local input (YYYY-MM-DDTHH:mm)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString("ja-JP");
   };
@@ -296,7 +309,11 @@ export default function AdminUsersPage() {
                     </p>
                     <div className="flex gap-2">
                       <Button
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => {
+                          setIsCreateModalOpen(true);
+                          // Set default expiration date to 6 months from now
+                          setCreateAccessExpiresAt(getDefaultExpirationDate());
+                        }}
                         className="bg-gold hover:bg-gold-dark text-white"
                       >
                         新規作成
@@ -577,7 +594,7 @@ export default function AdminUsersPage() {
                     onChange={(e) => setCreateAccessExpiresAt(e.target.value)}
                   />
                   <p className="text-xs text-gray-500">
-                    有効期限を設定しない場合は空欄のままにしてください
+                    デフォルトは6ヶ月後です。変更する場合は上記の日時を編集してください。
                   </p>
                 </div>
               </div>
