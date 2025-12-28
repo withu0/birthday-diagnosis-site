@@ -38,7 +38,7 @@ export const payments = pgTable("payments", {
 export const memberships = pgTable("memberships", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id").references(() => users.id).notNull().unique(),
-  paymentId: uuid("payment_id").references(() => payments.id).notNull(),
+  paymentId: uuid("payment_id").references(() => payments.id), // Nullable for manually created users
   username: text("username").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   accessGrantedAt: timestamp("access_granted_at").defaultNow().notNull(),
