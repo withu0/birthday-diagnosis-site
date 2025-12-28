@@ -25,6 +25,7 @@ import {
 import { AdminRoute } from "@/components/auth/admin-route";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { useAuthContext } from "@/lib/contexts/auth-context";
+import { Eye, EyeOff } from "lucide-react";
 
 interface Membership {
   id: string | null;
@@ -65,6 +66,7 @@ export default function AdminUsersPage() {
   const [createRole, setCreateRole] = useState("user");
   const [createIsAdmin, setCreateIsAdmin] = useState(false);
   const [createAccessExpiresAt, setCreateAccessExpiresAt] = useState("");
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -230,6 +232,15 @@ export default function AdminUsersPage() {
     setCreateRole("user");
     setCreateIsAdmin(false);
     setCreateAccessExpiresAt("");
+    setShowCreatePassword(false);
+  };
+
+  const generateRandomPassword = () => {
+    // Generate a 16-character random password (8 bytes = 16 hex characters)
+    const array = new Uint8Array(8);
+    crypto.getRandomValues(array);
+    const password = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    setCreatePassword(password);
   };
 
   const formatDate = (dateString: string) => {
@@ -501,14 +512,39 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="create-password">パスワード *</Label>
-                  <Input
-                    id="create-password"
-                    type="password"
-                    value={createPassword}
-                    onChange={(e) => setCreatePassword(e.target.value)}
-                    placeholder="パスワードを入力"
-                    required
-                  />
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        id="create-password"
+                        type={showCreatePassword ? "text" : "password"}
+                        value={createPassword}
+                        onChange={(e) => setCreatePassword(e.target.value)}
+                        placeholder="パスワードを入力"
+                        required
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCreatePassword(!showCreatePassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                        aria-label={showCreatePassword ? "パスワードを隠す" : "パスワードを表示"}
+                      >
+                        {showCreatePassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={generateRandomPassword}
+                      className="border-gold text-gold hover:bg-gold hover:text-white whitespace-nowrap"
+                    >
+                      ランダム生成
+                    </Button>
+                  </div>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="create-role">ロール</Label>

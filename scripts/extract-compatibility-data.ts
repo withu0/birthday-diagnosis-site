@@ -40,12 +40,8 @@ const COMPATIBILITY_RANGES: CompatibilityRange[] = [
   { compatibilityType: 6, sheetName: "相性⑥完成", range: "A19:AM33" }, // Combined with above
   // Type 7: Three separate tabs
   { compatibilityType: 7, sheetName: "相性⑦⑬ピーチコア＋＋", range: "A3:AM17" },
-  { compatibilityType: 7, sheetName: "相性⑦⑬ピーチコア＋－", range: "A3:AM17" },
-  { compatibilityType: 7, sheetName: "相性⑦⑬ピーチコア－－", range: "A3:AM17" },
   // Type 13: Three separate tabs
   { compatibilityType: 13, sheetName: "相性⑦⑬ピーチコア＋＋", range: "A19:AM33" },
-  { compatibilityType: 13, sheetName: "相性⑦⑬ピーチコア＋－", range: "A19:AM33" },
-  { compatibilityType: 13, sheetName: "相性⑦⑬ピーチコア－－", range: "A19:AM33" },
   { compatibilityType: 8, sheetName: "相性⑧⑮完成", range: "A3:S17" },
   { compatibilityType: 15, sheetName: "相性⑧⑮完成", range: "A19:S33" },
   { compatibilityType: 9, sheetName: "相性⑨⑭完成", range: "A3:S17" },

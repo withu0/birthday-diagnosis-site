@@ -7,3 +7,5 @@ export const Belanosima = localFont({
   display: 'swap',
 })
 
+
+
