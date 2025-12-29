@@ -361,29 +361,37 @@ export default function CompatibilityPage() {
                 <CardTitle className="text-2xl font-bold">1.価値観と 2.個性の相性</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="grid md:grid-cols-2 gap-6 mb-6  text-lg">
                   <div className="space-y-2">
                     <h3 className="text-lg font-bold text-gray-800">{result.personA.name}さん (A)</h3>
                     <p className="text-sm text-gray-600">生年月日: {result.personA.birthDate}</p>
-                    <div className="mt-4 space-y-2">
-                      <p>
-                        <span className="font-semibold">価値:</span> {result.personA.valuable} ({result.personA.valuable_lb})
-                      </p>
-                      <p>
-                        <span className="font-semibold">問題:</span> {result.personA.problem} ({result.personA.problem_lb})
-                      </p>
+                    <div className="mt-4 space-y-3">
+                      <div className="rounded-lg p-4 bg-gradient-to-br from-violet-100 via-violet-200 to-violet-200 shadow-sm">
+                        <p className="text-gray-800">
+                          <span className="font-semibold">オープンinner:</span> {result.personA.valuable_lb}
+                        </p>
+                      </div>
+                      <div className="rounded-lg p-4 bg-gradient-to-br from-red-50 via-red-100 to-red-200 shadow-sm">
+                        <p className="text-gray-800">
+                          <span className="font-semibold">ハイドinner:</span> {result.personA.problem_lb}
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-lg font-bold text-gray-800">{result.personB.name}さん (B)</h3>
                     <p className="text-sm text-gray-600">生年月日: {result.personB.birthDate}</p>
-                    <div className="mt-4 space-y-2">
-                      <p>
-                        <span className="font-semibold">価値:</span> {result.personB.valuable} ({result.personB.valuable_lb})
-                      </p>
-                      <p>
-                        <span className="font-semibold">問題:</span> {result.personB.problem} ({result.personB.problem_lb})
-                      </p>
+                    <div className="mt-4 space-y-3">
+                      <div className="rounded-lg p-4 bg-gradient-to-br from-violet-50 via-violet-100 to-violet-200 shadow-sm">
+                        <p className="text-gray-800">
+                          <span className="font-semibold">オープンinner:</span> {result.personB.valuable_lb}
+                        </p>
+                      </div>
+                      <div className="rounded-lg p-4 bg-gradient-to-br from-red-50 via-red-100 to-red-200 shadow-sm">
+                        <p className="text-gray-800">
+                          <span className="font-semibold">ハイドinner:</span> {result.personB.problem_lb}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
