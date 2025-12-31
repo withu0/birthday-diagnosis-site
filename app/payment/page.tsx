@@ -98,7 +98,7 @@ export default function PaymentPage() {
         cvvAuthorize: true,
         redirect: RETURN_URL || undefined,
         paymentMethods: ['card'],
-
+        installments: true,         // Enable installment payment options (支払い回数選択)
         onTokenCreated: async (token: string | { id?: string; tokenId?: string; token?: string } | any) => {
           try {
             // Extract token ID - handle both string and object formats
@@ -123,12 +123,12 @@ export default function PaymentPage() {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                paymentId,
-                transaction_token_id: tokenId,
-                amount: totalAmount,
-                redirect_endpoint: RETURN_URL || undefined,
-              }),
+            body: JSON.stringify({
+              paymentId,
+              transaction_token_id: tokenId,
+              amount: totalAmount,
+              redirect_endpoint: RETURN_URL || undefined,
+            }),
             })
 
             const data = await response.json()

@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { payments } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { getUnivaPaySDK } from "@/lib/univapay"
-import { ResponseError } from "univapay-node"
+import { ResponseError, ChargeStatus } from "univapay-node"
 // Use crypto.randomUUID() for idempotency key (Node.js built-in)
 
 const chargeSchema = z.object({
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       }
 
       const charge = await sdk.charges.create(chargeParams, {
-        idempotencyKey,
+        idempotentKey: idempotencyKey,
       })
 
       console.log("✅ Charge created successfully")
@@ -103,14 +103,14 @@ export async function POST(request: NextRequest) {
       console.log("   Charge object:", JSON.stringify(charge, null, 2))
 
       // Determine payment status from charge
-      const isSuccessful = charge.status === "successful" || charge.status === "completed" || charge.status === "paid"
+      const isSuccessful = charge.status === ChargeStatus.SUCCESSFUL
       const newStatus = isSuccessful ? "completed" : 
-                       (charge.status === "failed" || charge.status === "error") ? "failed" :
-                       (charge.status === "cancelled" || charge.status === "canceled") ? "cancelled" :
+                       (charge.status === ChargeStatus.FAILED || charge.status === ChargeStatus.ERROR) ? "failed" :
+                       (charge.status === ChargeStatus.CANCELED) ? "cancelled" :
                        payment.status
 
-      // Extract charge ID - try multiple possible fields
-      const chargeId = charge.id?.toString() || charge.chargeId?.toString() || charge.transactionId?.toString() || null
+      // Extract charge ID
+      const chargeId = charge.id?.toString() || null
 
       console.log("💾 Updating payment record:")
       console.log("   Payment ID:", validatedData.paymentId)
@@ -190,9 +190,9 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if 3DS redirect is required
-      const redirectInfo = charge.redirect
+      const redirectInfo = charge.redirect?.redirectId
         ? {
-            endpoint: charge.redirect.endpoint || charge.redirect.url,
+            endpoint: charge.redirect.redirectId,
           }
         : undefined
 
