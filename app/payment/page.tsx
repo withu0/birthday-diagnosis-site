@@ -98,7 +98,8 @@ export default function PaymentPage() {
         cvvAuthorize: true,
         redirect: RETURN_URL || undefined,
         paymentMethods: ['card'],
-        installments: true,         // Enable installment payment options (支払い回数選択)
+        allowCardInstallments: true,        // Enable installment payment options (支払い回数選択)
+        cardInstallmentOptions: [3, 5, 6, 10, 12, 15, 18, 20, 24],  // Available installment options
         onTokenCreated: async (token: string | { id?: string; tokenId?: string; token?: string } | any) => {
           try {
             // Extract token ID - handle both string and object formats
