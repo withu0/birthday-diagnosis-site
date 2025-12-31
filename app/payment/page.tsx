@@ -99,7 +99,7 @@ export default function PaymentPage() {
         redirect: RETURN_URL || undefined,
         paymentMethods: ['card'],
         allowCardInstallments: true,        // Enable installment payment options (支払い回数選択)
-        cardInstallmentOptions: [3, 5, 6, 10, 12, 15, 18, 20, 24],  // Available installment options
+        cardInstallmentOptions: [1, 3, 5, 6, 10, 12, 15, 18, 20, 24],  // Available installment options (numbers, not strings)
         onTokenCreated: async (token: string | { id?: string; tokenId?: string; token?: string } | any) => {
           try {
             // Extract token ID - handle both string and object formats
