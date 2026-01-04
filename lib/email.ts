@@ -110,3 +110,50 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
   throw new Error(`Unsupported email service: ${emailService}`)
 }
 
+/**
+ * Get admin email addresses from environment variable
+ * Supports comma-separated multiple email addresses
+ */
+function getAdminEmails(): string[] {
+  const adminEmail = process.env.ADMIN_EMAIL?.trim()
+  if (!adminEmail) {
+    return []
+  }
+  
+  // Split by comma and trim each email address
+  return adminEmail
+    .split(",")
+    .map((email) => email.trim())
+    .filter((email) => email.length > 0 && email.includes("@"))
+}
+
+/**
+ * Send notification email to all administrators
+ * @param options Email options (subject, text, html)
+ */
+export async function sendAdminNotification(options: Omit<EmailOptions, "to">): Promise<void> {
+  const adminEmails = getAdminEmails()
+  
+  if (adminEmails.length === 0) {
+    console.warn("⚠️ ADMIN_EMAIL environment variable is not set. Skipping admin notification.")
+    return
+  }
+  
+  // Send email to each admin address
+  const emailPromises = adminEmails.map(async (email) => {
+    try {
+      await sendEmail({
+        ...options,
+        to: email,
+      })
+      console.log(`✅ Admin notification sent to ${email}`)
+    } catch (error) {
+      console.error(`❌ Failed to send admin notification to ${email}:`, error)
+      // Don't throw - continue sending to other admins even if one fails
+    }
+  })
+  
+  // Wait for all emails to be sent (or fail)
+  await Promise.allSettled(emailPromises)
+}
+

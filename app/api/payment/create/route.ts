@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm"
 import { getUnivaPaySDK } from "@/lib/univapay"
 import { ResponseError } from "univapay-node"
 import { createUser, hashPassword } from "@/lib/auth"
-import { sendEmail } from "@/lib/email"
+import { sendEmail, sendAdminNotification } from "@/lib/email"
 import { generateBankTransferEmail, generateDirectDebitEmail } from "@/lib/email-templates"
 import crypto from "crypto"
 
@@ -63,6 +63,14 @@ export async function POST(request: NextRequest) {
 
     // Generate payment link (UnivaPay hosted checkout)
     const paymentLink = await generatePaymentLink(payment.id, validatedData.totalAmount, validatedData.paymentMethod)
+
+    // Send admin notification for new payment application
+    try {
+      await sendPaymentApplicationNotification(payment, validatedData)
+    } catch (notificationError) {
+      console.error("Failed to send admin notification:", notificationError)
+      // Continue even if notification fails
+    }
 
     // UnivaPay API連携
     // 銀行振込の場合は管理者が確認後に手動でアカウントを作成する
@@ -270,6 +278,122 @@ function generateUsername(): string {
 function generatePassword(): string {
   // 12文字のランダムなパスワードを生成
   return crypto.randomBytes(8).toString("hex")
+}
+
+// Send admin notification for payment application
+async function sendPaymentApplicationNotification(
+  payment: typeof payments.$inferSelect,
+  data: z.infer<typeof paymentSchema>
+) {
+  const planNames: Record<string, string> = {
+    basic: "ベーシック",
+    standard: "スタンダード",
+    premium: "プレミアム",
+  }
+
+  const paymentMethodNames: Record<string, string> = {
+    bank_transfer: "銀行振込",
+    credit_card: "クレジットカード決済",
+    direct_debit: "口座引き落とし分割払い",
+  }
+
+  const genderNames: Record<string, string> = {
+    male: "男性",
+    female: "女性",
+  }
+
+  const birthDateStr = `${data.birthYear}年${data.birthMonth}月${data.birthDay}日`
+  const planName = planNames[data.planType] || data.planType
+  const paymentMethodName = paymentMethodNames[data.paymentMethod] || data.paymentMethod
+  const genderName = genderNames[data.gender] || data.gender
+
+  const emailText = `
+新しいお申し込みが入りました
+
+【注文情報】
+注文ID: ${payment.id.substring(0, 8)}
+プラン: ${planName}プラン
+支払い方法: ${paymentMethodName}
+ステータス: 保留中（pending）
+
+【金額情報】
+小計（税別）: ${data.amount.toLocaleString()}円
+消費税（10%）: ${data.taxAmount.toLocaleString()}円
+合計金額: ${data.totalAmount.toLocaleString()}円
+
+【お客様情報】
+氏名: ${data.name}
+メールアドレス: ${data.email}
+電話番号: ${data.phoneNumber}
+郵便番号: ${data.postalCode}
+住所: ${data.address}
+性別: ${genderName}
+生年月日: ${birthDateStr}
+${data.companyName ? `会社名: ${data.companyName}` : ""}
+
+【管理画面】
+支払いID: ${payment.id}
+作成日時: ${new Date(payment.createdAt).toLocaleString("ja-JP")}
+`
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新しいお申し込み通知</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f9f9f9; padding: 30px; border-radius: 8px;">
+    <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">新しいお申し込みが入りました</h1>
+    
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">注文情報</h2>
+      <p style="margin: 10px 0;"><strong>注文ID:</strong> ${payment.id.substring(0, 8)}</p>
+      <p style="margin: 10px 0;"><strong>プラン:</strong> ${planName}プラン</p>
+      <p style="margin: 10px 0;"><strong>支払い方法:</strong> ${paymentMethodName}</p>
+      <p style="margin: 10px 0;"><strong>ステータス:</strong> <span style="color: #ff9800; font-weight: bold;">保留中（pending）</span></p>
+    </div>
+
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">金額情報</h2>
+      <p style="margin: 10px 0;"><strong>小計（税別）:</strong> ${data.amount.toLocaleString()}円</p>
+      <p style="margin: 10px 0;"><strong>消費税（10%）:</strong> ${data.taxAmount.toLocaleString()}円</p>
+      <p style="margin: 10px 0;"><strong>合計金額:</strong> <span style="font-size: 20px; font-weight: bold; color: #007bff;">${data.totalAmount.toLocaleString()}円</span></p>
+    </div>
+
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">お客様情報</h2>
+      <p style="margin: 10px 0;"><strong>氏名:</strong> ${data.name}</p>
+      <p style="margin: 10px 0;"><strong>メールアドレス:</strong> ${data.email}</p>
+      <p style="margin: 10px 0;"><strong>電話番号:</strong> ${data.phoneNumber}</p>
+      <p style="margin: 10px 0;"><strong>郵便番号:</strong> ${data.postalCode}</p>
+      <p style="margin: 10px 0;"><strong>住所:</strong> ${data.address}</p>
+      <p style="margin: 10px 0;"><strong>性別:</strong> ${genderName}</p>
+      <p style="margin: 10px 0;"><strong>生年月日:</strong> ${birthDateStr}</p>
+      ${data.companyName ? `<p style="margin: 10px 0;"><strong>会社名:</strong> ${data.companyName}</p>` : ""}
+    </div>
+
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">管理情報</h2>
+      <p style="margin: 10px 0;"><strong>支払いID:</strong> ${payment.id}</p>
+      <p style="margin: 10px 0;"><strong>作成日時:</strong> ${new Date(payment.createdAt).toLocaleString("ja-JP")}</p>
+    </div>
+
+    <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+      <p style="margin-bottom: 0;">このメールは自動送信されています。返信はできません。</p>
+    </div>
+  </div>
+</body>
+</html>
+`
+
+  await sendAdminNotification({
+    subject: `【12SKINS】新しいお申し込みが入りました - ${data.name}様`,
+    text: emailText,
+    html: emailHtml,
+  })
 }
 
 // Generate UnivaPay hosted checkout URL
