@@ -6,12 +6,14 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useAuthContext } from "@/lib/contexts/auth-context"
 import { useAdmin } from "@/lib/hooks/use-admin"
+import { useTranslation } from "@/lib/i18n/hooks"
 import { User, LogOut, Settings, CreditCard, ChevronDown } from "lucide-react"
 
 export function AuthButton() {
   const router = useRouter()
   const { user, logout } = useAuthContext()
   const { isAdmin } = useAdmin()
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -102,7 +104,7 @@ export function AuthButton() {
                 onClick={() => setIsOpen(false)}
               >
                 <User className="mr-2 h-4 w-4" />
-                <span>マイページ</span>
+                <span>{t("auth.myPage")}</span>
               </Link>
               {isAdmin && (
                 <>
@@ -113,7 +115,7 @@ export function AuthButton() {
                     onClick={() => setIsOpen(false)}
                   >
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>管理画面</span>
+                    <span>{t("auth.adminPanel")}</span>
                   </Link>
                 </>
               )}
@@ -123,7 +125,7 @@ export function AuthButton() {
                 className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>ログアウト</span>
+                <span>{t("auth.logout")}</span>
               </button>
             </div>
           </div>
@@ -135,7 +137,7 @@ export function AuthButton() {
   return (
     <Link href="/login">
       <Button className="bg-gray-900 hover:bg-gray-800 text-white">
-        ログイン
+        {t("auth.login")}
       </Button>
     </Link>
   )

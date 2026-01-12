@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/membership-expiration-reminder",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

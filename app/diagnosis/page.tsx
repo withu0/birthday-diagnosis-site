@@ -16,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { AuthButton } from "@/components/auth/auth-button";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/lib/i18n/hooks";
 import {
   useBasicDiagnosis,
   useTalentDiagnosis,
@@ -46,9 +48,10 @@ const formatTextWithLineBreaks = (text: string) => {
   ));
 };
 
-// Helper function to format date to Japanese format (YYYY年MM月DD日)
-const formatDateToJapanese = (
-  dateString: string
+// Helper function to format date based on language
+const formatDateByLanguage = (
+  dateString: string,
+  language: "en" | "jp"
 ): { yearMonth: string; day: string } => {
   if (!dateString) return { yearMonth: "", day: "" };
 
@@ -58,10 +61,23 @@ const formatDateToJapanese = (
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
 
-    return {
-      yearMonth: `${year}年${month}`,
-      day: `月${day}日`,
-    };
+    if (language === "en") {
+      // English format: "January 15, 2024"
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      return {
+        yearMonth: `${monthNames[date.getMonth()]} ${day}`,
+        day: `, ${year}`,
+      };
+    } else {
+      // Japanese format: "2024年01月15日"
+      return {
+        yearMonth: `${year}年${month}`,
+        day: `月${day}日`,
+      };
+    }
   } catch (error) {
     return { yearMonth: "", day: "" };
   }
@@ -149,6 +165,7 @@ const SectionTitle = ({
   pdfPath?: string | null;
   sectionKey?: string;
 }) => {
+  const { t } = useTranslation();
   const handleClick = () => {
     if (pdfPath) {
       window.open(pdfPath, "_blank");
@@ -169,7 +186,7 @@ const SectionTitle = ({
             <div
               className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={handleClick}
-              title={pdfPath ? "クリックしてPDFを開く" : ""}
+              title={pdfPath ? t("diagnosis.clickToOpenPdf") : ""}
             >
               <img
                 src={iconPath}
@@ -185,7 +202,7 @@ const SectionTitle = ({
                 : ""
             } ${iconPath ? "min-w-0" : ""}`}
             onClick={!iconPath ? handleClick : undefined}
-            title={!iconPath && pdfPath ? "クリックしてPDFを開く" : ""}
+            title={!iconPath && pdfPath ? t("diagnosis.clickToOpenPdf") : ""}
           >
             {title}
           </div>
@@ -206,6 +223,7 @@ interface DiagnosisLogEntry {
 const BirthdayDiagnosis = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t, language } = useTranslation();
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [shouldFetchBasic, setShouldFetchBasic] = useState(false);
@@ -279,10 +297,10 @@ const BirthdayDiagnosis = () => {
   useEffect(() => {
     if (basicError || talentError) {
       const errorMessage =
-        basicError?.message || talentError?.message || "不明なエラー";
-      alert(`診断中にエラーが発生しました: ${errorMessage}`);
+        basicError?.message || talentError?.message || t("common.error");
+      alert(`${t("common.error")}: ${errorMessage}`);
     }
-  }, [basicError, talentError]);
+  }, [basicError, talentError, t]);
 
   const handleDiagnosis = () => {
     if (!birthDate || !name) return;
@@ -290,11 +308,11 @@ const BirthdayDiagnosis = () => {
     // Validate birth date
     const date = new Date(birthDate);
     if (isNaN(date.getTime())) {
-      alert("有効な生年月日を入力してください");
+      alert(t("diagnosis.validBirthDateRequired"));
       return;
     }
     if (date.getFullYear() < 1900) {
-      alert("1900年以降の生年月日を入力してください");
+      alert(t("diagnosis.birthDateAfter1900"));
       return;
     }
 
@@ -312,16 +330,19 @@ const BirthdayDiagnosis = () => {
           <div className="container mx-auto px-4 py-6">
             <div className="flex justify-between items-center mb-4">
               <Link href="/" className="text-gold hover:underline font-medium">
-                ← トップページに戻る
+                {t("diagnosis.backToHome")}
               </Link>
-              <AuthButton />
+              <div className="flex items-center gap-4">
+                <LanguageSwitcher />
+                <AuthButton />
+              </div>
             </div>
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gold mb-2">
-                12 SKINS Your skin, Your story
+                {t("diagnosis.title")}
               </h1>
               <h2 className="text-xl text-silver-dark">
-                個性肌診断 あなたの個性肌4層は?
+                {t("diagnosis.subtitle")}
               </h2>
             </div>
           </div>
@@ -333,16 +354,16 @@ const BirthdayDiagnosis = () => {
             <Card className="mb-8 shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl gradient-text-gold">
-                  診断情報が不足しています
+                  {t("diagnosis.missingInfo")}
                 </CardTitle>
                 <CardDescription className="text-silver-dark">
-                  トップページから診断を開始してください
+                  {t("diagnosis.missingInfoDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
                 <Link href="/">
                   <Button className="gradient-bg-gold text-white hover:opacity-90 border-0">
-                    トップページに戻る
+                    {t("diagnosis.backToHome")}
                   </Button>
                 </Link>
               </CardContent>
@@ -353,7 +374,7 @@ const BirthdayDiagnosis = () => {
                 <div className="flex flex-col items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-gold mb-4"></div>
                   <p className="text-lg text-silver-dark">
-                    基本診断を読み込み中...
+                    {t("diagnosis.loadingBasic")}
                   </p>
                 </div>
               </CardContent>
@@ -381,7 +402,7 @@ const BirthdayDiagnosis = () => {
                       <CardHeader>
                         <SectionTitle
                           iconPath={getTextIconPath("talent")}
-                          title="才能・能力"
+                          title={t("diagnosis.talent")}
                           pdfPath={getPdfPath("talent")}
                           sectionKey="talent"
                         />
@@ -390,7 +411,7 @@ const BirthdayDiagnosis = () => {
                         <div className="flex flex-col items-center justify-center">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mb-3"></div>
                           <p className="text-sm text-silver-dark">
-                            読み込み中...
+                            {t("common.loading")}
                           </p>
                         </div>
                       </CardContent>
@@ -414,7 +435,7 @@ const BirthdayDiagnosis = () => {
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <h3 className="font-bold text-lg text-silver-dark">
-                          メイン才能
+                          {t("diagnosis.mainTalent")}
                         </h3>
                         <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
                           <div className="font-semibold text-gold">
@@ -430,7 +451,7 @@ const BirthdayDiagnosis = () => {
                       </div>
                       <div className="space-y-2">
                         <h3 className="font-bold text-lg text-silver-dark">
-                          価値観才能
+                          {t("diagnosis.valuableTalent")}
                         </h3>
                         <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
                           <div className="font-semibold text-gold">
@@ -448,68 +469,68 @@ const BirthdayDiagnosis = () => {
                       <div className="space-y-3">
                         <div className="text-center mb-4">
                           <h3 className="font-bold text-xl md:text-2xl text-gold mb-1 tracking-wide">
-                            ✨ エネルギースコア
+                            {t("diagnosis.energyCore")}
                           </h3>
-                          <p className="text-xs text-silver-dark/70">あなたの内なる美しさを数値で</p>
+                          <p className="text-xs text-silver-dark/70">{t("diagnosis.energyCoreSubtitle")}</p>
                         </div>
                         <div className="space-y-1.5">
                           {[
                             {
                               key: "action",
-                              label: "行動",
+                              labelKey: "diagnosis.action",
                               value: result.energy_action,
                             },
                             {
                               key: "focus",
-                              label: "集中",
+                              labelKey: "diagnosis.focus",
                               value: result.energy_focus,
                             },
                             {
                               key: "stamina",
-                              label: "持久力",
+                              labelKey: "diagnosis.stamina",
                               value: result.energy_stamina,
                             },
                             {
                               key: "creative",
-                              label: "創造性",
+                              labelKey: "diagnosis.creative",
                               value: result.energy_creative,
                             },
                             {
                               key: "influence",
-                              label: "影響力",
+                              labelKey: "diagnosis.influence",
                               value: result.energy_influence,
                             },
                             {
                               key: "emotional",
-                              label: "感情",
+                              labelKey: "diagnosis.emotional",
                               value: result.energy_emotional,
                             },
                             {
                               key: "recovery",
-                              label: "回復",
+                              labelKey: "diagnosis.recovery",
                               value: result.energy_recovery,
                             },
                             {
                               key: "intuition",
-                              label: "直感",
+                              labelKey: "diagnosis.intuition",
                               value: result.energy_intuition,
                             },
                             {
                               key: "judgment",
-                              label: "判断",
+                              labelKey: "diagnosis.judgment",
                               value: result.energy_judgment,
                             },
                             {
                               key: "adaptability",
-                              label: "適応",
+                              labelKey: "diagnosis.adaptability",
                               value: result.energy_adaptability,
                             },
                             {
                               key: "total",
-                              label: "総合",
+                              labelKey: "diagnosis.total",
                               value: result.energy_total,
                             },
-                          ].map(({ key, label, value }) => {
+                          ].map(({ key, labelKey, value }) => {
                             const numericValue = parseInt(value) || 0;
                             const percentage = Math.min((numericValue / 100) * 100, 100);
                             const isTotal = key === "total";
@@ -531,7 +552,7 @@ const BirthdayDiagnosis = () => {
                                         : "text-silver-dark text-sm"
                                     }`}
                                   >
-                                    {label}
+                                    {t(labelKey)}
                                   </div>
                                   <div
                                     className={`font-bold ${
@@ -577,7 +598,7 @@ const BirthdayDiagnosis = () => {
                     <CardHeader>
                       <SectionTitle
                         iconPath={getTextIconPath("beautyThreeSource")}
-                        title="美の3源タイプ"
+                        title={t("diagnosis.beautyThreeSource")}
                         pdfPath={getPdfPath("beautyThreeSource")}
                         sectionKey="beautyThreeSource"
                       />
@@ -608,7 +629,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("work")}
-                      title="仕事・キャリア"
+                      title={t("diagnosis.work")}
                       pdfPath={getPdfPath("work")}
                       sectionKey="work"
                     />
@@ -616,7 +637,7 @@ const BirthdayDiagnosis = () => {
                   <CardContent className="space-y-4">
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
                       <div className="font-semibold text-gold mb-2">
-                        おすすめ
+                        {t("diagnosis.recommended")}
                       </div>
                       <div className="text-silver-dark">
                         {formatTextWithLineBreaks(result.work_recommend)}
@@ -624,7 +645,7 @@ const BirthdayDiagnosis = () => {
                     </div>
                     <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
                       <div className="font-semibold text-silver-dark mb-2">
-                        10のコンセプト
+                        {t("diagnosis.tenConcepts")}
                       </div>
                       <div className="text-silver-dark">
                         {formatTextWithLineBreaks(result.work_tenConcept)}
@@ -632,7 +653,7 @@ const BirthdayDiagnosis = () => {
                     </div>
                     <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
                       <div className="font-semibold text-gold mb-2">
-                        仕事内容
+                        {t("diagnosis.workContent")}
                       </div>
                       <div className="text-silver-dark">
                         {formatTextWithLineBreaks(result.work_workContent)}
@@ -650,7 +671,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("like")}
-                      title="好きなもの"
+                      title={t("diagnosis.like")}
                       pdfPath={getPdfPath("like")}
                       sectionKey="like"
                     />
@@ -679,7 +700,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("impressive")}
-                      title="印象・魅力"
+                      title={t("diagnosis.impressive")}
                       pdfPath={getPdfPath("impressive")}
                       sectionKey="impressive"
                     />
@@ -699,7 +720,7 @@ const BirthdayDiagnosis = () => {
                       </div>
                       <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
                         <div className="font-semibold text-silver-dark mb-2">
-                          好き・嫌い
+                          {t("diagnosis.likeDislike")}
                         </div>
                         <div className="text-silver-dark">
                           {formatTextWithLineBreaks(
@@ -720,7 +741,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("affair")}
-                      title="恋愛"
+                      title={t("diagnosis.affair")}
                       pdfPath={getPdfPath("affair")}
                       sectionKey="affair"
                     />
@@ -743,7 +764,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("marriage")}
-                      title="結婚・離婚"
+                      title={t("diagnosis.marriage")}
                       pdfPath={getPdfPath("marriage")}
                       sectionKey="marriage"
                     />
@@ -766,7 +787,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("stress")}
-                      title="ストレス・成長"
+                      title={t("diagnosis.stress")}
                       pdfPath={getPdfPath("stress")}
                       sectionKey="stress"
                     />
@@ -775,7 +796,7 @@ const BirthdayDiagnosis = () => {
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
                         <div className="font-semibold text-gold mb-2">
-                          プラス
+                          {t("diagnosis.plus")}
                         </div>
                         <div className="text-silver-dark">
                           {formatTextWithLineBreaks(result.stress_plus)}
@@ -783,7 +804,7 @@ const BirthdayDiagnosis = () => {
                       </div>
                       <div className="bg-silver-light/20 p-4 rounded-lg border border-silver/30">
                         <div className="font-semibold text-silver-dark mb-2">
-                          マイナス
+                          {t("diagnosis.minus")}
                         </div>
                         <div className="text-silver-dark">
                           {formatTextWithLineBreaks(result.stress_minus)}
@@ -791,7 +812,7 @@ const BirthdayDiagnosis = () => {
                       </div>
                       <div className="bg-gold-light/20 p-4 rounded-lg border border-gold/30">
                         <div className="font-semibold text-gold mb-2">
-                          5つの成長
+                          {t("diagnosis.fiveGrowth")}
                         </div>
                         <div className="text-silver-dark">
                           {formatTextWithLineBreaks(result.stress_fiveGrowth)}
@@ -810,7 +831,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("faceMuscle")}
-                      title="顔の筋肉の癖"
+                      title={t("diagnosis.faceMuscle")}
                       pdfPath={getPdfPath("faceMuscle")}
                       sectionKey="faceMuscle"
                     />
@@ -833,7 +854,7 @@ const BirthdayDiagnosis = () => {
                   <CardHeader>
                     <SectionTitle
                       iconPath={getTextIconPath("attractiveValuable")}
-                      title="価値観（魅力的）"
+                      title={t("diagnosis.attractiveValuable")}
                       pdfPath={getPdfPath("attractiveValuable")}
                       sectionKey="attractiveValuable"
                     />
@@ -890,7 +911,7 @@ const BirthdayDiagnosis = () => {
                 : allSections;
 
               // Format date for display
-              const formattedDate = formatDateToJapanese(birthDate);
+              const formattedDate = formatDateByLanguage(birthDate, language);
 
               return (
                 <div className="space-y-8 animate-in fade-in duration-700">
@@ -905,7 +926,7 @@ const BirthdayDiagnosis = () => {
                     <div className="flex items-center justify-between gap-2 md:gap-4">
                       <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
                         <span className="text-lg text-gray-400 font-medium whitespace-nowrap">
-                          お名前
+                          {t("diagnosis.name")}
                         </span>
                         <span className="text-lg text-silver-dark font-semibold">
                           {name}
@@ -913,7 +934,7 @@ const BirthdayDiagnosis = () => {
                       </div>
                       <div className="flex items-center gap-2 md:gap-3 flex-shrink md:flex-shrink-0">
                         <span className="text-lg text-gray-400 font-medium whitespace-nowrap">
-                          生年月日
+                          {t("diagnosis.birthDate")}
                         </span>
                         <div className="text-lg text-silver-dark font-semibold leading-tight min-w-0 flex-shrink">
                           <div className="flex flex-wrap items-center gap-1">
@@ -934,20 +955,20 @@ const BirthdayDiagnosis = () => {
                     {/* Outer Section */}
                     <div>
                       <div className="mb-4">
-                        <h3 className="text-3xl font-bold text-silver-dark text-center">outer</h3>
+                        <h3 className="text-3xl font-bold text-silver-dark text-center">{t("diagnosis.outer")}</h3>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         {/* 本質肌 - main-outer */}
                         <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
-                          <div className="text-lg text-center font-bold text-silver-dark mb-1">main-outer</div>
+                          <div className="text-lg text-center font-bold text-silver-dark mb-1">{t("diagnosis.mainOuter")}</div>
                           <div className="flex flex-col items-center justify-center">
                             <div className="relative flex flex-col w-full items-center justify-center">
-                              <div className="text-lg text-silver-dark font-bold">本質肌</div>
+                              <div className="text-lg text-silver-dark font-bold">{t("diagnosis.essentialSkin")}</div>
                               <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute bottom-0 left-0">50%</div>                            
                             </div>
 
                             <div className="text-xs text-silver-dark my-1">
-                              本質的な性格持つ才能・可能性
+                              {t("diagnosis.essentialDescription")}
                             </div>
                             <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
                               {result.essential_lb}
@@ -965,14 +986,14 @@ const BirthdayDiagnosis = () => {
 
                         {/* 魅せ肌 - surface-outer */}
                         <Card className="relative overflow-hidden border-0 bg-white rounded-lg py-0 gap-2">
-                          <div className="text-lg text-center font-bold text-silver-dark mb-1">surface-outer</div>
+                          <div className="text-lg text-center font-bold text-silver-dark mb-1">{t("diagnosis.surfaceOuter")}</div>
                           <div className="flex flex-col items-center justify-center">
                             <div className="relative flex flex-col w-full items-center justify-center">
-                              <div className="text-lg text-silver-dark font-bold">魅せ肌</div>
+                              <div className="text-lg text-silver-dark font-bold">{t("diagnosis.attractiveSkin")}</div>
                               <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute bottom-0 left-0">20%</div>
                             </div>
                             <div className="text-xs text-silver-dark my-1">
-                              人から見える、人に魅せる個性
+                              {t("diagnosis.attractiveDescription")}
                             </div>
                             <div className="text-3xl font-bold text-silver-dark mb-1 bg-[#ffdecb] px-1">
                               {result.attractive_lb}
@@ -993,7 +1014,7 @@ const BirthdayDiagnosis = () => {
                     <div className="relative my-6">
                       <div className="h-2 bg-gold"></div>
                       <div className="text-center mt-4">
-                        <h3 className="text-3xl font-bold text-silver-dark">inner</h3>
+                        <h3 className="text-3xl font-bold text-silver-dark">{t("diagnosis.inner")}</h3>
                       </div>
                     </div>
 
@@ -1003,7 +1024,7 @@ const BirthdayDiagnosis = () => {
                         {/* 価値肌 - open inner */}
                         <Card className="relative border-0 bg-white rounded-lg py-0 gap-2">
                           <div className="flex flex-col items-center justify-center">
-                            <div className="text-lg text-center font-bold text-silver-dark mb-1">オープン　inner</div>
+                            <div className="text-lg text-center font-bold text-silver-dark mb-1">{t("diagnosis.openInner")}</div>
                           </div>
                           <div className="relative">
                             <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute top-0 -left-0 z-10">20%</div>
@@ -1016,13 +1037,13 @@ const BirthdayDiagnosis = () => {
                             </div>
                           </div>
                           <div className="p-5 pt-0 flex flex-col justify-center items-center">
-                            <div className="text-lg text-silver-dark font-bold">価値肌</div>
+                            <div className="text-lg text-silver-dark font-bold">{t("diagnosis.valuableSkin")}</div>
                             <div className="text-xs text-silver-dark mb-1 text-center leading-relaxed">
-                              生き方の価値パターン
+                              {t("diagnosis.valuableDescription")}
                             </div>
                             <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
-                              <div>年齢を重ねると</div>
-                              <div>より重視される</div>
+                              <div>{t("diagnosis.valuableDescription2")}</div>
+                              <div>{t("diagnosis.valuableDescription3")}</div>
                             </div>
                           </div>
                         </Card>
@@ -1030,7 +1051,7 @@ const BirthdayDiagnosis = () => {
                         {/* トラブル肌 - hide inner */}
                         <Card className="relative border-0 bg-white rounded-lg py-0 gap-2">
                           <div className="flex flex-col items-center justify-center">
-                            <div className="text-lg text-center font-bold text-silver-dark mb-1">ハイド inner</div>
+                            <div className="text-lg text-center font-bold text-silver-dark mb-1">{t("diagnosis.hideInner")}</div>
                           </div>
                           <div className="relative">
                             <div className="text-2xl font-belanosima text-gold px-1 rounded-md absolute top-0 -left-0 z-10">10%</div>
@@ -1043,17 +1064,17 @@ const BirthdayDiagnosis = () => {
                             </div>
                           </div>
                           <div className="p-5 pt-0 flex flex-col justify-center items-center">
-                            <div className="text-lg text-silver-dark font-bold">深層肌</div>
+                            <div className="text-lg text-silver-dark font-bold">{t("diagnosis.deepSkin")}</div>
                             <div className="text-xs text-silver-dark mb-1 text-center leading-relaxed">
-                              生き方・考え方の価値観
+                              {t("diagnosis.deepDescription")}
                             </div>
                             <div className="text-xs text-silver-dark mb-1 text-center leading-relaxed">
-                              緊急時に発揮する個性
+                              {t("diagnosis.deepDescription2")}
                             </div>
                             <div className="text-xs text-silver-dark space-y-0.5 md:block hidden">
-                              <div>普段は10％</div>
-                              <div>緊急時には</div>
-                              <div className="font-semibold">80％</div>
+                              <div>{t("diagnosis.deepDescription3")}</div>
+                              <div>{t("diagnosis.deepDescription4")}</div>
+                              <div className="font-semibold">{t("diagnosis.deepDescription5")}</div>
                             </div>
                           </div>
                         </Card>
@@ -1110,7 +1131,7 @@ const BirthdayDiagnosis = () => {
                       variant="outline"
                       className="border-gold text-gold hover:bg-gold hover:text-white"
                     >
-                      もう一度診断する
+                      {t("diagnosis.diagnoseAgain")}
                     </Button>
                   </div>
                 </div>
@@ -1121,10 +1142,10 @@ const BirthdayDiagnosis = () => {
           <Card className="mt-8 shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10">
             <CardHeader>
               <CardTitle className="text-2xl gradient-text-gold text-center">
-                診断履歴
+                {t("diagnosis.diagnosisHistory")}
               </CardTitle>
               <CardDescription className="text-center text-silver-dark">
-                過去の診断結果を確認できます
+                {t("diagnosis.historyDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1135,7 +1156,7 @@ const BirthdayDiagnosis = () => {
                 </div>
               ) : diagnosisLog.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-silver-dark">診断履歴がありません</p>
+                  <p className="text-silver-dark">{t("diagnosis.noHistory")}</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto overflow-y-auto max-h-96">
@@ -1143,13 +1164,13 @@ const BirthdayDiagnosis = () => {
                     <thead className="sticky top-0 bg-gradient-to-br from-white to-gold-light/10 z-10">
                       <tr className="border-b border-gold/30">
                         <th className="text-left py-3 px-4 text-gold font-semibold">
-                          名前
+                          {t("diagnosis.name")}
                         </th>
                         <th className="text-left py-3 px-4 text-gold font-semibold">
-                          生年月日
+                          {t("diagnosis.birthDate")}
                         </th>
                         <th className="text-left py-3 px-4 text-gold font-semibold">
-                          診断日時
+                          {t("diagnosis.diagnosisDate")}
                         </th>
                       </tr>
                     </thead>
@@ -1169,7 +1190,7 @@ const BirthdayDiagnosis = () => {
                             {entry.birthDate}
                           </td>
                           <td className="py-3 px-4 text-silver-dark">
-                            {new Date(entry.createdAt).toLocaleString("ja-JP")}
+                            {new Date(entry.createdAt).toLocaleString(language === "en" ? "en-US" : "ja-JP")}
                           </td>
                         </tr>
                       ))}

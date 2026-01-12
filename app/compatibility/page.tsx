@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
 import { ProtectedRoute } from "@/components/auth/protected-route"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useTranslation } from "@/lib/i18n/hooks"
 import { useCompatibilityDiagnosis, CompatibilityResult } from "@/lib/hooks/use-compatibility"
 
 // Helper function to get image path for skin types
@@ -171,6 +173,7 @@ interface SkinCompatibilityData {
 }
 
 export default function CompatibilityPage() {
+  const { t } = useTranslation()
   const [personA, setPersonA] = useState({ name: "", birthDate: "" })
   const [personB, setPersonB] = useState({ name: "", birthDate: "" })
   const [skinCompatibility, setSkinCompatibility] = useState<SkinCompatibilityData | null>(null)
@@ -229,6 +232,7 @@ export default function CompatibilityPage() {
                 />
               </Link>
               <nav className="flex items-center gap-6">
+                <LanguageSwitcher />
                 <AuthButton />
               </nav>
             </div>
@@ -238,9 +242,9 @@ export default function CompatibilityPage() {
       {/* メインコンテンツ */}
       <main className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="text-center mb-8">
-          <h1 className="text-6xl font-bold text-gray-800 mb-4">相性診断</h1>
+          <h1 className="text-6xl font-bold text-gray-800 mb-4">{t("compatibility.title")}</h1>
           <p className="text-xl text-gray-600">
-            2人の生年月日から相性を診断します
+            {t("compatibility.subtitle")}
           </p>
         </div>
 
@@ -248,7 +252,7 @@ export default function CompatibilityPage() {
         <Card className="mb-8 gradient-bg-gold border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center text-white">
-              2人の情報を入力
+              {t("compatibility.enterTwoPeople")}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
@@ -256,24 +260,24 @@ export default function CompatibilityPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Person A */}
                 <div className="space-y-4 bg-white/10 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Aさん</h3>
+                  <h3 className="text-xl font-bold text-white mb-4">{t("compatibility.personA")}</h3>
                   <div className="space-y-2">
                     <Label htmlFor="personA-name" className="text-white font-medium">
-                      お名前
+                      {t("compatibility.name")}
                     </Label>
                     <Input
                       id="personA-name"
                       type="text"
                       value={personA.name}
                       onChange={(e) => setPersonA({ ...personA, name: e.target.value })}
-                      placeholder="山田太郎"
+                      placeholder={t("compatibility.namePlaceholderA")}
                       required
                       className="bg-white border-white text-gray-800"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="personA-birthDate" className="text-white font-medium">
-                      生年月日
+                      {t("compatibility.birthDate")}
                     </Label>
                     <Input
                       id="personA-birthDate"
@@ -288,24 +292,24 @@ export default function CompatibilityPage() {
 
                 {/* Person B */}
                 <div className="space-y-4 bg-white/10 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Bさん</h3>
+                  <h3 className="text-xl font-bold text-white mb-4">{t("compatibility.personB")}</h3>
                   <div className="space-y-2">
                     <Label htmlFor="personB-name" className="text-white font-medium">
-                      お名前
+                      {t("compatibility.name")}
                     </Label>
                     <Input
                       id="personB-name"
                       type="text"
                       value={personB.name}
                       onChange={(e) => setPersonB({ ...personB, name: e.target.value })}
-                      placeholder="佐藤さくら"
+                      placeholder={t("compatibility.namePlaceholderB")}
                       required
                       className="bg-white border-white text-gray-800"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="personB-birthDate" className="text-white font-medium">
-                      生年月日
+                      {t("compatibility.birthDate")}
                     </Label>
                     <Input
                       id="personB-birthDate"
@@ -330,7 +334,7 @@ export default function CompatibilityPage() {
                 disabled={loading}
                 className="w-full bg-white text-gold hover:bg-gray-100 font-bold py-6 text-lg relative overflow-visible"
               >
-                <span className="relative z-10">{loading ? "診断中..." : "相性を診断する"}</span>
+                <span className="relative z-10">{loading ? t("compatibility.diagnosing") : t("compatibility.diagnose")}</span>
                 {!loading && (
                   <Image
                     src="/hand-click.png"
@@ -351,14 +355,14 @@ export default function CompatibilityPage() {
             {/* 相性診断ボタン - 全体 */}
             <div className="flex justify-center mb-4">
               <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md text-2xl">
-                相性診断
+                {t("compatibility.compatibilityDiagnosis")}
               </Button>
             </div>
 
             {/* 基本情報 */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">1.価値観と 2.個性の相性</CardTitle>
+                <CardTitle className="text-2xl font-bold">{t("compatibility.valuesAndPersonality")}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-2 gap-6 mb-6  text-lg">
@@ -368,12 +372,12 @@ export default function CompatibilityPage() {
                     <div className="mt-4 space-y-3">
                       <div className="rounded-lg p-4 bg-gradient-to-br from-violet-100 via-violet-200 to-violet-200 shadow-sm">
                         <p className="text-gray-800">
-                          <span className="font-semibold">オープンinner:</span> {result.personA.valuable_lb}
+                          <span className="font-semibold">{t("compatibility.openInner")}:</span> {result.personA.valuable_lb}
                         </p>
                       </div>
                       <div className="rounded-lg p-4 bg-gradient-to-br from-red-50 via-red-100 to-red-200 shadow-sm">
                         <p className="text-gray-800">
-                          <span className="font-semibold">ハイドinner:</span> {result.personA.problem_lb}
+                          <span className="font-semibold">{t("compatibility.hideInner")}:</span> {result.personA.problem_lb}
                         </p>
                       </div>
                     </div>
@@ -384,12 +388,12 @@ export default function CompatibilityPage() {
                     <div className="mt-4 space-y-3">
                       <div className="rounded-lg p-4 bg-gradient-to-br from-violet-50 via-violet-100 to-violet-200 shadow-sm">
                         <p className="text-gray-800">
-                          <span className="font-semibold">オープンinner:</span> {result.personB.valuable_lb}
+                          <span className="font-semibold">{t("compatibility.openInner")}:</span> {result.personB.valuable_lb}
                         </p>
                       </div>
                       <div className="rounded-lg p-4 bg-gradient-to-br from-red-50 via-red-100 to-red-200 shadow-sm">
                         <p className="text-gray-800">
-                          <span className="font-semibold">ハイドinner:</span> {result.personB.problem_lb}
+                          <span className="font-semibold">{t("compatibility.hideInner")}:</span> {result.personB.problem_lb}
                         </p>
                       </div>
                     </div>
@@ -404,14 +408,14 @@ export default function CompatibilityPage() {
                 {/* 相性診断ボタン - 価値観 */}
                 <div className="flex justify-center mb-4">
                   <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md text-2xl">
-                    相性診断
+                    {t("compatibility.compatibilityDiagnosis")}
                   </Button>
                 </div>
                 {result.results[0] && (
                   <Card key={result.results[0].compatibilityType} className="shadow-md">
                     <CardHeader>
                       <CardTitle className="text-2xl font-bold flex items-center gap-2 justify-between">
-                        <span className="text-gold">1.価値観(生き方・考え方)</span>
+                        <span className="text-gold">{t("compatibility.valuesCompatibility")}</span>
                         <Image
                           src="/texticon/affair_text.png"
                           alt="価値観の相性"
@@ -437,7 +441,7 @@ export default function CompatibilityPage() {
             {result.results.length === 0 && (
               <Card className="shadow-md">
                 <CardContent className="p-6 text-center">
-                  <p className="text-gray-600">該当する相性データが見つかりませんでした。</p>
+                  <p className="text-gray-600">{t("compatibility.noCompatibilityData")}</p>
                 </CardContent>
               </Card>
             )}
@@ -448,13 +452,13 @@ export default function CompatibilityPage() {
                 {/* 相性診断ボタン - 個性 */}
                 <div className="flex justify-center mb-4">
                   <Button className="gradient-bg-gold text-white hover:opacity-90 font-bold px-6 py-3 shadow-md text-2xl">
-                    相性診断
+                    {t("compatibility.compatibilityDiagnosis")}
                   </Button>
                 </div>
                 <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold flex items-center gap-2 justify-between">
-                    <span className="text-gold">2.個性の相性</span>
+                    <span className="text-gold">{t("compatibility.personalityCompatibility")}</span>
                     <Image
                       src="/texticon/affair_text.png"
                       alt="個性の相性"
@@ -475,7 +479,7 @@ export default function CompatibilityPage() {
                     if (!compatibility) {
                       return (
                         <div className="text-center text-gray-600">
-                          <p>相性データが見つかりませんでした。</p>
+                          <p>{t("compatibility.noSkinCompatibilityData")}</p>
                         </div>
                       )
                     }
@@ -535,7 +539,7 @@ export default function CompatibilityPage() {
                           style={{ backgroundColor: skinBgColors[skinA] || "rgba(0, 0, 0, 0.05)" }}
                         >
                           <div className="flex items-center gap-3">
-                            <span className="text-lg font-semibold text-gray-800">相性度:</span>
+                            <span className="text-lg font-semibold text-gray-800">{t("compatibility.compatibilityLevel")}:</span>
                             <CompatibilityIcon iconType={compatibility.iconType} />
                             <span className="text-lg font-bold text-gray-800">
                               {compatibility.compatibilityLevel}
@@ -544,7 +548,7 @@ export default function CompatibilityPage() {
 
                           <div className="space-y-2">
                             <div className="text-lg font-semibold text-gray-800">
-                              人としての相性・関係性イメージ:
+                              {t("compatibility.relationshipImage")}:
                             </div>
                             <div className="text-gray-700 leading-relaxed whitespace-pre-line">
                               {compatibility.relationshipImage}

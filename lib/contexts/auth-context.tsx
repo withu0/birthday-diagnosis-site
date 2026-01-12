@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/lib/hooks/use-auth"
+import { useTranslation } from "@/lib/i18n/hooks"
 
 interface AuthContextType {
   user: { id: string; email: string; name: string } | null
@@ -16,6 +17,7 @@ const protectedRoutes = ["/diagnosis", "/compatibility"]
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { user, isLoading, logout } = useAuth()
+  const { t } = useTranslation()
   const router = useRouter()
   const pathname = usePathname()
   const hasRedirected = useRef(false)
@@ -54,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       <div className="fixed inset-0 bg-gradient-silver-vertical flex items-center justify-center z-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-gold border-t-transparent mx-auto mb-4"></div>
-          <p className="text-silver-dark text-lg font-medium">読み込み中...</p>
+          <p className="text-silver-dark text-lg font-medium">{t("common.loading")}</p>
         </div>
       </div>
     )

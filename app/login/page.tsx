@@ -8,10 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useTranslation } from "@/lib/i18n/hooks"
 
 export default function LoginPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
   const [mode, setMode] = useState<"login" | "register">("login")
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
@@ -41,7 +43,7 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || "エラーが発生しました")
+        setError(data.error || t("common.error"))
         setIsLoading(false)
         return
       }
@@ -51,7 +53,7 @@ export default function LoginPage() {
       router.push("/")
       router.refresh()
     } catch (err) {
-      setError("ネットワークエラーが発生しました")
+      setError(t("common.networkError"))
       setIsLoading(false)
     }
   }
@@ -62,7 +64,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold gradient-text-gold mb-2">
-            誕生日診断サイト
+            {t("login.siteTitle")}
           </h1>
         </div>
 
@@ -70,25 +72,25 @@ export default function LoginPage() {
         <Card className="border-gold/30 bg-gradient-to-br from-white to-gold-light/10 shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl text-center gradient-text-gold">
-              {mode === "login" ? "ログイン" : "新規登録"}
+              {mode === "login" ? t("login.login") : t("login.register")}
             </CardTitle>
             <CardDescription className="text-center text-silver-dark">
               {mode === "login"
-                ? "アカウントにログインしてください"
-                : "新しいアカウントを作成してください"}
+                ? t("login.loginDescription")
+                : t("login.registerDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === "register" && (
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-silver-dark">お名前</Label>
+                  <Label htmlFor="name" className="text-silver-dark">{t("login.name")}</Label>
                   <Input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="お名前を入力"
+                    placeholder={t("login.namePlaceholder")}
                     required
                     disabled={isLoading}
                     className="border-gold/30 focus:border-gold"
@@ -96,26 +98,26 @@ export default function LoginPage() {
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-silver-dark">メールアドレス</Label>
+                <Label htmlFor="email" className="text-silver-dark">{t("login.email")}</Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
+                  placeholder={t("login.emailPlaceholder")}
                   required
                   disabled={isLoading}
                   className="border-gold/30 focus:border-gold"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-silver-dark">パスワード</Label>
+                <Label htmlFor="password" className="text-silver-dark">{t("login.password")}</Label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === "login" ? "パスワード" : "6文字以上"}
+                  placeholder={mode === "login" ? t("login.passwordPlaceholder") : t("login.passwordPlaceholderRegister")}
                   required
                   minLength={mode === "register" ? 6 : undefined}
                   disabled={isLoading}
@@ -133,15 +135,15 @@ export default function LoginPage() {
                 disabled={isLoading}
               >
                 {isLoading
-                  ? "処理中..."
+                  ? t("login.processing")
                   : mode === "login"
-                    ? "ログイン"
-                    : "登録"}
+                    ? t("login.login")
+                    : t("login.register")}
               </Button>
               <div className="text-center text-sm text-silver-dark">
                 {mode === "login" ? (
                   <>
-                    アカウントをお持ちでない方は{" "}
+                    {t("login.noAccount")}{" "}
                     <button
                       type="button"
                       onClick={() => {
@@ -150,12 +152,12 @@ export default function LoginPage() {
                       }}
                       className="text-gold hover:underline font-medium"
                     >
-                      新規登録
+                      {t("login.register")}
                     </button>
                   </>
                 ) : (
                   <>
-                    既にアカウントをお持ちの方は{" "}
+                    {t("login.hasAccount")}{" "}
                     <button
                       type="button"
                       onClick={() => {
@@ -164,7 +166,7 @@ export default function LoginPage() {
                       }}
                       className="text-gold hover:underline font-medium"
                     >
-                      ログイン
+                      {t("login.login")}
                     </button>
                 </>
                 )}
@@ -179,7 +181,7 @@ export default function LoginPage() {
             href="/" 
             className="text-gold hover:underline font-medium text-sm"
           >
-            ← トップページに戻る
+            {t("login.backToHome")}
           </Link>
         </div>
       </div>

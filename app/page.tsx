@@ -9,15 +9,18 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useTranslation } from "@/lib/i18n/hooks"
 
 export default function Home() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [name, setName] = useState("")
   const [birthDate, setBirthDate] = useState("")
 
   const handleCategoryClick = (category: string) => {
     if (!name || !birthDate) {
-      alert("お名前と生年月日を入力してください")
+      alert(t("home.nameAndBirthDateRequired"))
       return
     }
     router.push(`/diagnosis?name=${encodeURIComponent(name)}&birthDate=${encodeURIComponent(birthDate)}&category=${category}`)
@@ -38,6 +41,7 @@ export default function Home() {
               />
             </Link>
             <nav className="flex items-center gap-6">
+              <LanguageSwitcher />
               <AuthButton />
             </nav>
           </div>
@@ -59,10 +63,10 @@ export default function Home() {
             />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            肌診断で理想の美しさへ
+            {t("home.title")}
           </h1>
           <p className="text-lg text-gray-600">
-            あなたの生年月日とお名前から、パーソナライズされた美容診断を受けましょう
+            {t("home.subtitle")}
           </p>
         </div>
 
@@ -70,27 +74,27 @@ export default function Home() {
         <Card className="mb-12 gradient-bg-gold border-0 shadow-lg">
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold text-center text-white mb-6">
-              診断を開始
+              {t("home.startDiagnosis")}
             </h2>
             <div className="max-w-2xl mx-auto space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
                   <Label htmlFor="name" className="text-white font-medium">
-                    お名前
+                    {t("home.name")}
               </Label>
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                    placeholder="山田太郎"
+                    placeholder={t("home.namePlaceholder")}
                     required
                     className="bg-white border-white text-gray-800"
               />
             </div>
             <div className="space-y-2">
                   <Label htmlFor="birthDate" className="text-white font-medium">
-                生年月日
+                {t("home.birthDate")}
               </Label>
               <Input
                     id="birthDate"
@@ -110,23 +114,23 @@ export default function Home() {
         {/* 診断タイプ選択セクション */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            診断タイプを選択してください
+            {t("home.selectCategory")}
           </h2>
           <p className="text-center text-gray-600 mb-8 text-sm">
-            見たい項目を押すと、一番上に表示されます
+            {t("home.categoryHint")}
           </p>
 
           {/* 8つの診断ボタン */}
           <div className="flex flex-wrap justify-center items-center md:gap-6 gap-2 max-w-4xl mx-auto">
             {[
-              { key: "talent", label: "才能", image: "/talent.avif" },
-              { key: "impressive", label: "印象", image: "/impressive.avif" },
-              { key: "work", label: "仕事", image: "/work.avif" },
-              { key: "stress", label: "ストレス", image: "/stress.avif" },
-              { key: "affair", label: "恋愛", image: "/affair.avif" },
-              { key: "marriage", label: "結婚", image: "/marriage.avif" },
-              { key: "like", label: "好き嫌い", image: "/like.avif" },
-              { key: "faceMuscle", label: "顔の筋肉の癖", image: "/muscle_button.avif" },
+              { key: "talent", labelKey: "home.talent", image: "/talent.avif" },
+              { key: "impressive", labelKey: "home.impressive", image: "/impressive.avif" },
+              { key: "work", labelKey: "home.work", image: "/work.avif" },
+              { key: "stress", labelKey: "home.stress", image: "/stress.avif" },
+              { key: "affair", labelKey: "home.affair", image: "/affair.avif" },
+              { key: "marriage", labelKey: "home.marriage", image: "/marriage.avif" },
+              { key: "like", labelKey: "home.like", image: "/like.avif" },
+              { key: "faceMuscle", labelKey: "home.faceMuscle", image: "/muscle_button.avif" },
             ].map((item) => (
               <button
                 key={item.key}
@@ -136,7 +140,7 @@ export default function Home() {
               >
                 <Image
                   src={item.image}
-                  alt={item.label}
+                  alt={t(item.labelKey)}
                   width={100}
                   height={100}
                   className="mb-2 w-full h-full object-contain"
@@ -153,7 +157,7 @@ export default function Home() {
             <Button
               className="w-full bg-gradient-to-r from-gold via-gold-light to-gold text-white font-bold py-8 text-3xl shadow-2xl hover:shadow-3xl transition-all mysterious-glow mysterious-pulse mysterious-shimmer relative overflow-hidden"
             >
-              <span className="relative z-10">相性診断</span>
+              <span className="relative z-10">{t("home.compatibilityDiagnosis")}</span>
               <div className="absolute inset-0 mysterious-shine"></div>
             </Button>
           </Link>

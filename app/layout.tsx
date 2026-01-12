@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { QueryProvider } from "@/lib/providers/query-provider"
 import { AuthProvider } from "@/lib/contexts/auth-context"
+import { LanguageProvider } from "@/lib/i18n/context"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -23,12 +24,14 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${Belanosima.variable}`}>
-        <QueryProvider>
-          <AuthProvider>
-            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-            <Analytics />
-          </AuthProvider>
-        </QueryProvider>
+        <LanguageProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+              <Analytics />
+            </AuthProvider>
+          </QueryProvider>
+        </LanguageProvider>
       </body>
     </html>
   )

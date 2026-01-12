@@ -473,3 +473,114 @@ export function generateDirectDebitEmail(data: PaymentEmailData): string {
 ${TERMS_OF_SERVICE}`
 }
 
+/**
+ * Send membership expiration reminder email
+ * @param userName User's name
+ * @param userEmail User's email address
+ * @param expirationDate Membership expiration date
+ */
+export async function sendExpirationReminderEmail(
+  userName: string,
+  userEmail: string,
+  expirationDate: Date
+) {
+  const { sendEmail } = await import("./email")
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+  const paymentUrl = `${baseUrl}/payment?plan=basic`
+
+  // Format expiration date
+  const expiresAtFormatted = new Date(expirationDate).toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+
+  const emailText = `
+12SKINS会員サイト 会員権限期限切れのお知らせ
+
+${userName}様
+
+いつも12SKINS会員サイトをご利用いただき、ありがとうございます。
+
+お客様の会員権限がまもなく期限切れとなります。
+継続してご利用いただく場合は、お早めに更新手続きをお願いいたします。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【会員権限情報】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+有効期限: ${expiresAtFormatted}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+会員権限を更新される場合は、下記のリンクからお手続きをお願いいたします。
+
+更新手続き: ${paymentUrl}
+
+※このメールは自動送信されています。返信はできません。
+※会員権限が期限切れになると、会員サイトへのアクセスができなくなります。
+
+ご不明な点がございましたら、お問い合わせください。
+
+Copyright © 株式会社美容総研 All Rights Reserved.
+`
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12SKINS会員サイト 会員権限期限切れのお知らせ</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f9f9f9; padding: 30px; border-radius: 8px;">
+    <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">12SKINS会員サイト 会員権限期限切れのお知らせ</h1>
+    
+    <p style="font-size: 16px; margin-bottom: 20px;">${userName}様</p>
+    
+    <p style="font-size: 16px; margin-bottom: 30px;">いつも12SKINS会員サイトをご利用いただき、ありがとうございます。</p>
+    
+    <p style="font-size: 16px; margin-bottom: 30px;">お客様の会員権限がまもなく期限切れとなります。<br>継続してご利用いただく場合は、お早めに更新手続きをお願いいたします。</p>
+    
+    <div style="background-color: #fff; border: 2px solid #ff9800; border-radius: 6px; padding: 25px; margin-bottom: 30px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px;">【会員権限情報】</h2>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #666; display: inline-block; width: 140px;">有効期限:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #ff9800;">${expiresAtFormatted}</span>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <a href="${paymentUrl}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">会員権限を更新する</a>
+    </div>
+    
+    <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+      <p style="margin-bottom: 10px;">※このメールは自動送信されています。返信はできません。</p>
+      <p style="margin-bottom: 10px;">※会員権限が期限切れになると、会員サイトへのアクセスができなくなります。</p>
+      <p style="margin-bottom: 0;">ご不明な点がございましたら、お問い合わせください。</p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #999;">
+      <p>Copyright © 株式会社美容総研 All Rights Reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+`
+
+  try {
+    await sendEmail({
+      to: userEmail,
+      subject: "12SKINS会員サイト 会員権限期限切れのお知らせ",
+      text: emailText,
+      html: emailHtml,
+    })
+    console.log(`✅ Expiration reminder email sent to ${userEmail}`)
+  } catch (error) {
+    console.error(`❌ Failed to send expiration reminder email to ${userEmail}:`, error)
+    throw error // Re-throw so caller can handle it
+  }
+}
+

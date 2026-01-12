@@ -7,6 +7,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AuthButton } from "@/components/auth/auth-button"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useTranslation } from "@/lib/i18n/hooks"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,6 +44,7 @@ declare global {
 export default function PaymentPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
   
   // Get plan from URL query parameter
   const planParam = searchParams.get("plan")
@@ -79,13 +82,13 @@ export default function PaymentPage() {
   // Handle credit card payment with UnivaPay widget
   const handleCreditCardPayment = useCallback(async (paymentId: string) => {
     if (!APP_ID) {
-      alert("UnivaPay設定が不完全です。NEXT_PUBLIC_UNIVAPAY_APP_IDを設定してください。")
+      alert(t("payment.univapayNotConfigured"))
       setIsSubmitting(false)
       return
     }
 
     if (typeof window === 'undefined' || !window.UnivapayCheckout) {
-      alert("UnivaPayウィジェットが読み込まれていません。しばらく待ってから再度お試しください。")
+      alert(t("payment.widgetNotLoaded"))
       setIsSubmitting(false)
       return
     }
@@ -135,7 +138,7 @@ export default function PaymentPage() {
             const data = await response.json()
 
             if (!response.ok) {
-              throw new Error(data.error || "決済処理に失敗しました")
+              throw new Error(data.error || t("payment.paymentFailed"))
             }
 
             // If UnivaPay instructs a redirect (e.g., 3DS), follow it
@@ -159,7 +162,7 @@ export default function PaymentPage() {
             }
           } catch (err) {
             console.error("Charge creation error:", err)
-            const errorMessage = err instanceof Error ? err.message : "決済処理中にエラーが発生しました"
+            const errorMessage = err instanceof Error ? err.message : t("payment.paymentError")
             alert(errorMessage)
             
             // If we have paymentId, redirect to cancel page
@@ -176,7 +179,7 @@ export default function PaymentPage() {
         },
 
         onError: (err: any) => {
-          alert(typeof err === 'string' ? err : (err?.message || 'ウィジェットエラー'))
+          alert(typeof err === 'string' ? err : (err?.message || t("common.error")))
           setIsSubmitting(false)
         },
       })
@@ -184,7 +187,7 @@ export default function PaymentPage() {
       checkout.open()
     } catch (err) {
       console.error("Widget error:", err)
-      alert(err instanceof Error ? err.message : "ウィジェットの起動に失敗しました")
+      alert(err instanceof Error ? err.message : t("payment.widgetNotLoaded"))
       setIsSubmitting(false)
     }
   }, [totalAmount, RETURN_URL, router, isSubmitting])
@@ -193,13 +196,13 @@ export default function PaymentPage() {
     e.preventDefault()
     
     if (!agreedToTerms) {
-      alert("利用規約に同意してください")
+      alert(t("payment.mustAgreeToTerms"))
       return
     }
 
     if (!formData.name || !formData.email || !formData.phoneNumber || 
         !formData.postalCode || !formData.address || !formData.gender) {
-      alert("必須項目をすべて入力してください")
+      alert(t("payment.fillRequiredFields"))
       return
     }
 
@@ -227,7 +230,7 @@ export default function PaymentPage() {
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.error || "支払い処理に失敗しました")
+          throw new Error(data.error || t("payment.paymentFailed"))
         }
 
         // Store payment ID and open UnivaPay widget
@@ -256,7 +259,7 @@ export default function PaymentPage() {
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.error || "支払い処理に失敗しました")
+          throw new Error(data.error || t("payment.paymentFailed"))
         }
 
         // Redirect to check email page for bank transfer and direct debit
@@ -283,7 +286,7 @@ export default function PaymentPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "支払い処理に失敗しました")
+        throw new Error(data.error || t("payment.paymentFailed"))
       }
 
       if (data.email && data.password) {
@@ -300,11 +303,11 @@ export default function PaymentPage() {
         router.push(`/payment/success?paymentId=${data.paymentId}`)
       } else {
         console.error("No payment URL received:", data)
-        throw new Error("決済URLを取得できませんでした")
+        throw new Error(t("payment.noPaymentUrl"))
       }
     } catch (error) {
       console.error("Payment error:", error)
-      alert(error instanceof Error ? error.message : "支払い処理中にエラーが発生しました")
+      alert(error instanceof Error ? error.message : t("payment.paymentError"))
       setIsSubmitting(false)
     }
   }
@@ -342,8 +345,9 @@ export default function PaymentPage() {
                 href="/"
                 className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
               >
-                トップページ
+                {t("mypage.topPage")}
               </Link>
+              <LanguageSwitcher />
               <AuthButton />
             </nav>
           </div>
@@ -356,12 +360,12 @@ export default function PaymentPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <div className="text-sm text-gray-500 mb-1">選択中のプラン</div>
+                <div className="text-sm text-gray-500 mb-1">{t("payment.selectedPlan")}</div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">
-                  {selectedPlan === "basic" ? "ベーシック" : selectedPlan === "standard" ? "スタンダード" : "プレミアム"}プラン
+                  {selectedPlan === "basic" ? t("payment.basicPlan") : selectedPlan === "standard" ? t("payment.standardPlan") : t("payment.premiumPlan")}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {currentPlan.amount.toLocaleString()}円（税別） / 税込: <span className="font-semibold text-lg">{totalAmount.toLocaleString()}円</span>
+                  {currentPlan.amount.toLocaleString()}{t("payment.taxExcluded")} / {t("payment.taxIncluded")}: <span className="font-semibold text-lg">{totalAmount.toLocaleString()}円</span>
                 </div>
               </div>
             </div>
@@ -383,13 +387,13 @@ export default function PaymentPage() {
           <div className="lg:col-span-2">
             <Card className="shadow-lg">
               <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white">
-                <CardTitle className="text-xl font-semibold">お客様情報</CardTitle>
+                <CardTitle className="text-xl font-semibold">{t("payment.customerInfo")}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Payment Method */}
                   <div className="pb-6 border-b">
-                    <Label className="text-base font-semibold mb-4 block">お支払い方法</Label>
+                    <Label className="text-base font-semibold mb-4 block">{t("payment.paymentMethod")}</Label>
                     <div className="grid grid-cols-1 gap-3">
                       <button
                         type="button"
@@ -410,8 +414,8 @@ export default function PaymentPage() {
                               )}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">銀行振込</div>
-                              <div className="text-sm text-gray-500">入金確認後に処理されます</div>
+                              <div className="font-medium text-gray-900">{t("payment.bankTransfer")}</div>
+                              <div className="text-sm text-gray-500">{t("payment.bankTransferDescription")}</div>
                             </div>
                           </div>
                         </div>
@@ -436,8 +440,8 @@ export default function PaymentPage() {
                               )}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">クレジットカード決済</div>
-                              <div className="text-sm text-gray-500">分割払いも可能です</div>
+                              <div className="font-medium text-gray-900">{t("payment.creditCard")}</div>
+                              <div className="text-sm text-gray-500">{t("payment.creditCardDescription")}</div>
                             </div>
                           </div>
                           <div className="flex gap-1">
@@ -466,8 +470,8 @@ export default function PaymentPage() {
                               )}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">口座引き落とし分割払い</div>
-                              <div className="text-sm text-gray-500">別途審査が必要です</div>
+                              <div className="font-medium text-gray-900">{t("payment.directDebit")}</div>
+                              <div className="text-sm text-gray-500">{t("payment.directDebitDescription")}</div>
                             </div>
                           </div>
                         </div>
@@ -479,26 +483,26 @@ export default function PaymentPage() {
                   <div className="space-y-5">
                     <div>
                       <Label htmlFor="companyName" className="text-sm font-medium text-gray-700 mb-2 block">
-                        会社名 <span className="text-gray-400 font-normal">(任意)</span>
+                        {t("payment.companyName")} <span className="text-gray-400 font-normal">{t("payment.companyNameOptional")}</span>
                       </Label>
                       <Input
                         id="companyName"
                         value={formData.companyName}
                         onChange={(e) => handleInputChange("companyName", e.target.value)}
-                        placeholder="株式会社○○"
+                        placeholder={t("payment.companyNamePlaceholder")}
                         className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
                       <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block">
-                        氏名 <span className="text-red-500">*</span>
+                        {t("payment.fullName")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="name"
                         value={formData.name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
-                        placeholder="山田 太郎"
+                        placeholder={t("home.namePlaceholder")}
                         required
                         className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
@@ -507,14 +511,14 @@ export default function PaymentPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block">
-                          メールアドレス <span className="text-red-500">*</span>
+                          {t("payment.email")} <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="email"
                           type="email"
                           value={formData.email}
                           onChange={(e) => handleInputChange("email", e.target.value)}
-                          placeholder="example@email.com"
+                          placeholder={t("login.emailPlaceholder")}
                           required
                           className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
@@ -522,14 +526,14 @@ export default function PaymentPage() {
 
                       <div>
                         <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700 mb-2 block">
-                          電話番号 <span className="text-red-500">*</span>
+                          {t("payment.phoneNumber")} <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="phoneNumber"
                           type="tel"
                           value={formData.phoneNumber}
                           onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                          placeholder="090-1234-5678"
+                          placeholder={t("payment.phoneNumberPlaceholder")}
                           required
                           className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
@@ -538,13 +542,13 @@ export default function PaymentPage() {
 
                     <div>
                       <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700 mb-2 block">
-                        郵便番号 <span className="text-red-500">*</span>
+                        {t("payment.postalCode")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="postalCode"
                         value={formData.postalCode}
                         onChange={(e) => handleInputChange("postalCode", e.target.value)}
-                        placeholder="123-4567"
+                        placeholder={t("payment.postalCodePlaceholder")}
                         required
                         className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
@@ -552,13 +556,13 @@ export default function PaymentPage() {
 
                     <div>
                       <Label htmlFor="address" className="text-sm font-medium text-gray-700 mb-2 block">
-                        住所 <span className="text-red-500">*</span>
+                        {t("payment.address")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="address"
                         value={formData.address}
                         onChange={(e) => handleInputChange("address", e.target.value)}
-                        placeholder="東京都渋谷区..."
+                        placeholder={t("payment.addressPlaceholder")}
                         required
                         className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
@@ -567,7 +571,7 @@ export default function PaymentPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <Label className="text-sm font-medium text-gray-700 mb-3 block">
-                          性別 <span className="text-red-500">*</span>
+                          {t("payment.gender")} <span className="text-red-500">*</span>
                         </Label>
                         <div className="flex gap-4">
                           <button
@@ -579,7 +583,7 @@ export default function PaymentPage() {
                                 : "border-gray-200 hover:border-gray-300 text-gray-700"
                             }`}
                           >
-                            <div className="font-medium">男性</div>
+                            <div className="font-medium">{t("payment.male")}</div>
                           </button>
                           <button
                             type="button"
@@ -590,48 +594,48 @@ export default function PaymentPage() {
                                 : "border-gray-200 hover:border-gray-300 text-gray-700"
                             }`}
                           >
-                            <div className="font-medium">女性</div>
+                            <div className="font-medium">{t("payment.female")}</div>
                           </button>
                         </div>
                       </div>
 
                       <div>
                         <Label className="text-sm font-medium text-gray-700 mb-3 block">
-                          生年月日 <span className="text-red-500">*</span>
+                          {t("payment.birthDate")} <span className="text-red-500">*</span>
                         </Label>
                         <div className="flex gap-2">
                           <Select value={formData.birthYear} onValueChange={(value) => handleInputChange("birthYear", value)}>
                             <SelectTrigger className="h-11 border-gray-300 focus:border-blue-500">
-                              <SelectValue placeholder="年" />
+                              <SelectValue placeholder={t("payment.year")} />
                             </SelectTrigger>
                             <SelectContent>
                               {years.map((year) => (
                                 <SelectItem key={year} value={year.toString()}>
-                                  {year}年
+                                  {year}{t("payment.year")}
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                           <Select value={formData.birthMonth} onValueChange={(value) => handleInputChange("birthMonth", value)}>
                             <SelectTrigger className="h-11 border-gray-300 focus:border-blue-500">
-                              <SelectValue placeholder="月" />
+                              <SelectValue placeholder={t("payment.month")} />
                             </SelectTrigger>
                             <SelectContent>
                               {months.map((month) => (
                                 <SelectItem key={month} value={month.toString()}>
-                                  {month}月
+                                  {month}{t("payment.month")}
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                           <Select value={formData.birthDay} onValueChange={(value) => handleInputChange("birthDay", value)}>
                             <SelectTrigger className="h-11 border-gray-300 focus:border-blue-500">
-                              <SelectValue placeholder="日" />
+                              <SelectValue placeholder={t("payment.day")} />
                             </SelectTrigger>
                             <SelectContent>
                               {days.map((day) => (
                                 <SelectItem key={day} value={day.toString()}>
-                                  {day}日
+                                  {day}{t("payment.day")}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -643,7 +647,7 @@ export default function PaymentPage() {
 
                   {/* Terms */}
                   <div className="pt-6 border-t">
-                    <Label className="text-base font-semibold mb-3 block">利用規約</Label>
+                    <Label className="text-base font-semibold mb-3 block">{t("payment.terms")}</Label>
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
                       <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
                         {`このサイト利用規約（以下「本規約」という。）は、株式会社美容総研（以下「当社」という。）が運営するサイト「12SKINS」（以下「本サービス」という。）に関し、その利用者及び利用希望者との間で本サービスの利用及び諸手続きについて適用されるものとします。
@@ -939,7 +943,7 @@ export default function PaymentPage() {
                         className="mt-0.5"
                       />
                       <Label htmlFor="terms" className="cursor-pointer text-sm text-gray-700 leading-relaxed">
-                        利用規約の内容を確認し、同意いたします <span className="text-red-500">*</span>
+                        {t("payment.agreeToTerms")} <span className="text-red-500">*</span>
                       </Label>
                     </div>
                   </div>
@@ -952,14 +956,14 @@ export default function PaymentPage() {
                       className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                     >
                       {isSubmitting 
-                        ? "処理中..." 
+                        ? t("payment.processing")
                         : paymentMethod === "credit_card" && !widgetReady
-                        ? "読み込み中..."
-                        : "確認して決済に進む"}
+                        ? t("payment.loading")
+                        : t("payment.proceedToPayment")}
                     </Button>
                     {paymentMethod === "credit_card" && !APP_ID && (
                       <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                        UnivaPay設定が不完全です。NEXT_PUBLIC_UNIVAPAY_APP_IDを設定してください。
+                        {t("payment.univapayNotConfigured")}
                       </div>
                     )}
                   </div>
@@ -972,34 +976,34 @@ export default function PaymentPage() {
           <div className="lg:col-span-1">
             <Card className="sticky top-8 shadow-lg">
               <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white">
-                <CardTitle className="text-lg font-semibold">注文内容</CardTitle>
+                <CardTitle className="text-lg font-semibold">{t("payment.orderSummary")}</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">プラン</div>
+                    <div className="text-sm text-gray-500 mb-1">{t("payment.plan")}</div>
                     <div className="font-semibold text-gray-900">
-                      {selectedPlan === "basic" ? "ベーシック" : selectedPlan === "standard" ? "スタンダード" : "プレミアム"}プラン
+                      {selectedPlan === "basic" ? t("payment.basicPlan") : selectedPlan === "standard" ? t("payment.standardPlan") : t("payment.premiumPlan")}
                     </div>
                   </div>
                   
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">小計（税別）</span>
+                      <span className="text-gray-600">{t("payment.subtotal")}</span>
                       <span className="text-gray-900">{currentPlan.amount.toLocaleString()}円</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">消費税（10%）</span>
+                      <span className="text-gray-600">{t("payment.tax")}</span>
                       <span className="text-gray-900">{taxAmount.toLocaleString()}円</span>
                     </div>
                   </div>
 
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold text-gray-900">合計金額</span>
+                      <span className="text-lg font-semibold text-gray-900">{t("payment.total")}</span>
                       <span className="text-2xl font-bold text-gray-900">{totalAmount.toLocaleString()}円</span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">税込価格</div>
+                    <div className="text-xs text-gray-500 mt-1">{t("payment.taxIncludedPrice")}</div>
                   </div>
 
                   <div className="pt-4 border-t">
@@ -1008,13 +1012,13 @@ export default function PaymentPage() {
                         <svg className="w-4 h-4 mt-0.5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>SSL暗号化通信で安全に決済</span>
+                        <span>{t("payment.securePayment")}</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <svg className="w-4 h-4 mt-0.5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>6ヶ月間のアクセス権限</span>
+                        <span>{t("payment.sixMonthsAccess")}</span>
                       </div>
                     </div>
                   </div>

@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthButton } from "@/components/auth/auth-button"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useTranslation } from "@/lib/i18n/hooks"
 
 interface UserProfile {
   user: {
@@ -107,6 +109,7 @@ const getDaysUntilExpiration = (expiresAt: string) => {
 
 export default function MyPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -134,7 +137,7 @@ export default function MyPage() {
         setProfile(data)
       } catch (err) {
         console.error("Profile fetch error:", err)
-        setError("プロフィールの取得に失敗しました")
+        setError(t("mypage.profileNotFound"))
       } finally {
         setIsLoading(false)
       }
@@ -164,15 +167,15 @@ export default function MyPage() {
     // Validate password if new password is provided
     if (newPassword) {
       if (newPassword.length < 6) {
-        setSaveError("パスワードは6文字以上で入力してください")
+        setSaveError(t("mypage.passwordMinLength"))
         return
       }
       if (newPassword !== confirmPassword) {
-        setSaveError("新しいパスワードと確認用パスワードが一致しません")
+        setSaveError(t("mypage.passwordMismatch"))
         return
       }
       if (!currentPassword) {
-        setSaveError("パスワードを変更する場合は、現在のパスワードを入力してください")
+        setSaveError(t("mypage.currentPasswordRequired"))
         return
       }
     }
@@ -248,7 +251,7 @@ export default function MyPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-gray-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">読み込み中...</p>
+          <p className="text-gray-600">{t("common.loading")}</p>
         </div>
       </div>
     )
@@ -259,8 +262,8 @@ export default function MyPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="p-6 text-center">
-            <p className="text-red-600 mb-4">{error || "プロフィールが見つかりませんでした"}</p>
-            <Button onClick={() => router.push("/login")}>ログインページへ</Button>
+            <p className="text-red-600 mb-4">{error || t("mypage.profileNotFound")}</p>
+            <Button onClick={() => router.push("/login")}>{t("mypage.goToLogin")}</Button>
           </CardContent>
         </Card>
       </div>
@@ -292,8 +295,9 @@ export default function MyPage() {
                 href="/"
                 className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
               >
-                トップページ
+                {t("mypage.topPage")}
               </Link>
+              <LanguageSwitcher />
               <AuthButton />
             </nav>
           </div>
@@ -302,8 +306,8 @@ export default function MyPage() {
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">マイページ</h1>
-          <p className="text-gray-600">アカウント情報と会員権限の確認</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("mypage.title")}</h1>
+          <p className="text-gray-600">{t("mypage.subtitle")}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -314,8 +318,8 @@ export default function MyPage() {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle>アカウント情報</CardTitle>
-                    <CardDescription>基本情報</CardDescription>
+                    <CardTitle>{t("mypage.accountInfo")}</CardTitle>
+                    <CardDescription>{t("mypage.basicInfo")}</CardDescription>
                   </div>
                   {!isEditing && (
                     <Button
@@ -323,7 +327,7 @@ export default function MyPage() {
                       variant="outline"
                       size="sm"
                     >
-                      編集
+                      {t("common.edit")}
                     </Button>
                   )}
                 </div>
@@ -333,18 +337,18 @@ export default function MyPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-name">お名前</Label>
+                        <Label htmlFor="edit-name">{t("mypage.name")}</Label>
                         <Input
                           id="edit-name"
                           type="text"
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          placeholder="お名前を入力"
+                          placeholder={t("login.namePlaceholder")}
                           disabled={isSaving}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email-display">メールアドレス</Label>
+                        <Label htmlFor="email-display">{t("mypage.email")}</Label>
                         <Input
                           id="email-display"
                           type="email"
@@ -352,10 +356,10 @@ export default function MyPage() {
                           disabled
                           className="bg-gray-100 cursor-not-allowed"
                         />
-                        <p className="text-xs text-gray-500">メールアドレスは変更できません</p>
+                        <p className="text-xs text-gray-500">{t("mypage.emailCannotChange")}</p>
                       </div>
                       <div>
-                        <div className="text-sm text-gray-500 mb-1">アカウント作成日</div>
+                        <div className="text-sm text-gray-500 mb-1">{t("mypage.accountCreated")}</div>
                         <div className="text-gray-900">{formatDate(user.createdAt)}</div>
                       </div>
                     </div>
@@ -363,41 +367,41 @@ export default function MyPage() {
                     <Separator />
 
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-gray-900">パスワードを変更</h3>
+                      <h3 className="font-semibold text-gray-900">{t("mypage.changePassword")}</h3>
                       <p className="text-sm text-gray-600">
-                        パスワードを変更する場合のみ、以下を入力してください。
+                        {t("mypage.changePasswordDescription")}
                       </p>
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="current-password">現在のパスワード</Label>
+                          <Label htmlFor="current-password">{t("mypage.currentPassword")}</Label>
                           <Input
                             id="current-password"
                             type="password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
-                            placeholder="現在のパスワードを入力"
+                            placeholder={t("mypage.currentPasswordPlaceholder")}
                             disabled={isSaving}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="new-password">新しいパスワード</Label>
+                          <Label htmlFor="new-password">{t("mypage.newPassword")}</Label>
                           <Input
                             id="new-password"
                             type="password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="新しいパスワード（6文字以上）"
+                            placeholder={t("mypage.newPasswordPlaceholder")}
                             disabled={isSaving}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="confirm-password">新しいパスワード（確認）</Label>
+                          <Label htmlFor="confirm-password">{t("mypage.confirmPassword")}</Label>
                           <Input
                             id="confirm-password"
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="新しいパスワードを再入力"
+                            placeholder={t("mypage.confirmPasswordPlaceholder")}
                             disabled={isSaving}
                           />
                         </div>
@@ -412,7 +416,7 @@ export default function MyPage() {
 
                     {saveSuccess && (
                       <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                        <p className="text-sm text-green-600">プロフィールを更新しました</p>
+                        <p className="text-sm text-green-600">{t("mypage.profileUpdated")}</p>
                       </div>
                     )}
 
@@ -422,7 +426,7 @@ export default function MyPage() {
                         disabled={isSaving}
                         className="flex-1"
                       >
-                        {isSaving ? "保存中..." : "保存"}
+                        {isSaving ? t("mypage.saving") : t("common.save")}
                       </Button>
                       <Button
                         onClick={handleCancelEdit}
@@ -430,22 +434,22 @@ export default function MyPage() {
                         disabled={isSaving}
                         className="flex-1"
                       >
-                        キャンセル
+                        {t("common.cancel")}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <div className="text-sm text-gray-500 mb-1">お名前</div>
+                      <div className="text-sm text-gray-500 mb-1">{t("mypage.name")}</div>
                       <div className="text-lg font-semibold text-gray-900">{user.name}</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-500 mb-1">メールアドレス</div>
+                      <div className="text-sm text-gray-500 mb-1">{t("mypage.email")}</div>
                       <div className="text-lg font-semibold text-gray-900">{user.email}</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-500 mb-1">アカウント作成日</div>
+                      <div className="text-sm text-gray-500 mb-1">{t("mypage.accountCreated")}</div>
                       <div className="text-gray-900">{formatDate(user.createdAt)}</div>
                     </div>
                   </div>
@@ -456,8 +460,8 @@ export default function MyPage() {
             {/* Membership Status */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle>会員権限</CardTitle>
-                <CardDescription>アクセス権限の状態</CardDescription>
+                <CardTitle>{t("mypage.membership")}</CardTitle>
+                <CardDescription>{t("mypage.accessStatus")}</CardDescription>
               </CardHeader>
               <CardContent>
                 {membership ? (
@@ -471,15 +475,15 @@ export default function MyPage() {
                     }`}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="font-semibold text-lg">
-                          {isExpired ? "❌ 期限切れ" : isExpiringSoon ? "⚠️ まもなく期限切れ" : "✅ アクティブ"}
+                          {isExpired ? t("mypage.expired") : isExpiringSoon ? t("mypage.expiringSoon") : t("mypage.active")}
                         </div>
                         <Badge variant={membership.isActive && !isExpired ? "default" : "destructive"}>
-                          {membership.isActive && !isExpired ? "有効" : "無効"}
+                          {membership.isActive && !isExpired ? t("mypage.valid") : t("mypage.invalid")}
                         </Badge>
                       </div>
                       {!isExpired && daysUntilExpiration !== null && (
                         <div className="text-sm text-gray-600">
-                          残り {daysUntilExpiration} 日
+                          {t("mypage.daysRemaining", { days: daysUntilExpiration })}
                         </div>
                       )}
                     </div>
@@ -488,15 +492,15 @@ export default function MyPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <div className="text-sm text-gray-500 mb-1">会員ID</div>
+                        <div className="text-sm text-gray-500 mb-1">{t("mypage.memberId")}</div>
                         <div className="font-mono text-gray-900">{membership.username}</div>
                       </div>
                       <div>
-                        <div className="text-sm text-gray-500 mb-1">権限付与日</div>
+                        <div className="text-sm text-gray-500 mb-1">{t("mypage.accessGranted")}</div>
                         <div className="text-gray-900">{formatDate(membership.accessGrantedAt)}</div>
                       </div>
                       <div>
-                        <div className="text-sm text-gray-500 mb-1">有効期限</div>
+                        <div className="text-sm text-gray-500 mb-1">{t("mypage.expirationDate")}</div>
                         <div className={`font-semibold ${
                           isExpired ? "text-red-600" : isExpiringSoon ? "text-yellow-600" : "text-gray-900"
                         }`}>
@@ -505,7 +509,7 @@ export default function MyPage() {
                       </div>
                       {membership.credentialsSentAt && (
                         <div>
-                          <div className="text-sm text-gray-500 mb-1">認証情報送信日</div>
+                          <div className="text-sm text-gray-500 mb-1">{t("mypage.credentialsSent")}</div>
                           <div className="text-gray-900">{formatDateTime(membership.credentialsSentAt)}</div>
                         </div>
                       )}
@@ -514,13 +518,13 @@ export default function MyPage() {
                     {isExpired && (
                       <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <p className="text-sm text-blue-800 mb-2">
-                          会員権限の有効期限が切れています。新しいプランをお申し込みください。
+                          {t("mypage.expiredMessage")}
                         </p>
                         <Button
                           onClick={() => router.push("/payment?plan=basic")}
                           className="w-full sm:w-auto"
                         >
-                          プランを選択
+                          {t("mypage.selectPlan")}
                         </Button>
                       </div>
                     )}
@@ -528,14 +532,14 @@ export default function MyPage() {
                     {isExpiringSoon && !isExpired && (
                       <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <p className="text-sm text-yellow-800 mb-2">
-                          会員権限の有効期限がまもなく切れます。継続をご希望の場合は、新しいプランをお申し込みください。
+                          {t("mypage.expiringMessage")}
                         </p>
                         <Button
                           onClick={() => router.push("/payment?plan=basic")}
                           variant="outline"
                           className="w-full sm:w-auto"
                         >
-                          プランを選択
+                          {t("mypage.selectPlan")}
                         </Button>
                       </div>
                     )}
@@ -547,9 +551,9 @@ export default function MyPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                     </div>
-                    <p className="text-gray-600 mb-4">会員権限がありません</p>
+                    <p className="text-gray-600 mb-4">{t("mypage.noMembership")}</p>
                     <Button onClick={() => router.push("/payment?plan=basic")}>
-                      プランを選択
+                      {t("mypage.selectPlan")}
                     </Button>
                   </div>
                 )}
@@ -559,8 +563,8 @@ export default function MyPage() {
             {/* Payment History */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle>支払い履歴</CardTitle>
-                <CardDescription>過去の決済情報</CardDescription>
+                <CardTitle>{t("mypage.paymentHistory")}</CardTitle>
+                <CardDescription>{t("mypage.paymentHistoryDescription")}</CardDescription>
               </CardHeader>
               <CardContent>
                 {allPayments.length > 0 ? (
@@ -587,13 +591,13 @@ export default function MyPage() {
                           </div>
                           <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t">
                             <div>
-                              <div className="text-xs text-gray-500">支払い方法</div>
+                              <div className="text-xs text-gray-500">{t("mypage.paymentMethod")}</div>
                               <div className="text-sm font-medium text-gray-900">
                                 {getPaymentMethodLabel(pay.paymentMethod)}
                               </div>
                             </div>
                             <div>
-                              <div className="text-xs text-gray-500">金額</div>
+                              <div className="text-xs text-gray-500">{t("mypage.amount")}</div>
                               <div className="text-sm font-medium text-gray-900">
                                 ¥{parseFloat(pay.totalAmount).toLocaleString()}
                               </div>
@@ -605,7 +609,7 @@ export default function MyPage() {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    支払い履歴がありません
+                    {t("mypage.noPaymentHistory")}
                   </div>
                 )}
               </CardContent>
@@ -616,7 +620,7 @@ export default function MyPage() {
           <div className="lg:col-span-1">
             <Card className="shadow-lg sticky top-8">
               <CardHeader>
-                <CardTitle className="text-lg">クイックアクション</CardTitle>
+                <CardTitle className="text-lg">{t("mypage.quickActions")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
@@ -624,14 +628,14 @@ export default function MyPage() {
                   className="w-full"
                   variant="outline"
                 >
-                  プランを選択
+                  {t("mypage.selectPlan")}
                 </Button>
                 <Button
                   onClick={() => router.push("/")}
                   className="w-full"
                   variant="outline"
                 >
-                  トップページへ
+                  {t("mypage.goToHome")}
                 </Button>
                 <Separator />
                 <Button
@@ -639,7 +643,7 @@ export default function MyPage() {
                   className="w-full"
                   variant="outline"
                 >
-                  診断を開始
+                  {t("mypage.startDiagnosis")}
                 </Button>
               </CardContent>
             </Card>
