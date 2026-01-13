@@ -4,7 +4,7 @@ import { payments, memberships, users } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { isAdmin } from "@/lib/admin"
 import { createUser, hashPassword } from "@/lib/auth"
-import { sendAdminNotification } from "@/lib/email"
+import { sendAdminNotification, sendEmail } from "@/lib/email"
 import crypto from "crypto"
 
 // POST - Create account and membership for a payment
@@ -138,6 +138,31 @@ export async function POST(
     } catch (notificationError) {
       console.error("Failed to send admin notification:", notificationError)
       // Continue even if notification fails
+    }
+
+    // Send credentials email to user
+    try {
+      await sendUserCredentialsEmail(
+        payment,
+        {
+          email: payment.email,
+          password,
+          membershipUsername: membership.username,
+          membershipPassword,
+          accessExpiresAt: membership.accessExpiresAt,
+        }
+      )
+      
+      // Update membership with credentials sent timestamp
+      await db
+        .update(memberships)
+        .set({
+          credentialsSentAt: new Date(),
+        })
+        .where(eq(memberships.id, membership.id))
+    } catch (emailError) {
+      console.error("Failed to send user credentials email:", emailError)
+      // Continue even if email fails
     }
 
     return NextResponse.json({
@@ -296,5 +321,136 @@ async function sendManualAccountCreationNotification(
     text: emailText,
     html: emailHtml,
   })
+}
+
+// Send credentials email to user for manual account creation
+async function sendUserCredentialsEmail(
+  payment: typeof payments.$inferSelect,
+  accountInfo: {
+    email: string
+    password: string
+    membershipUsername: string
+    membershipPassword: string
+    accessExpiresAt: Date
+  }
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+  const loginUrl = `${baseUrl}/login`
+  const accessExpiresAtStr = new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP")
+
+  const emailText = `
+12SKINS会員サイトへのアクセス情報
+
+${payment.name}様
+
+アカウントが作成されました。
+会員サイトへのアクセス情報をお送りいたします。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【ログイン用アカウント情報】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+メールアドレス: ${accountInfo.email}
+パスワード: ${accountInfo.password}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【会員サイト認証情報】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ユーザー名: ${accountInfo.membershipUsername}
+パスワード: ${accountInfo.membershipPassword}
+アクセス有効期限: ${accessExpiresAtStr}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+会員サイトURL: ${loginUrl}
+
+※この認証情報は6ヶ月間有効です。
+※このメールは自動送信されています。返信はできません。
+
+ご不明な点がございましたら、お問い合わせください。
+
+Copyright © 株式会社美容総研 All Rights Reserved.
+`
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12SKINS会員サイトへのアクセス情報</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f9f9f9; padding: 30px; border-radius: 8px;">
+    <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">12SKINS会員サイトへのアクセス情報</h1>
+    
+    <p style="font-size: 16px; margin-bottom: 20px;">${payment.name}様</p>
+    
+    <p style="font-size: 16px; margin-bottom: 30px;">アカウントが作成されました。<br>会員サイトへのアクセス情報をお送りいたします。</p>
+    
+    <div style="background-color: #fff; border: 2px solid #ddd; border-radius: 6px; padding: 25px; margin-bottom: 20px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px;">【ログイン用アカウント情報】</h2>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #666; display: inline-block; width: 140px;">メールアドレス:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #333;">${accountInfo.email}</span>
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #666; display: inline-block; width: 140px;">パスワード:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #333; font-family: monospace; background-color: #f5f5f5; padding: 4px 8px; border-radius: 3px;">${accountInfo.password}</span>
+      </div>
+    </div>
+    
+    <div style="background-color: #fff; border: 2px solid #ddd; border-radius: 6px; padding: 25px; margin-bottom: 30px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px;">【会員サイト認証情報】</h2>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #666; display: inline-block; width: 140px;">ユーザー名:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #333; font-family: monospace; background-color: #f5f5f5; padding: 4px 8px; border-radius: 3px;">${accountInfo.membershipUsername}</span>
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #666; display: inline-block; width: 140px;">パスワード:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #333; font-family: monospace; background-color: #f5f5f5; padding: 4px 8px; border-radius: 3px;">${accountInfo.membershipPassword}</span>
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #666; display: inline-block; width: 140px;">アクセス有効期限:</strong>
+        <span style="font-size: 16px; font-weight: bold; color: #333;">${accessExpiresAtStr}</span>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <a href="${loginUrl}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">会員サイトにログイン</a>
+    </div>
+    
+    <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+      <p style="margin-bottom: 10px;">※この認証情報は6ヶ月間有効です。</p>
+      <p style="margin-bottom: 10px;">※このメールは自動送信されています。返信はできません。</p>
+      <p style="margin-bottom: 0;">ご不明な点がございましたら、お問い合わせください。</p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #999;">
+      <p>Copyright © 株式会社美容総研 All Rights Reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+`
+
+  try {
+    await sendEmail({
+      to: payment.email,
+      subject: "12SKINS会員サイトへのアクセス情報",
+      text: emailText,
+      html: emailHtml,
+    })
+    console.log(`✅ User credentials email sent to ${payment.email}`)
+  } catch (error) {
+    console.error("❌ Failed to send user credentials email:", error)
+    throw error
+  }
 }
 
