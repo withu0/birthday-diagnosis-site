@@ -453,4 +453,3 @@ Copyright © 株式会社美容総研 All Rights Reserved.
     throw error
   }
 }
-

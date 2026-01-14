@@ -165,8 +165,20 @@ export async function POST(request: NextRequest) {
     console.log(`✅ Payment found via ${searchMethod}`)
     console.log(`   Payment ID: ${payment.id}`)
     console.log(`   Current status: ${payment.status}`)
+    console.log(`   Payment method: ${payment.paymentMethod}`)
     console.log(`   UnivaPay Order ID: ${payment.univapayOrderId}`)
     console.log(`   UnivaPay Transaction ID: ${payment.univapayTransactionId}`)
+
+    // 口座引き落としと銀行振込の場合はWebhookで処理しない（管理者が手動で処理）
+    if (payment.paymentMethod === "direct_debit" || payment.paymentMethod === "bank_transfer") {
+      console.log(`⏭️ Skipping webhook processing for ${payment.paymentMethod} - requires manual account creation by admin`)
+      return NextResponse.json({ 
+        ok: true, 
+        message: `Webhook received but skipped for ${payment.paymentMethod} - manual processing required`,
+        paymentId: payment.id,
+        paymentMethod: payment.paymentMethod
+      })
+    }
 
     // If payment found, update status
     let updatedStatus = payment.status
