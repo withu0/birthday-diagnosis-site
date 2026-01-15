@@ -299,7 +299,7 @@ ${accountInfo.membershipUsername
         ? `<p style="margin: 10px 0;"><strong>ユーザー名:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.membershipUsername}</span></p>
       <p style="margin: 10px 0;"><strong>パスワード:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.membershipPassword}</span></p>
       <p style="margin: 10px 0;"><strong>アクセス有効期限:</strong> ${accessExpiresAtStr}</p>`
-        : "<p style="margin: 10px 0; color: #666;">会員権限は作成されていません</p>"}
+        : `<p style="margin: 10px 0; color: #666;">会員権限は作成されていません</p>`}
     </div>
 
     <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
