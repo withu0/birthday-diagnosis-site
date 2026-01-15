@@ -4,7 +4,7 @@ import { users, memberships, payments } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { isAdmin } from "@/lib/admin"
 import { createUser, hashPassword } from "@/lib/auth"
-import { sendEmail } from "@/lib/email"
+import { sendEmail, sendAdminNotification } from "@/lib/email"
 import crypto from "crypto"
 
 // GET all users
@@ -141,11 +141,15 @@ export async function POST(request: NextRequest) {
         .where(eq(users.id, user.id))
     }
 
+    let membershipUsername: string | null = null
+    let membershipPassword: string | null = null
+    let membershipAccessExpiresAt: Date | null = null
+
     // Create membership if accessExpiresAt is provided
     if (accessExpiresAt) {
       const expiryDate = new Date(accessExpiresAt)
-      const username = `user_${crypto.randomBytes(4).toString("hex")}`
-      const membershipPassword = crypto.randomBytes(8).toString("hex")
+      membershipUsername = `user_${crypto.randomBytes(4).toString("hex")}`
+      membershipPassword = crypto.randomBytes(8).toString("hex")
       const passwordHash = await hashPassword(membershipPassword)
 
       await db
@@ -153,12 +157,33 @@ export async function POST(request: NextRequest) {
         .values({
           userId: user.id,
           paymentId: null, // No payment for manually created users
-          username,
+          username: membershipUsername,
           passwordHash,
           accessExpiresAt: expiryDate,
           isActive: true,
           accessGrantedAt: new Date(),
         })
+      
+      membershipAccessExpiresAt = expiryDate
+    }
+
+    // Send admin notification for manual account creation
+    try {
+      await sendManualAccountCreationNotification(
+        {
+          name,
+          email,
+          password,
+          role: role || "user",
+          isAdmin: isAdminFlag || false,
+          membershipUsername,
+          membershipPassword,
+          accessExpiresAt: membershipAccessExpiresAt,
+        }
+      )
+    } catch (notificationError) {
+      console.error("Failed to send admin notification:", notificationError)
+      // Continue even if notification fails
     }
 
     // Send credentials email to the user
@@ -199,6 +224,102 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// Send admin notification for manual account creation
+async function sendManualAccountCreationNotification(
+  accountInfo: {
+    name: string
+    email: string
+    password: string
+    role: string
+    isAdmin: boolean
+    membershipUsername: string | null
+    membershipPassword: string | null
+    accessExpiresAt: Date | null
+  }
+) {
+  const accessExpiresAtStr = accountInfo.accessExpiresAt
+    ? new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP")
+    : "なし"
+
+  const emailText = `
+アカウントが手動で発行されました
+
+【お客様情報】
+氏名: ${accountInfo.name}
+メールアドレス: ${accountInfo.email}
+
+【作成されたアカウント情報】
+ログイン用メールアドレス: ${accountInfo.email}
+ログイン用パスワード: ${accountInfo.password}
+権限: ${accountInfo.role}
+管理者権限: ${accountInfo.isAdmin ? "あり" : "なし"}
+
+【会員サイト認証情報】
+${accountInfo.membershipUsername
+    ? `ユーザー名: ${accountInfo.membershipUsername}
+パスワード: ${accountInfo.membershipPassword}
+アクセス有効期限: ${accessExpiresAtStr}`
+    : "会員権限は作成されていません"}
+
+【管理情報】
+作成日時: ${new Date().toLocaleString("ja-JP")}
+`
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アカウント手動発行通知</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f9f9f9; padding: 30px; border-radius: 8px;">
+    <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">アカウントが手動で発行されました</h1>
+    
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 10px;">お客様情報</h2>
+      <p style="margin: 10px 0;"><strong>氏名:</strong> ${accountInfo.name}</p>
+      <p style="margin: 10px 0;"><strong>メールアドレス:</strong> ${accountInfo.email}</p>
+    </div>
+
+    <div style="background-color: #e8f5e9; padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 2px solid #28a745;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 10px;">作成されたアカウント情報</h2>
+      <p style="margin: 10px 0;"><strong>ログイン用メールアドレス:</strong> ${accountInfo.email}</p>
+      <p style="margin: 10px 0;"><strong>ログイン用パスワード:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.password}</span></p>
+      <p style="margin: 10px 0;"><strong>権限:</strong> ${accountInfo.role}</p>
+      <p style="margin: 10px 0;"><strong>管理者権限:</strong> ${accountInfo.isAdmin ? "あり" : "なし"}</p>
+    </div>
+
+    <div style="background-color: ${accountInfo.membershipUsername ? "#e8f5e9" : "#fff"}; padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 2px solid ${accountInfo.membershipUsername ? "#28a745" : "#ddd"};">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid ${accountInfo.membershipUsername ? "#28a745" : "#ddd"}; padding-bottom: 10px;">会員サイト認証情報</h2>
+      ${accountInfo.membershipUsername
+        ? `<p style="margin: 10px 0;"><strong>ユーザー名:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.membershipUsername}</span></p>
+      <p style="margin: 10px 0;"><strong>パスワード:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.membershipPassword}</span></p>
+      <p style="margin: 10px 0;"><strong>アクセス有効期限:</strong> ${accessExpiresAtStr}</p>`
+        : "<p style="margin: 10px 0; color: #666;">会員権限は作成されていません</p>"}
+    </div>
+
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 10px;">管理情報</h2>
+      <p style="margin: 10px 0;"><strong>作成日時:</strong> ${new Date().toLocaleString("ja-JP")}</p>
+    </div>
+
+    <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+      <p style="margin-bottom: 0;">このメールは自動送信されています。返信はできません。</p>
+    </div>
+  </div>
+</body>
+</html>
+`
+
+  await sendAdminNotification({
+    subject: `【12SKINS】アカウント手動発行完了 - ${accountInfo.name}様`,
+    text: emailText,
+    html: emailHtml,
+  })
 }
 
 // Send credentials email to admin-created user
