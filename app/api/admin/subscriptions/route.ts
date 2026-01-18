@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { payments, memberships, users } from "@/lib/db/schema"
-import { eq, desc, and, or, like } from "drizzle-orm"
+import { eq, desc, and, or, like, count } from "drizzle-orm"
 import { isAdmin } from "@/lib/admin"
 
 // GET all subscriptions with payment and membership info
@@ -19,6 +19,9 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status")
     const planType = searchParams.get("planType")
     const search = searchParams.get("search")
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "20")
+    const offset = (page - 1) * limit
 
     // Build query conditions
     let conditions: any[] = []
@@ -41,7 +44,15 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Fetch payments with related data
+    // Get total count
+    const countQuery = db
+      .select({ total: count() })
+      .from(payments)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+
+    const [{ total }] = await countQuery
+
+    // Fetch paginated payments with related data
     const allPayments = await db
       .select({
         payment: payments,
@@ -64,6 +75,8 @@ export async function GET(request: NextRequest) {
       .leftJoin(memberships, eq(payments.id, memberships.paymentId))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(payments.createdAt))
+      .limit(limit)
+      .offset(offset)
 
     // Format response
     const subscriptions = allPayments.map((item) => ({
@@ -85,7 +98,13 @@ export async function GET(request: NextRequest) {
       membership: item.membership,
     }))
 
-    return NextResponse.json({ subscriptions })
+    return NextResponse.json({ 
+      subscriptions,
+      totalCount: total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    })
   } catch (error) {
     console.error("Error fetching subscriptions:", error)
     return NextResponse.json(

@@ -320,7 +320,10 @@ const BirthdayDiagnosis = () => {
   };
 
   const isLoading = isLoadingBasic;
-  const diagnosisLog = diagnosisList?.results || [];
+  const diagnosisLog = (diagnosisList?.results || []).sort((a, b) => {
+    // Sort by createdAt in descending order (newest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <ProtectedRoute>

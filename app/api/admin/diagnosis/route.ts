@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { diagnosisResults } from "@/lib/db/schema"
-import { desc } from "drizzle-orm"
+import { desc, or, like, count } from "drizzle-orm"
 import { isAdmin } from "@/lib/admin"
 
 export async function GET(request: NextRequest) {
@@ -15,43 +15,45 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const limit = parseInt(searchParams.get("limit") || "1000")
-    const offset = parseInt(searchParams.get("offset") || "0")
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "20")
+    const offset = (page - 1) * limit
     const search = searchParams.get("search") || ""
 
-    // Build query
-    let query = db
+    // Build conditions for search
+    let whereCondition: any = undefined
+    if (search) {
+      whereCondition = or(
+        like(diagnosisResults.name, `%${search}%`),
+        like(diagnosisResults.birthDate, `%${search}%`)
+      )!
+    }
+
+    // Get total count
+    const countQuery = db
+      .select({ total: count() })
+      .from(diagnosisResults)
+      .where(whereCondition)
+
+    const [{ total }] = await countQuery
+
+    // Build query for results
+    const query = db
       .select()
       .from(diagnosisResults)
+      .where(whereCondition)
       .orderBy(desc(diagnosisResults.createdAt))
       .limit(limit)
       .offset(offset)
 
-    // If search is provided, we'll filter in memory for now
-    // (For better performance, you could add full-text search to the database)
-    let results = await query
-
-    // Filter by search term if provided
-    if (search) {
-      const searchLower = search.toLowerCase()
-      results = results.filter(
-        (result) =>
-          result.name.toLowerCase().includes(searchLower) ||
-          result.birthDate.toLowerCase().includes(searchLower)
-      )
-    }
-
-    // Get total count for pagination
-    const allResults = await db.select().from(diagnosisResults)
-    const totalCount = search
-      ? results.length
-      : allResults.length
+    const results = await query
 
     return NextResponse.json({
       results,
-      totalCount,
+      totalCount: total,
+      page,
       limit,
-      offset,
+      totalPages: Math.ceil(total / limit),
     })
   } catch (error) {
     console.error("Error fetching diagnosis logs:", error)

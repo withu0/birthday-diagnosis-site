@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { AdminRoute } from "@/components/auth/admin-route"
 import { AdminLayout } from "@/components/admin/admin-layout"
+import { Pagination } from "@/components/ui/pagination"
 
 interface Subscription {
   paymentId: string
@@ -58,6 +59,10 @@ export default function AdminSubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 20
   const [filters, setFilters] = useState({
     status: "",
     planType: "",
@@ -66,7 +71,7 @@ export default function AdminSubscriptionsPage() {
 
   useEffect(() => {
     fetchSubscriptions()
-  }, [])
+  }, [currentPage])
 
   const fetchSubscriptions = async () => {
     try {
@@ -75,6 +80,8 @@ export default function AdminSubscriptionsPage() {
       if (filters.status) params.append("status", filters.status)
       if (filters.planType) params.append("planType", filters.planType)
       if (filters.search) params.append("search", filters.search)
+      params.append("page", currentPage.toString())
+      params.append("limit", itemsPerPage.toString())
 
       const response = await fetch(`/api/admin/subscriptions?${params.toString()}`)
 
@@ -89,6 +96,8 @@ export default function AdminSubscriptionsPage() {
 
       const data = await response.json()
       setSubscriptions(data.subscriptions || [])
+      setTotalCount(data.totalCount || 0)
+      setTotalPages(data.totalPages || 1)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました")
@@ -102,11 +111,13 @@ export default function AdminSubscriptionsPage() {
   }
 
   const handleApplyFilters = () => {
+    setCurrentPage(1) // Reset to first page when applying filters
     fetchSubscriptions()
   }
 
   const handleResetFilters = () => {
     setFilters({ status: "", planType: "", search: "" })
+    setCurrentPage(1) // Reset to first page when resetting filters
     setTimeout(() => fetchSubscriptions(), 100)
   }
 
@@ -310,7 +321,7 @@ export default function AdminSubscriptionsPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center mb-4">
                     <p className="text-silver-dark">
-                      合計 {subscriptions.length} 件のサブスクリプション
+                      合計 {totalCount} 件のサブスクリプション
                     </p>
                     <Button
                       onClick={fetchSubscriptions}
@@ -424,6 +435,14 @@ export default function AdminSubscriptionsPage() {
                       <p className="text-silver-dark">サブスクリプションが見つかりません</p>
                     </div>
                   )}
+
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={totalCount}
+                  />
                 </div>
               )}
             </CardContent>

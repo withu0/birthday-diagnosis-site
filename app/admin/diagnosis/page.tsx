@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { AdminRoute } from "@/components/auth/admin-route"
 import { AdminLayout } from "@/components/admin/admin-layout"
+import { Pagination } from "@/components/ui/pagination"
 
 interface DiagnosisLog {
   id: string
@@ -30,17 +31,21 @@ export default function AdminDiagnosisPage() {
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [totalCount, setTotalCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 20
 
   useEffect(() => {
     fetchDiagnosisLogs()
-  }, [])
+  }, [currentPage])
 
   const fetchDiagnosisLogs = async () => {
     try {
       setIsLoading(true)
       const params = new URLSearchParams()
       if (search) params.append("search", search)
-      params.append("limit", "1000")
+      params.append("page", currentPage.toString())
+      params.append("limit", itemsPerPage.toString())
 
       const response = await fetch(`/api/admin/diagnosis?${params.toString()}`)
 
@@ -56,6 +61,7 @@ export default function AdminDiagnosisPage() {
       const data = await response.json()
       setDiagnosisLogs(data.results || [])
       setTotalCount(data.totalCount || 0)
+      setTotalPages(data.totalPages || 1)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました")
@@ -65,11 +71,13 @@ export default function AdminDiagnosisPage() {
   }
 
   const handleSearch = () => {
+    setCurrentPage(1) // Reset to first page when searching
     fetchDiagnosisLogs()
   }
 
   const handleReset = () => {
     setSearch("")
+    setCurrentPage(1) // Reset to first page when resetting
     setTimeout(() => fetchDiagnosisLogs(), 100)
   }
 
@@ -123,11 +131,6 @@ export default function AdminDiagnosisPage() {
                   </Button>
                 </div>
               </div>
-              {totalCount > 0 && (
-                <p className="text-sm text-gray-600 mt-4">
-                  合計 {totalCount} 件の診断ログが見つかりました
-                </p>
-              )}
             </CardContent>
           </Card>
 
@@ -210,6 +213,14 @@ export default function AdminDiagnosisPage() {
                   </table>
                 </div>
               )}
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={totalCount}
+              />
             </CardContent>
           </Card>
         </div>

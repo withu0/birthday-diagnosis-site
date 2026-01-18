@@ -26,6 +26,7 @@ import { AdminRoute } from "@/components/auth/admin-route";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { useAuthContext } from "@/lib/contexts/auth-context";
 import { Eye, EyeOff } from "lucide-react";
+import { Pagination } from "@/components/ui/pagination";
 
 interface Membership {
   id: string | null;
@@ -51,6 +52,10 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 20;
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
@@ -70,12 +75,12 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [currentPage]);
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/admin/users");
+      const response = await fetch(`/api/admin/users?page=${currentPage}&limit=${itemsPerPage}`);
       
       if (response.status === 403) {
         setError("管理者権限が必要です");
@@ -88,6 +93,8 @@ export default function AdminUsersPage() {
 
       const data = await response.json();
       setUsers(data.users || []);
+      setTotalCount(data.totalCount || 0);
+      setTotalPages(data.totalPages || 1);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました");
@@ -305,7 +312,7 @@ export default function AdminUsersPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center mb-4">
                     <p className="text-silver-dark">
-                      合計 {users.length} 人のユーザー
+                      合計 {totalCount} 人のユーザー
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -410,6 +417,14 @@ export default function AdminUsersPage() {
                       <p className="text-silver-dark">ユーザーが登録されていません</p>
                     </div>
                   )}
+
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={totalCount}
+                  />
                 </div>
               )}
             </CardContent>

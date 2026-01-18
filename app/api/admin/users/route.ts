@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { users, memberships, payments } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
+import { eq, count } from "drizzle-orm"
 import { isAdmin } from "@/lib/admin"
 import { createUser, hashPassword } from "@/lib/auth"
 import { sendEmail, sendAdminNotification } from "@/lib/email"
 import crypto from "crypto"
 
-// GET all users
-export async function GET() {
+// GET all users with pagination
+export async function GET(request: NextRequest) {
   try {
     // Check admin access
     if (!(await isAdmin())) {
@@ -18,6 +18,17 @@ export async function GET() {
       )
     }
 
+    const searchParams = request.nextUrl.searchParams
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "20")
+    const offset = (page - 1) * limit
+
+    // Get total count
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(users)
+
+    // Fetch paginated users
     const allUsers = await db
       .select({
         id: users.id,
@@ -37,8 +48,16 @@ export async function GET() {
       .from(users)
       .leftJoin(memberships, eq(users.id, memberships.userId))
       .orderBy(users.createdAt)
+      .limit(limit)
+      .offset(offset)
 
-    return NextResponse.json({ users: allUsers })
+    return NextResponse.json({ 
+      users: allUsers,
+      totalCount: total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    })
   } catch (error) {
     console.error("Error fetching users:", error)
     return NextResponse.json(
