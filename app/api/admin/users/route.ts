@@ -275,13 +275,6 @@ async function sendManualAccountCreationNotification(
 権限: ${accountInfo.role}
 管理者権限: ${accountInfo.isAdmin ? "あり" : "なし"}
 
-【会員サイト認証情報】
-${accountInfo.membershipUsername
-    ? `ユーザー名: ${accountInfo.membershipUsername}
-パスワード: ${accountInfo.membershipPassword}
-アクセス有効期限: ${accessExpiresAtStr}`
-    : "会員権限は作成されていません"}
-
 【管理情報】
 作成日時: ${new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
 `

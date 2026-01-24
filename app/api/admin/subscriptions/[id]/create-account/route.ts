@@ -244,11 +244,6 @@ async function sendManualAccountCreationNotification(
 ログイン用メールアドレス: ${accountInfo.email}
 ログイン用パスワード: ${accountInfo.password}
 
-【会員サイト認証情報】
-ユーザー名: ${accountInfo.membershipUsername}
-パスワード: ${accountInfo.membershipPassword}
-アクセス有効期限: ${accessExpiresAtStr}
-
 【管理情報】
 支払いID: ${payment.id}
 作成日時: ${new Date(payment.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
@@ -292,13 +287,6 @@ async function sendManualAccountCreationNotification(
       <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 10px;">作成されたアカウント情報</h2>
       <p style="margin: 10px 0;"><strong>ログイン用メールアドレス:</strong> ${accountInfo.email}</p>
       <p style="margin: 10px 0;"><strong>ログイン用パスワード:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.password}</span></p>
-    </div>
-
-    <div style="background-color: #e8f5e9; padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 2px solid #28a745;">
-      <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 10px;">会員サイト認証情報</h2>
-      <p style="margin: 10px 0;"><strong>ユーザー名:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.membershipUsername}</span></p>
-      <p style="margin: 10px 0;"><strong>パスワード:</strong> <span style="font-family: monospace; background-color: #fff; padding: 2px 6px; border-radius: 3px;">${accountInfo.membershipPassword}</span></p>
-      <p style="margin: 10px 0;"><strong>アクセス有効期限:</strong> ${accessExpiresAtStr}</p>
     </div>
 
     <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
@@ -353,16 +341,6 @@ ${payment.name}様
 メールアドレス: ${accountInfo.email}
 パスワード: ${accountInfo.password}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【会員サイト認証情報】
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-ユーザー名: ${accountInfo.membershipUsername}
-パスワード: ${accountInfo.membershipPassword}
-アクセス有効期限: ${accessExpiresAtStr}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 会員サイトURL: ${loginUrl}
 
 ※この認証情報は6ヶ月間有効です。
@@ -400,25 +378,6 @@ Copyright © 株式会社美容総研 All Rights Reserved.
       <div style="margin-bottom: 15px;">
         <strong style="color: #666; display: inline-block; width: 140px;">パスワード:</strong>
         <span style="font-size: 16px; font-weight: bold; color: #333; font-family: monospace; background-color: #f5f5f5; padding: 4px 8px; border-radius: 3px;">${accountInfo.password}</span>
-      </div>
-    </div>
-    
-    <div style="background-color: #fff; border: 2px solid #ddd; border-radius: 6px; padding: 25px; margin-bottom: 30px;">
-      <h2 style="color: #333; font-size: 18px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px;">【会員サイト認証情報】</h2>
-      
-      <div style="margin-bottom: 15px;">
-        <strong style="color: #666; display: inline-block; width: 140px;">ユーザー名:</strong>
-        <span style="font-size: 16px; font-weight: bold; color: #333; font-family: monospace; background-color: #f5f5f5; padding: 4px 8px; border-radius: 3px;">${accountInfo.membershipUsername}</span>
-      </div>
-      
-      <div style="margin-bottom: 15px;">
-        <strong style="color: #666; display: inline-block; width: 140px;">パスワード:</strong>
-        <span style="font-size: 16px; font-weight: bold; color: #333; font-family: monospace; background-color: #f5f5f5; padding: 4px 8px; border-radius: 3px;">${accountInfo.membershipPassword}</span>
-      </div>
-      
-      <div style="margin-bottom: 15px;">
-        <strong style="color: #666; display: inline-block; width: 140px;">アクセス有効期限:</strong>
-        <span style="font-size: 16px; font-weight: bold; color: #333;">${accessExpiresAtStr}</span>
       </div>
     </div>
     
