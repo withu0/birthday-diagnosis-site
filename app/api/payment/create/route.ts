@@ -26,6 +26,7 @@ const paymentSchema = z.object({
   amount: z.number(),
   taxAmount: z.number(),
   totalAmount: z.number(),
+  seller: z.string().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
         gender: validatedData.gender,
         birthDate,
         status: "pending",
+        seller: validatedData.seller || null,
       })
       .returning()
 

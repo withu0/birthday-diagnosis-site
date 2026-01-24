@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status")
     const planType = searchParams.get("planType")
     const search = searchParams.get("search")
+    const seller = searchParams.get("seller")
     const page = parseInt(searchParams.get("page") || "1")
     const limit = parseInt(searchParams.get("limit") || "20")
     const offset = (page - 1) * limit
@@ -42,6 +43,10 @@ export async function GET(request: NextRequest) {
           like(payments.phoneNumber, `%${search}%`)
         )!
       )
+    }
+
+    if (seller) {
+      conditions.push(eq(payments.seller, seller))
     }
 
     // Get total count
@@ -90,6 +95,7 @@ export async function GET(request: NextRequest) {
       customerName: item.payment.name,
       customerEmail: item.payment.email,
       customerPhone: item.payment.phoneNumber,
+      seller: item.payment.seller,
       univapayOrderId: item.payment.univapayOrderId,
       univapayTransactionId: item.payment.univapayTransactionId,
       createdAt: item.payment.createdAt,

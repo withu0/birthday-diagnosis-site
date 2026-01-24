@@ -220,7 +220,7 @@ async function sendManualAccountCreationNotification(
 
   const planName = planNames[payment.planType || "basic"] || payment.planType || "不明"
   const paymentMethodName = paymentMethodNames[payment.paymentMethod || "bank_transfer"] || payment.paymentMethod || "不明"
-  const accessExpiresAtStr = new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP")
+  const accessExpiresAtStr = new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
 
   const emailText = `
 アカウントが手動で発行されました
@@ -251,8 +251,8 @@ async function sendManualAccountCreationNotification(
 
 【管理情報】
 支払いID: ${payment.id}
-作成日時: ${new Date(payment.createdAt).toLocaleString("ja-JP")}
-アカウント発行日時: ${new Date().toLocaleString("ja-JP")}
+作成日時: ${new Date(payment.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
+アカウント発行日時: ${new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
 `
 
   const emailHtml = `
@@ -304,8 +304,8 @@ async function sendManualAccountCreationNotification(
     <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
       <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 10px;">管理情報</h2>
       <p style="margin: 10px 0;"><strong>支払いID:</strong> ${payment.id}</p>
-      <p style="margin: 10px 0;"><strong>作成日時:</strong> ${new Date(payment.createdAt).toLocaleString("ja-JP")}</p>
-      <p style="margin: 10px 0;"><strong>アカウント発行日時:</strong> ${new Date().toLocaleString("ja-JP")}</p>
+      <p style="margin: 10px 0;"><strong>作成日時:</strong> ${new Date(payment.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</p>
+      <p style="margin: 10px 0;"><strong>アカウント発行日時:</strong> ${new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</p>
     </div>
 
     <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
@@ -336,7 +336,7 @@ async function sendUserCredentialsEmail(
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
   const loginUrl = `${baseUrl}/login`
-  const accessExpiresAtStr = new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP")
+  const accessExpiresAtStr = new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
 
   const emailText = `
 12SKINS会員サイトへのアクセス情報

@@ -259,7 +259,7 @@ async function sendManualAccountCreationNotification(
   }
 ) {
   const accessExpiresAtStr = accountInfo.accessExpiresAt
-    ? new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP")
+    ? new Date(accountInfo.accessExpiresAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
     : "なし"
 
   const emailText = `
@@ -283,7 +283,7 @@ ${accountInfo.membershipUsername
     : "会員権限は作成されていません"}
 
 【管理情報】
-作成日時: ${new Date().toLocaleString("ja-JP")}
+作成日時: ${new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
 `
 
   const emailHtml = `
@@ -323,7 +323,7 @@ ${accountInfo.membershipUsername
 
     <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
       <h2 style="color: #333; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 10px;">管理情報</h2>
-      <p style="margin: 10px 0;"><strong>作成日時:</strong> ${new Date().toLocaleString("ja-JP")}</p>
+      <p style="margin: 10px 0;"><strong>作成日時:</strong> ${new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</p>
     </div>
 
     <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">

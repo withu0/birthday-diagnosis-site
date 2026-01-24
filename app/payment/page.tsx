@@ -51,6 +51,10 @@ export default function PaymentPage() {
   const validPlan = planParam && ["basic", "standard", "premium"].includes(planParam) 
     ? planParam 
     : null
+  
+  // Get seller from URL query parameter
+  const sellerParam = searchParams.get("seller")
+  const seller = sellerParam || null
 
   const [selectedPlan] = useState<string>(validPlan || "basic")
   const [paymentMethod, setPaymentMethod] = useState<string>("credit_card")
@@ -224,6 +228,7 @@ export default function PaymentPage() {
             amount: currentPlan.amount,
             taxAmount,
             totalAmount,
+            seller: seller || undefined,
           }),
         })
 
@@ -253,6 +258,7 @@ export default function PaymentPage() {
             amount: currentPlan.amount,
             taxAmount,
             totalAmount,
+            seller: seller || undefined,
           }),
         })
 
@@ -280,6 +286,7 @@ export default function PaymentPage() {
           amount: currentPlan.amount,
           taxAmount,
           totalAmount,
+          seller: seller || undefined,
         }),
       })
 

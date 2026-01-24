@@ -23,6 +23,7 @@ export const payments = pgTable("payments", {
   univapayOrderId: text("univapay_order_id"),
   univapayTransactionId: text("univapay_transaction_id"),
   status: text("status").notNull().default("pending"), // "pending", "completed", "failed", "cancelled"
+  seller: text("seller"), // Optional seller identifier
   companyName: text("company_name"),
   name: text("name").notNull(),
   email: text("email").notNull(),

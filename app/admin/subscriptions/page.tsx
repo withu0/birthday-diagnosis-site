@@ -35,6 +35,7 @@ interface Subscription {
   customerName: string
   customerEmail: string
   customerPhone: string
+  seller: string | null
   univapayOrderId: string | null
   univapayTransactionId: string | null
   createdAt: string
@@ -67,6 +68,7 @@ export default function AdminSubscriptionsPage() {
     status: "",
     planType: "",
     search: "",
+    seller: "",
   })
 
   useEffect(() => {
@@ -80,6 +82,7 @@ export default function AdminSubscriptionsPage() {
       if (filters.status) params.append("status", filters.status)
       if (filters.planType) params.append("planType", filters.planType)
       if (filters.search) params.append("search", filters.search)
+      if (filters.seller) params.append("seller", filters.seller)
       params.append("page", currentPage.toString())
       params.append("limit", itemsPerPage.toString())
 
@@ -116,7 +119,7 @@ export default function AdminSubscriptionsPage() {
   }
 
   const handleResetFilters = () => {
-    setFilters({ status: "", planType: "", search: "" })
+    setFilters({ status: "", planType: "", search: "", seller: "" })
     setCurrentPage(1) // Reset to first page when resetting filters
     setTimeout(() => fetchSubscriptions(), 100)
   }
@@ -236,7 +239,7 @@ export default function AdminSubscriptionsPage() {
             <CardContent>
               {/* フィルター */}
               <div className="mb-6 p-4 bg-gold-light/10 rounded-lg border border-gold/20">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <div>
                     <Label htmlFor="status">ステータス</Label>
                     <Select
@@ -281,6 +284,16 @@ export default function AdminSubscriptionsPage() {
                       placeholder="名前、メール、電話番号"
                       value={filters.search}
                       onChange={(e) => handleFilterChange("search", e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="seller">販売者</Label>
+                    <Input
+                      id="seller"
+                      placeholder="販売者名"
+                      value={filters.seller}
+                      onChange={(e) => handleFilterChange("seller", e.target.value)}
                     />
                   </div>
 
@@ -341,6 +354,7 @@ export default function AdminSubscriptionsPage() {
                           <th className="p-3 text-left text-gold font-bold">金額</th>
                           <th className="p-3 text-left text-gold font-bold">支払い方法</th>
                           <th className="p-3 text-left text-gold font-bold">ステータス</th>
+                          <th className="p-3 text-left text-gold font-bold">販売者</th>
                           <th className="p-3 text-left text-gold font-bold">会員権限</th>
                           <th className="p-3 text-left text-gold font-bold">有効期限</th>
                           <th className="p-3 text-left text-gold font-bold">作成日時</th>
@@ -369,6 +383,9 @@ export default function AdminSubscriptionsPage() {
                               {getPaymentMethodLabel(sub.paymentMethod)}
                             </td>
                             <td className="p-3">{getStatusBadge(sub.status)}</td>
+                            <td className="p-3 text-silver-dark">
+                              {sub.seller || <span className="text-silver-dark/50">-</span>}
+                            </td>
                             <td className="p-3">
                               {sub.membership ? (
                                 <span
