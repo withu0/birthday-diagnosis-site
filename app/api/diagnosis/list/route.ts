@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { diagnosisResults } from "@/lib/db/schema"
-import { desc } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
+import { getSession } from "@/lib/session"
 
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all diagnosis results, ordered by most recent first
+    // Get current user session
+    const session = await getSession()
+    
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
+    // Fetch only current user's diagnosis results, ordered by most recent first
     const results = await db
       .select({
         id: diagnosisResults.id,
@@ -14,6 +25,7 @@ export async function GET(request: NextRequest) {
         createdAt: diagnosisResults.createdAt,
       })
       .from(diagnosisResults)
+      .where(eq(diagnosisResults.userId, session.userId))
       .orderBy(desc(diagnosisResults.createdAt))
       .limit(100) // Limit to 100 most recent results
 

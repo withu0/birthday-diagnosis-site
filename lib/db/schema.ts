@@ -52,6 +52,7 @@ export const memberships = pgTable("memberships", {
 
 export const diagnosisResults = pgTable("diagnosis_results", {
   id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
   name: text("name").notNull(),
   birthDate: text("birth_date").notNull(), // Store as string to match input format
   resultData: jsonb("result_data").notNull(), // Store all diagnosis result data as JSON
