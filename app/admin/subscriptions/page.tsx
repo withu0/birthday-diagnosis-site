@@ -475,7 +475,7 @@ export default function AdminSubscriptionsPage() {
                                     完了にする
                                   </Button>
                                 )}
-                                {sub.membership && (
+                                {/* {sub.membership && (
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -493,7 +493,7 @@ export default function AdminSubscriptionsPage() {
                                   >
                                     {sub.membership.isActive ? "無効化" : "有効化"}
                                   </Button>
-                                )}
+                                )} */}
                               </div>
                             </td>
                           </tr>
