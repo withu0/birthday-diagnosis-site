@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,6 +22,14 @@ import { AdminRoute } from "@/components/auth/admin-route"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Pagination } from "@/components/ui/pagination"
 import { useTranslation } from "@/lib/i18n/hooks"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface Subscription {
   paymentId: string
@@ -57,7 +63,6 @@ interface Subscription {
 }
 
 export default function AdminSubscriptionsPage() {
-  const router = useRouter()
   const { t } = useTranslation()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -72,6 +77,11 @@ export default function AdminSubscriptionsPage() {
     search: "",
     seller: "",
   })
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [selectedPayment, setSelectedPayment] = useState<{
+    paymentId: string
+    customerName: string
+  } | null>(null)
 
   useEffect(() => {
     fetchSubscriptions()
@@ -153,33 +163,35 @@ export default function AdminSubscriptionsPage() {
     }
   }
 
-  const handleCreateAccount = async (paymentId: string, customerName: string) => {
-    if (!confirm(`${customerName}様のアカウントと会員権限を作成してもよろしいですか？`)) {
-      return
-    }
+  const handleMarkAsCompleted = (paymentId: string, customerName: string) => {
+    setSelectedPayment({ paymentId, customerName })
+    setConfirmDialogOpen(true)
+  }
+
+  const confirmMarkAsCompleted = async () => {
+    if (!selectedPayment) return
 
     try {
-      const response = await fetch(`/api/admin/subscriptions/${paymentId}/create-account`, {
-        method: "POST",
+      const response = await fetch(`/api/admin/subscriptions/${selectedPayment.paymentId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          status: "completed",
+        }),
       })
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || "アカウント作成に失敗しました")
+        throw new Error(data.error || "ステータスの更新に失敗しました")
       }
 
-      const data = await response.json()
-      
-      // Show credentials to admin
-      const credentialsMessage = `アカウントを作成しました！\n\nログイン情報:\nメールアドレス: ${data.user.email}\nパスワード: ${data.user.password}\n\n会員サイト情報:\nユーザー名: ${data.membership.username}\nパスワード: ${data.membership.password}\n\n※この情報は画面に表示されるだけです。必ずメモを取ってください。`
-      alert(credentialsMessage)
-
+      setConfirmDialogOpen(false)
+      setSelectedPayment(null)
       fetchSubscriptions()
     } catch (err) {
-      alert(err instanceof Error ? err.message : "アカウント作成に失敗しました")
+      alert(err instanceof Error ? err.message : "ステータスの更新に失敗しました")
     }
   }
 
@@ -229,6 +241,47 @@ export default function AdminSubscriptionsPage() {
   return (
     <AdminRoute>
       <AdminLayout>
+        <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>支払いを完了にする</DialogTitle>
+              <DialogDescription>
+                {selectedPayment && (
+                  <div className="mt-4 space-y-2">
+                    <p>
+                      <strong>{selectedPayment.customerName}</strong>様の支払いを「完了」に変更しますか？
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      この操作により、以下の処理が自動的に実行されます：
+                    </p>
+                    <ul className="text-sm text-gray-600 list-disc list-inside mt-2 space-y-1">
+                      <li>支払いステータスが「完了」に変更されます</li>
+                      <li>ユーザーアカウントと会員権限が自動的に作成されます</li>
+                      <li>売上に反映されます</li>
+                    </ul>
+                  </div>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setConfirmDialogOpen(false)
+                  setSelectedPayment(null)
+                }}
+              >
+                キャンセル
+              </Button>
+              <Button
+                onClick={confirmMarkAsCompleted}
+                className="gradient-bg-gold text-white hover:opacity-90"
+              >
+                完了にする
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
           <Card className="shadow-lg border-gold/30 bg-gradient-to-br from-white to-gold-light/10">
             <CardHeader>
               <CardTitle className="text-3xl text-gold text-center">
@@ -413,13 +466,13 @@ export default function AdminSubscriptionsPage() {
                             </td>
                             <td className="p-3">
                               <div className="flex gap-2">
-                                {!sub.membership && (sub.paymentMethod === "bank_transfer" || sub.paymentMethod === "direct_debit") && sub.status === "pending" && (
+                                {(sub.paymentMethod === "bank_transfer" || sub.paymentMethod === "direct_debit") && sub.status === "pending" && (
                                   <Button
                                     size="sm"
-                                    onClick={() => handleCreateAccount(sub.paymentId, sub.customerName)}
-                                    className="bg-blue-500 text-white hover:bg-blue-600"
+                                    onClick={() => handleMarkAsCompleted(sub.paymentId, sub.customerName)}
+                                    className="bg-green-500 text-white hover:bg-green-600"
                                   >
-                                    アカウント作成
+                                    完了にする
                                   </Button>
                                 )}
                                 {sub.membership && (
