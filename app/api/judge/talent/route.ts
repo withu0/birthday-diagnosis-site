@@ -228,18 +228,16 @@ const fetchTalentData = async (essential_lb: string, valuable_lb: string, attrac
     // Find one of: 金木, 銀木, 金火, 銀火, 金土, 銀土, 金金, 銀金, 金水, 銀水
     // Similar to stress tab - search for valuable_lb (which is an element combination like 金木, 銀木, etc.)
     let attractiveValuableColumnIndex = -1
-    const elementCombinations = ["金木", "銀木", "金火", "銀火", "金土", "銀土", "金金", "銀金", "金水", "銀水"]
     
     if (valuableRows.length > 2) { // Make sure we have at least 3 rows (B3:K5)
       const valuableRow = valuableRows[2] // Row 5 (index 2)
       for (let colIndex = 0; colIndex < valuableRow.length; colIndex++) {
         const cellValue = valuableRow[colIndex]
-        // Check if cell value contains valuable_lb (exact match first, then try contains for flexibility)
-        // Also check if cell contains any of the element combinations
+        // Check if cell value matches valuable_lb exactly or contains it
+        // Only match the specific valuable_lb, not any element combination
         if (cellValue && (
           cellValue === valuable_lb || 
-          (typeof cellValue === 'string' && cellValue.includes(valuable_lb)) ||
-          elementCombinations.some(combo => cellValue && typeof cellValue === 'string' && cellValue.includes(combo))
+          (typeof cellValue === 'string' && cellValue.includes(valuable_lb))
         )) {
           attractiveValuableColumnIndex = colIndex
           console.log("[talent] Found element combination in valuable rows at column:", colIndex, "value:", cellValue, "searching for:", valuable_lb)
