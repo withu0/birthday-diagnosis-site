@@ -23,6 +23,7 @@ import {
 import { AdminRoute } from "@/components/auth/admin-route"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Pagination } from "@/components/ui/pagination"
+import { useTranslation } from "@/lib/i18n/hooks"
 
 interface Subscription {
   paymentId: string
@@ -57,6 +58,7 @@ interface Subscription {
 
 export default function AdminSubscriptionsPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -318,7 +320,7 @@ export default function AdminSubscriptionsPage() {
               {isLoading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-gold mx-auto mb-4"></div>
-                  <p className="text-silver-dark">読み込み中...</p>
+                  <p className="text-silver-dark">{t("common.loading")}</p>
                 </div>
               ) : error ? (
                 <div className="text-center py-12">

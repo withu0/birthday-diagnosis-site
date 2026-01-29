@@ -317,6 +317,7 @@ async function sendPaymentApplicationNotification(
 プラン: ${planName}プラン
 支払い方法: ${paymentMethodName}
 ステータス: 保留中（pending）
+${data.seller ? `紹介元（Seller）: ${data.seller}` : ""}
 
 【金額情報】
 小計（税別）: ${data.amount.toLocaleString()}円
@@ -356,6 +357,7 @@ ${data.companyName ? `会社名: ${data.companyName}` : ""}
       <p style="margin: 10px 0;"><strong>プラン:</strong> ${planName}プラン</p>
       <p style="margin: 10px 0;"><strong>支払い方法:</strong> ${paymentMethodName}</p>
       <p style="margin: 10px 0;"><strong>ステータス:</strong> <span style="color: #ff9800; font-weight: bold;">保留中（pending）</span></p>
+      ${data.seller ? `<p style="margin: 10px 0;"><strong>紹介元（Seller）:</strong> ${data.seller}</p>` : ""}
     </div>
 
     <div style="background-color: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
