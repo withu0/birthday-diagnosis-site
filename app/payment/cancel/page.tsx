@@ -15,7 +15,7 @@ export default function PaymentCancelPage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <Image
-                src="/brand.avif"
+                src="/brand.png"
                 alt="12 SKINS"
                 width={120}
                 height={40}

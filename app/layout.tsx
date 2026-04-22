@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     description: "Your Skin,Your Story　心身ともに美しい人生を実現しましょう。",
     images: [
       {
-        url: "/brand.avif",
+        url: "/brand.png",
         width: 1200,
         height: 630,
         alt: "12SKINS診断サイト",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "12SKINS診断サイト　理想の美しさへの扉",
     description: "Your Skin,Your Story　心身ともに美しい人生を実現しましょう。",
-    images: ["/brand.avif"],
+    images: ["/brand.png"],
     creator: "@12skins", // Update with your Twitter handle if available
   },
   alternates: {
@@ -115,7 +115,7 @@ export default function RootLayout({
     "@type": "Organization",
     name: "12SKINS",
     url: baseUrl,
-    logo: `${baseUrl}/brand.avif`,
+    logo: `${baseUrl}/brand.png`,
     description: "Your Skin,Your Story　心身ともに美しい人生を実現しましょう。",
     sameAs: [
       // Add your social media URLs here when available

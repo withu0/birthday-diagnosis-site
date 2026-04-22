@@ -33,7 +33,7 @@ export default function Home() {
           <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center">
               <Image
-                src="/brand.avif"
+                src="/brand.png"
                 alt="12 SKINS"
                 width={120}
                 height={40}
@@ -54,7 +54,7 @@ export default function Home() {
         <div className="text-center mb-12">
           <div className="mb-6">
             <Image
-              src="/brand.avif"
+              src="/brand.png"
               alt="12 SKINS - Your skin, Your story"
               width={400}
               height={150}
