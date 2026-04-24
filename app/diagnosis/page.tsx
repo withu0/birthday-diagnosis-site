@@ -136,6 +136,17 @@ const getTextIconPath = (sectionKey: string): string | null => {
   return iconMap[sectionKey] || null;
 };
 
+/** Header icon for 美の3源タイプ: type-specific art from public/, else text icon. */
+const getBeautyThreeSourceIconPath = (
+  talentAdditionalTitle: string
+): string | null => {
+  const t = talentAdditionalTitle ?? "";
+  if (t.includes("人タイプ")) return "/person-type.png";
+  if (t.includes("結果タイプ")) return "/result-type.png";
+  if (t.includes("直感タイプ")) return "/feeling-type.png";
+  return getTextIconPath("beautyThreeSource");
+};
+
 // Helper function to get PDF path for sections
 const getPdfPath = (sectionKey: string): string | null => {
   const pdfMap: Record<string, string> = {
@@ -600,7 +611,9 @@ const BirthdayDiagnosis = () => {
                   >
                     <CardHeader>
                       <SectionTitle
-                        iconPath={getTextIconPath("beautyThreeSource")}
+                        iconPath={getBeautyThreeSourceIconPath(
+                          result.talent_additionalTitle
+                        )}
                         title={t("diagnosis.beautyThreeSource")}
                         pdfPath={getPdfPath("beautyThreeSource")}
                         sectionKey="beautyThreeSource"
